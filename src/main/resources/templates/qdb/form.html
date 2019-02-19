@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>在线考试系统</title>
+    <link rel="shortcut icon" th:href="@{/static/favicon.ico}" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <!--[if lt IE 8]>
+    <meta http-equiv="refresh" content="0;ie.html" />
+    <![endif]-->
+    <link th:href="@{/static/css/style.css}" rel="stylesheet">
+    <link th:href="@{/static/css/style-list.min.css?v=4.0.0}" rel="stylesheet">
+    <link th:href="@{/static/css/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/static/css/font-awesome.min.css}" rel="stylesheet">
+    <link th:href="@{/static/css/bootstrap-table.css}" rel="stylesheet">
+    <link th:href="@{/static/css/animate.min.css}" rel="stylesheet">
+    <link th:href="@{/static/css/admin.css}" rel="stylesheet">
+    <link th:href="@{/static/css/bootstrap-datetimepicker.min.css}" rel="stylesheet" />
+    <link  th:href="@{/static/js/dist/jquery.validator.css}" rel="stylesheet" />
+</head>
+<body class="gray-bg">
+<form id="form" class="form-horizontal" role="form" enctype="multipart/form-data"  th:method="post" th:action="@{./submit}">
+    <input type="hidden" name="id" th:if="${questionDbVo!=null}" th:value="${questionDbVo?.id}"/>
+    <input type="hidden" name="id" th:if="${questionDbVo==null}" value=""/>
+    <div id="imagePreview" class="form-group" align="center">
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-2">题库名</label>
+        <div class="col-sm-6">
+            <input type="text" name="qdbName"  class="form-control" data-rule="required;"  th:value="${questionDbVo?.qdbName}"/>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-2">题库说明</label>
+        <div class="col-sm-6">
+            <input type="text" name="qdbInfo"  class="form-control" data-rule="required;"  th:value="${questionDbVo?.qdbInfo}"/>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-2">所属课程</label>
+        <div class="col-sm-6">
+            <select class="form-control"  name="courseId"  id="courseId" data-rule="required;" >
+                <option value="">无</option>
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-2">题库状态</label>
+        <div class="col-sm-6">
+            <div class="radio">
+                <label><input type="radio" value="0" data-rule="checked;"  name="qdbStatus" title="允许修改试题"/>开放</label>
+                <label><input type="radio" value="1" data-rule="checked;"  name="qdbStatus" title="不允许修改试题"/>关闭</label>
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-2">注：</label>
+        <div class="col-sm-10">
+            <p >修改后确认提交才生效</p>
+        </div>
+    </div>
+</form>
+<script th:src="@{/static/js/jquery-3.1.1.js}" type="text/javascript" charset="utf-8"></script>
+<script th:src="@{/static/js/bootstrap.min.js}" type="text/javascript" charset="utf-8"></script>
+<script th:src="@{/static/js/bootstrap-table.min.js}" type="text/javascript" charset="utf-8"></script>
+<script th:src="@{/static/js/bootstrap-table-editable.min.js}" type="text/javascript" charset="utf-8"></script>
+<script th:src="@{/static/js/bootstrap-table-zh-CN.min.js}" type="text/javascript" charset="utf-8"></script>
+<script th:src="@{/static/js/layer/layer.js}" type="text/javascript" charset="utf-8"></script>
+<script th:src="@{/static/js/bootstrap-editable.min.js}" type="text/javascript" charset="utf-8"></script>
+<script  th:src="@{/static/js/bootstrap-datetimepicker.min.js}"></script>
+<script  th:src="@{/static/js/bootstrap-datetimepicker.zh-CN.js}"></script>
+<script  th:src="@{/static/js/dist/jquery.validator.min.js}"></script>
+<script  th:src="@{/static/js/dist/local/zh-CN.js}"></script>
+<script  th:inline="javascript">
+    /*<![CDATA[*/
+    var courses = [[${courses}]];
+    var questionDbVo = [[${questionDbVo}]];
+    for(var i=0;i<courses.length;i++){
+        var course=courses[i];
+        $('#courseId').append("<option  value='"+course.id+"'>"+course.courseName+"</option>");
+    }
+    if(questionDbVo!=null){
+        $("#courseId option[value='"+questionDbVo.tbCourse.id+"']").attr("selected", true);
+        $("input:radio[value='"+questionDbVo.qdbStatus+"']").attr('checked','true');
+    }
+    /*]]>*/
+    function submitForm(){
+        $("#form").submit();
+    }
+</script>
+</body>
+</html>

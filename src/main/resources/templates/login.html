@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>在线考试系统</title>
+    <link rel="shortcut icon" th:href="@{/static/favicon.ico}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/static/css/style.css}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/static/css/ui.css}" />
+    <style>
+        .tm_login_body{
+            background: #93defe;
+            background-size: cover;
+            -moz-background-size:cover;
+            background-repeat:no-repeat;
+        }
+        .tm_login_container{ width:500px; margin:200px auto; clear:both}
+        .tm_login_title{
+            height:80px;
+            margin:10px 0 15px 0;
+            background:#fff;
+            text-align:center;
+            border-bottom:solid 1px #eee;
+        }
+        .tm_login_title img{
+            height:50px;
+        }
+        .tm_login_title span{
+            font-size:22px;
+            line-height:80px;
+            font-family:'Microsoft Yahei',Tahoma, Geneva, 'Simsun';
+        }
+        .tm_login_form{
+            width:100%;
+            height:320px;
+            clear:both;
+            -moz-border-radius:8px;
+            -webkit-border-radius:8px;
+            border-radius:8px;
+            padding:1px;
+            background:#fff;
+        }
+        .tm_login_table{ width:400px; margin:20px auto;}
+        .tm_login_table tr th{ width:100px;}
+        .tm_login_table tr td{ width:300px; text-align:left}
+
+        .tm_login_title_table{ width:400px; margin:0px auto;}
+        .tm_login_title_table tr th{ width:100px;}
+        .tm_login_title_table tr td{ width:300px; text-align:left}
+
+        .tm_login_foot{ width:100%; line-height:20px; text-align:center; clear:both; margin:20px 0}
+
+
+        html { overflow: hidden; }
+        body { overflow: hidden; }
+
+        .layui-layer-btn{text-align:center !important;}
+    </style>
+</head>
+
+<body class="tm_login_body">
+
+<div class="tm_login_container">
+    <div class="tm_login_form">
+        <div class="tm_login_title">
+            <table border="0" cellpadding="0" cellspacing="0" class="tm_login_title_table">
+                <tr>
+                    <th><img th:src="@{/static/images/login_logo.png}" align="absmiddle" /></th>
+                    <td><span>在线考试系统登录</span></td>
+                </tr>
+            </table>
+        </div>
+        <table border="0" cellpadding="5" cellspacing="0" class="tm_login_table">
+            <tr>
+                <th>用户名</th>
+                <td><input type="text" class="tm_txt" name="username" maxlength="20" value="" style="width:255px" /></td>
+            </tr>
+            <tr>
+                <th>密 &nbsp; 码</th>
+                <td><input type="password" class="tm_txt" name="userpass" maxlength="20" value="" style="width:255px" /></td>
+            </tr>
+            <tr>
+                <th>类 &nbsp; 型</th>
+                <td>
+                    <select class="tm_select" name="usertype" >
+                        <option value="4">考生</option>
+                        <option value="3">教师</option>
+                        <option value="2">管理员</option>
+                        <option value="1">超级管理员</option>
+                    </select>
+
+
+                    &nbsp;
+                    <input type="text" class="tm_txt" name="usercode" maxlength="4" value=""  style="width:50px" />
+                    &nbsp;
+                    <img th:src="@{/kaptcha}" align="absmiddle" id="img_verifycode" onclick="tm.reloadImgcode()" style="cursor:pointer" />
+
+                </td>
+            </tr>
+            <tr>
+                <th></th>
+                <td>
+                    <div style="margin-top:10px">
+                        <button type="button" class="tm_btn tm_btn_primary" style="width:50%" onclick="tm.doLogin();">登录</button>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <th></th>
+                <td></td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="tm_login_foot">
+        <div>推荐使用Chrome内核浏览器访问系统</div>
+    </div>
+</div>
+
+<script th:src="@{/static/js/jquery.js}" type="text/javascript"></script>
+<script th:src="@{/static/js/baseutil.js}" type="text/javascript"></script>
+<script th:src="@{/static/js/aes.js}" type="text/javascript"></script>
+<script th:src="@{/static/js/pad-zeropadding-min.js}" type="text/javascript"></script>
+<script th:src="@{/static/js/layer/layer.js}" type="text/javascript" ></script>
+<script type="text/javascript" th:inline="javascript">
+    $(document).ready(function(){
+        var errorMsg= [[${errorMsg}]];
+        if(errorMsg!=null&&errorMsg!=''){
+            alert(errorMsg);
+        }
+        $("input[name='usercode']").keydown(function(e){
+            var curKey = e.which;
+            if(curKey == 13){
+                tm.doLogin();
+            }
+        });
+        var ismobileallow = 'allow';
+        if("allow" == ismobileallow){
+            //var qrhtml = '<td style="width:50px; text-align:center"><img src="skins/images/murl.jpg" style="width:60px; height:60px" /></td>';
+            //$(".tm_login_title_table tr").append(qrhtml);
+        }
+        checkBrowser();
+    });
+    function getBrowserInfo(){
+        try{
+            var Sys = {};
+            var ua = navigator.userAgent.toLowerCase();
+            console.log(ua);
+            var re =/(msie|trident|firefox|chrome|opera|version).*?([\d.]+)/;
+            var m = ua.match(re);
+            Sys.browser = m[1].replace(/version/, "'safari");
+            Sys.ver = m[2];
+            return Sys;
+        }catch(e){}
+    }
+    function checkBrowser(){
+        var tmBrowser = getBrowserInfo();
+        var isSupportedBrowser = false;
+        if(tmBrowser){
+            if(tmBrowser.browser == "firefox" || tmBrowser.browser == "chrome"){
+                isSupportedBrowser = true;
+            }
+        }
+        if(!isSupportedBrowser){
+            layer.open({
+                title:"浏览器提示",
+                content:"为达到最佳使用效果，请使用Chrome、FireFox访问系统。",
+                btnAlign: "c"
+            });
+        }
+    }
+    var tm = {
+        reloadImgcode : function(){
+            var baseUrl= [[@{/}]];
+            $("#img_verifycode").attr("src", baseUrl+"kaptcha?t=" + Math.random());
+        },
+        doReset : function(){
+            $("input[name='username']").val('');
+            $("input[name='userpass']").val('');
+            $("input[name='usercode']").val('');
+        },
+        goRegister : function(){
+
+        },
+        doencrypt : function(data){
+
+           return data;
+        },
+        doLogin : function(){
+            var username = $("input[name='username']").val();
+            var userpass = $("input[name='userpass']").val();
+            var usercode = $("input[name='usercode']").val();
+            var usertype = $("select[name='usertype']").val();
+            if(baseutil.isEmpty(username)){
+                alert('没有填写用户名');
+                return;
+            }
+            if(baseutil.isEmpty(userpass)){
+                alert('没有填写登录密码');
+                return;
+            }
+            if(baseutil.isEmpty(usercode)){
+                alert('没有填写验证码');
+                return;
+            }
+            $(".tm_btn_primary").text('登录...');
+            $.ajax({
+                type: "POST",
+                url: "./loginSubmit",
+                dataType: "json",
+                data: {"userName":username, "passWord":tm.doencrypt(userpass), "role":usertype, "verifyCode":usercode,  "t":Math.random()},
+                success: function(data){
+                    if(data){
+                        var ret_code = eval(data["code"]);
+                        var ret_msg = data["msg"];
+                        if(ret_code == 0){
+                          window.location="./index.html";
+                        }else{
+                            alert(ret_msg);
+                            window.location.reload();
+                        }
+                    }
+                },
+                error: function(){
+                    //$(".tm_btn_primary").text('登录');
+                    alert('系统忙，请稍后再试');
+                    window.location.reload();
+                }
+            });
+
+        }
+    };
+</script>
+
+</body>
+</html>

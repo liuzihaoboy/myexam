@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en"  xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>在线考试系统</title>
+	<link rel="shortcut icon" th:href="@{/static/favicon.ico}" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+	<!--[if lt IE 8]>
+	<meta http-equiv="refresh" content="0;ie.html" />
+	<![endif]-->
+	<link rel="stylesheet" type="text/css" th:href="@{/static/css/style.css}" />
+	<link rel="stylesheet" type="text/css" th:href="@{/static/css/jquery-ui.css}" />
+	<link rel="stylesheet" type="text/css" th:href="@{/static/css/ui.css}" />
+	<link rel="stylesheet" type="text/css" th:href="@{/static/css/font-awesome.min.css?v=4.4.0}">
+</head>
+<body  marginwidth="0" marginheight="0" style="">
+	<div class="tm_menu">
+		<div class="tm_menu_item clearfix" th:each="menuVo : ${menuVos}">
+			<h2><a href="javascript:void(0);" onclick="tm_toggle_menu(this)"><i class="fa fa-bars"></i>&nbsp;<span th:text="${menuVo.title}"></span></a></h2>
+			<ul>
+				<li class="" th:each="baseMenu : ${menuVo.menus}">
+					<a th:href="@{''+${baseMenu.url}}" target="main" th:text="${baseMenu.title}"></a>
+				</li>
+			</ul>
+		</div>
+    </div>
+	<script type="text/javascript" th:src="@{/static/js/jquery.js}"></script>
+	<script type="text/javascript" th:inline="javascript">
+        function tm_toggle_menu(obj){
+            $(obj).parent().siblings().toggle();
+        }
+        function tm_mark_current_menuitem(){
+        }
+        $(document).ready(function() {
+            $(".tm_menu_item ul li a").click(function(){
+                $(".tm_menu_item ul li").removeClass("itemon");
+                $(this).parent().addClass("itemon");
+            });
+
+        });
+        //document.oncontextmenu= function(){return false;}
+	</script>
+</body>
+</html>

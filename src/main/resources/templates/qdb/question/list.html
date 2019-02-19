@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>在线考试系统</title>
+    <link rel="shortcut icon" th:href="@{/static/favicon.ico}" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <!--[if lt IE 8]>
+    <meta http-equiv="refresh" content="0;ie.html" />
+    <![endif]-->
+    <link th:href="@{/static/css/style.css}" rel="stylesheet">
+    <link th:href="@{/static/css/style-list.min.css?v=4.0.0}" rel="stylesheet">
+    <link th:href="@{/static/css/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/static/css/font-awesome.min.css}" rel="stylesheet">
+    <link th:href="@{/static/css/bootstrap-table.css}" rel="stylesheet">
+    <link th:href="@{/static/css/animate.min.css}" rel="stylesheet">
+    <link th:href="@{/static/css/admin.css}" rel="stylesheet">
+    <link th:href="@{/static/css/bootstrap-datetimepicker.min.css}" rel="stylesheet" />
+    <link th:href="@{/static/css/jquery.validator.css}" rel="stylesheet">
+</head>
+
+<body class="gray-bg white">
+<div class="form-inline" role="form">
+    <div class="tm_main">
+        <div class="tm_container">
+            <ul class="tm_breadcrumb">
+                <li><a th:href="@{/index.html}">首页</a> <span class="divider">&gt;</span></li>
+                <li class="active">试题列表</li>
+            </ul>
+        </div>
+    </div>
+</div>
+<div id="toolbar">
+    <div class="form-inline" role="form">
+        <div class="form-group">
+            <div class="btn-group hidden-xs" id="exampleToolbar" role="group">
+                <button type="button" id="addBtn"  class="btn btn-outline btn-default">
+                    <i class="glyphicon glyphicon-plus" aria-hidden="true"></i>
+                </button>
+                <button type="button" id="btn_delete" class="btn btn-outline btn-default">
+                    <i class="glyphicon glyphicon-trash" aria-hidden="true"></i>
+                </button>
+            </div>
+        </div>
+        <div class="form-group">
+            <select class="form-control"  name="qdbKey" id="qdbKey">
+                <option value="">所属题库</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <select class="form-control"  name="typeKey" id="typeKey">
+                <option value="">试题类型</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <select class="form-control"  name="levelKey" id="levelKey">
+                <option value="">试题难度</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <select class="form-control"  name="statusKey" id="statusKey">
+                <option value="">试题状态</option>
+                <option value="0">开放</option>
+                <option value="1">关闭</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <input name="contentKey" type="text" class="form-control" placeholder="搜索试题关键字" />
+        </div>
+        <button id="searchBtn" class="btn btn-primary btn-md">搜索</button>
+    </div>
+</div>
+<table id="table" data-toolbar="#toolbar"  data-show-toggle="true" data-show-columns="true" data-show-refresh="true" data-query-params="queryParams">
+</table>
+<script th:src="@{/static/js/jquery-3.1.1.js}" type="text/javascript" charset="utf-8"></script>
+<script th:src="@{/static/js/bootstrap.min.js}" type="text/javascript" charset="utf-8"></script>
+<script th:src="@{/static/js/bootstrap-table.min.js}" type="text/javascript" charset="utf-8"></script>
+<script th:src="@{/static/js/bootstrap-table-editable.min.js}" type="text/javascript" charset="utf-8"></script>
+<script th:src="@{/static/js/bootstrap-table-zh-CN.min.js}" type="text/javascript" charset="utf-8"></script>
+<script th:src="@{/static/js/layer/layer.js}" type="text/javascript" charset="utf-8"></script>
+<script th:src="@{/static/js/bootstrap-editable.min.js}" type="text/javascript" charset="utf-8"></script>
+<script  th:src="@{/static/js/bootstrap-datetimepicker.min.js}"></script>
+<script  th:src="@{/static/js/bootstrap-datetimepicker.zh-CN.js}"></script>
+<script type="text/javascript" th:inline="javascript">
+    /*<![CDATA[*/
+    var qdbs = [[${qdbs}]];
+    if(qdbs!=null){
+        for(var i=0;i<qdbs.length;i++){
+            var qdb=qdbs[i];
+            $('#qdbKey').append("<option  value='"+qdb.id+"'>"+qdb.qdbName+"</option>");
+        }
+    }
+    var types = [[${types}]];
+    if(types!=null){
+        for(var i=0;i<types.length;i++){
+            var type=types[i];
+            $('#typeKey').append("<option  value='"+type.id+"'>"+type.value+"</option>");
+        }
+    }
+    var levels = [[${levels}]];
+    if(levels!=null){
+        for(var i=0;i<levels.length;i++){
+            var level=levels[i];
+            $('#levelKey').append("<option  value='"+level.id+"'>"+level.value+"</option>");
+        }
+    }
+    /*]]>*/
+    var table = $('#table');
+    table.bootstrapTable({
+        contentType: "application/x-www-form-urlencoded",
+        method:'get',
+        url: './list/json' ,
+        height: 600 ,
+        pagination: true,//是否开启分页（*）
+        pageNumber: 1,//初始化加载第一页，默认第一页
+        pageSize: 50,//每页的记录行数（*）
+        pageList: [30, 50, 100,150],//可供选择的每页的行数（*）
+        sidePagination: "client", //分页方式：client客户端分页，server服务端分页（*）
+        columns: [
+            {
+                checkbox : true,
+                align : 'center',
+                value:"id",
+            },
+            {
+                title: '序号',
+                align: 'center',
+                formatter: 'opIndex'
+            },{
+                field: 'qdbName',
+                title: '所属题库',
+                align: 'center',
+                sortable:true,
+            },{
+                field: 'qType.type',
+                title: '试题类型',
+                align: 'center',
+                sortable:true,
+            }, {
+                field: 'qLevel.level',
+                title: '试题难度',
+                align: 'center',
+                sortable: true,
+            }, {
+                field: 'qStatus',
+                title: '试题状态',
+                align: 'center',
+                formatter:function (value) {
+                    if(value==0){
+                        return "<span title='练习可用'>开放</span>";
+                    }else{
+                        return "<span title='练习不可用'>关闭</span>";
+                    }
+                }
+            }, {
+                field: 'qContent',
+                title: '试题题干',
+                align: 'center',
+                sortable: true,
+                width:380,
+            }, {
+                field: 'cDate',
+                title: '创建时间',
+                align: 'center',
+                sortable:true,
+            }, {
+                field: 'uDate',
+                title: '最后修改时间',
+                align: 'center',
+                sortable:true,
+            },{
+                field: 'cUserName',
+                title: '创建人',
+                align: 'center',
+            },{
+                field: 'uUserName',
+                title: '最后修改人',
+                align: 'center',
+            },{
+                field: 'option',
+                title: '操作',
+                align: 'center',
+                formatter: 'opFormatter'
+
+            }],
+        onEditableSave:function(field,row,oldValue,el){
+            table.bootstrapTable("resetView");
+        }
+    });
+    function refreshTable(){
+        table.bootstrapTable('refresh',{pageNumber:1});
+    }
+    function queryParams(params){
+        $('#toolbar').find('input,select').each(function(){
+            params[$(this).attr('name')] = $(this).val();
+        });
+        return params;
+    }
+    function opIndex(value, row, index){
+        return [index+1].join('');
+    }
+    function opFormatter(value, row, index) {
+        return [
+            '<button data-toggle="tooltip" data-id="' +"'"+ row.id+"'" + '" class="btn btn-success btn-xs edit" onclick="initEdit('+"'" + row.id+"'" + ')" title="Edit">',
+            '<i class="glyphicon glyphicon-pencil"></i>',
+            '</button>  ',
+            '<button data-toggle="tooltop" data-id="' +"'" + row.id +"'" + '" class="btn btn-danger btn-xs edit remove" onclick="initRemove(' +"'" + row.id+"'" +')" title="Remove">',
+            '<i class="glyphicon glyphicon-remove"></i>',
+            '</button>'
+        ].join('');
+    }
+    $("[data-toggle='tooltip']").tooltip();
+    $('#toolbar').find('select').change(function () {
+        table.bootstrapTable('refresh',{pageNumber:1});
+    });
+    $("#searchBtn").on("click",function(){
+        refreshTable();
+    });
+    $("#addBtn").on("click",function () {
+        initEdit(0);
+    });
+    function initEdit(id){
+        window.open ('./detail/'+id);
+    }
+    $("#btn_delete").on("click",function () {
+        var selectContent = table.bootstrapTable('getSelections');
+        if(selectContent.length==0) {
+            layer.alert('请选择一列数据!', {
+                icon: 2
+            });
+            return false;
+        }else{
+            var id="";
+            for(var i = 0; i <selectContent.length;i++){
+                id+=selectContent[i].id+",";
+            }
+            initRemove(id);
+        }
+    });
+    function initRemove(id){
+        layer.confirm("确认删除？",{icon:3,title:"请选择"},function(index){
+            $.ajax({
+                type:"post",
+                dateType:"json",
+                url:"./delete/"+id,
+                success:function(ret){
+                    if(ret.status){
+                        layer.msg("操作成功,系统不允许删除",{icon:1,time:2000});
+                    }else{
+                        layer.msg("删除失败:"+ret.data,{icon:2,time:2000});
+                    }
+                    refreshTable();
+                }
+            });
+            layer.close(index);
+        });
+    }
+</script>
+</body>
+</html>

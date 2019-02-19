@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html>
+<head>
+<meta charset="UTF-8"><link rel="shortcut icon" th:href="@{/static/favicon.ico}" />
+</head>
+<body>
+   <center>
+      <h1 style="color:red;" th:if="${errorMsg==null}" >操作失败：</h1>
+      <h1 style="color:red;" th:text="${errorMsg}">操作失败：</h1>
+   </center>
+</body>
+</html>

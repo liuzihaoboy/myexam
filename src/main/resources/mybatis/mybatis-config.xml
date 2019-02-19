@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <settings>
+        <!--允许 JDBC 支持自动生成主键，需要驱动兼容。为 true 设置强制使用自动生成主键-->
+        <setting name="useGeneratedKeys" value="true"/>
+        <!--开启自动驼峰命名规则，即从经典数据库列名 A_COLUMN 到经典 Java 属性名 aColumn 的类似映射-->
+        <setting name="mapUnderscoreToCamelCase" value="true"/>
+        <!--使用列标签代替列名 select name as title from table-->
+        <setting name="useColumnLabel" value="true"/>
+        <!--开启延迟加载-->
+        <setting name="lazyLoadingEnabled" value="true"/>
+        <setting name="aggressiveLazyLoading" value="true"/>
+        <!-- MyBatis 所用日志的具体实现-->
+        <!--<setting name="logImpl" value="LOG4J2"/>-->
+        <!--所有映射器中配置的缓存的全局开关-->
+        <setting name="cacheEnabled" value="true"/>
+        <!--设置超时时间，它决定驱动等待数据库响应的秒数-->
+        <setting name="defaultStatementTimeout" value="25"/>
+    </settings>
+    <!--类型别名-->
+</configuration>

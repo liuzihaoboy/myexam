@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en"  xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>在线考试系统</title>
+	<link rel="shortcut icon" th:href="@{/static/favicon.ico}" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+	<!--[if lt IE 8]>
+	<meta http-equiv="refresh" content="0;ie.html" />
+	<![endif]-->
+</head>
+<frameset rows="40,*"  frameborder="no" border="0" framespacing="0">
+	<frame th:src="@{/common/head}" noresize="noresize" frameborder="no" name="top" scrolling="no" marginwidth="0" marginheight="0" target="main" />
+	<frameset cols="200,*" id="mainframe" frameborder="no" border="0" framespacing="0">
+		<frame th:src="@{/common/menu}" name="menu" id="menu" marginwidth="0" marginheight="0" frameborder="0" scrolling="no" target="main" />
+		<frame th:src="@{/common/welcome}" name="main" id="main" marginwidth="0" marginheight="0" frameborder="0" scrolling="auto" target="_self" />
+	</frameset>
+</frameset>
+
+<noframes>
+	<body>您的浏览器不支持框架。</body>
+</noframes>
+
+</html>

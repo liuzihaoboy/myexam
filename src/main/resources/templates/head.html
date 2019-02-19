@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en"  xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>在线考试系统</title>
+	<link rel="shortcut icon" th:href="@{/static/favicon.ico}" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+	<!--[if lt IE 8]>
+	<meta http-equiv="refresh" content="0;ie.html" />
+	<![endif]-->
+	<link rel="stylesheet" type="text/css" th:href="@{/static/css/style.css}" />
+	<link rel="stylesheet" type="text/css" th:href="@{/static/css/jquery-ui.css}" />
+	<link rel="stylesheet" type="text/css" th:href="@{/static/css/ui.css}" />
+</head>
+<body marginwidth="0" marginheight="0" style="">
+<div class="tm_head">
+
+	<div class="tm_head_logo" style="text-align: center;height: 40px;line-height: 40px;"><a th:href="@{/index.html}" target="_blank" style="font-weight: bold;font-size: 1.5em;color: #fff;text-decoration: none;">在线考试系统</a>
+	</div>
+	<div class="tm_head_switch"><a href="javascript:void(0);" onclick="tm_switch_menu()">
+		<img th:src="@{/static/images/ico_lines.png}"></a></div>
+	<div class="tm_head_menu">
+		<ul>
+		</ul>
+	</div>
+	<div class="tm_head_tools">
+				<span style="cursor:pointer" th:title="${title}" th:text="${text}">
+				</span> |
+		<a href="http://demo.tomexam.com/system/profile.thtml" target="main">
+			<img th:src="@{/static/images/ico_profile.png}" align="absmiddle">帐户</a> |
+		<!--<a href="http://demo.tomexam.com/system/user/onlineusers.thtml" target="main">-->
+			<!--<img th:src="@{/static/images/ico_users.png}" align="absmiddle">在线用户</a> |-->
+		<a href="javascript:void(0);" onclick="return tm.logout();">
+			<img th:src="@{/static/images/ico_exit.png}" align="absmiddle">退出</a>
+	</div>
+</div>
+<script th:src="@{/static/js/jquery.js}"></script>
+<script type="text/javascript" th:inline="javascript">
+    var baseUrl= [[@{/}]];
+    var tm_var_menustatus = 0;
+    function tm_switch_menu(){
+        if(tm_var_menustatus==0){
+            tm_var_menustatus = 1;
+            $('#mainframe', window.parent.document).attr("cols","0,*");
+        }else{
+            tm_var_menustatus = 0;
+            $('#mainframe', window.parent.document).attr("cols","200,*");
+        }
+    }
+    var tm = {
+        logout : function(){
+            if(window.confirm('确定要退出登录吗？')){
+                $.ajax({
+                    type: "POST",
+                    url: baseUrl+"logout",
+                    data: "t=" + Math.random(),
+                    success: function(data){
+                        if(data){
+                            var ret_code = eval(data["code"]);
+                            var ret_msg = data["msg"];
+                            if(ret_code == 0){
+                                top.location.href = baseUrl+"login";
+                            }else{
+                                alert(ret_msg);
+                            }
+                        }
+                    },
+                    error : function(){
+                        alert('系统忙，请稍后再试');
+                        top.location.reload();
+                    }
+                });
+            }
+        }
+    }
+</script>
+<script type="text/javascript">
+    var VAR_FAILED_TIMES = 0;
+    function doKeepHeartBeat(){
+        $.ajax({
+            type: "POST",
+            url: "http://demo.tomexam.com/inc/heartbeat.jsp?t=" + Math.random(),
+            dataType: "json",
+            data: {},
+            success: function(retdata){
+                if(retdata && retdata["data"]){
+                    VAR_FAILED_TIMES = 0;
+                }else{
+                    VAR_FAILED_TIMES++;
+                    if(VAR_FAILED_TIMES>=3){
+                        alert("您和服务器的连接已经中断，请重新登录");
+                        top.location.href = "http://demo.tomexam.com/login.thtml";
+                    }else{
+                        alert("系统检测到您和服务器的连接中断，稍后会再次检查，如仍然失效，则需要您重新登录");
+                    }
+                }
+            },
+            error: function(e){
+                alert("网络不给力，会话状态丢失，请重新登录");
+                top.location.href = "http://demo.tomexam.com/login.thtml";
+            }
+        });
+    }
+    var tm_heartbeat = setInterval(function(){
+        //doKeepHeartBeat();
+    } , 2 * 60 * 1000);
+
+</script>
+</body>
+</html>

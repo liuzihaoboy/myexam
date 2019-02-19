@@ -1,0 +1,49 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>在线考试系统</title>
+    <link rel="shortcut icon" th:href="@{/static/favicon.ico}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/static/css/ui.css}" />
+    <style type="text/css">
+        html{ padding:0; margin:0; font-family:Tahoma, Geneva, 'Simsun';}
+        body, form, ul, li, img{margin:0; padding:0; border:none}
+        div, span,a, td, font{ font-size:9pt;}
+        body{background:#fff}
+        /** 消息框 **/
+        .tm_message{border-collapse:collapse; width:420px; margin:200px auto 0 auto; border:solid 1px #eee}
+        .tm_message thead tr th{text-align:center; font-size:12px; background:#f5f5f5; line-height:30px;}
+        .tm_message tbody tr td{}
+        .tm_message tbody tr td div a{ text-decoration:none; font-size:12px !important;}
+
+        div.tm_message_msg{padding:20px 0px 40px 0; line-height:20px; font-size:14px;}
+        div.tm_message_btns{padding:0 20px 20px 0; line-height:20px}
+    </style>
+</head>
+<body>
+<table border="0" cellpadding="0" cellspacing="0" class="tm_message">
+    <thead>
+    <tr>
+        <th colspan="2">系统消息</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td width="70" style="text-align:center">
+            <img th:src="@{/static/images/error.png}">
+        </td>
+        <td>
+            <div class="tm_message_msg" th:text="${errorMsg}"><</div>
+            <div class="tm_message_btns">
+                <a  target="_parent" class="tm_btn tm_btn_primary" href="javascript:;" onClick="javascript:history.back(-1);">点击返回</a>
+            </div>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+
+
+
+
+</body></html>

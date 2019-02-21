@@ -39,46 +39,9 @@ public class QdbController {
     private RedisService redisService;
     @Autowired
     private QuestionService questionService;
-    @RequestMapping(value = "/course/detail/submit",method = RequestMethod.POST,produces = "text/html;charset=utf-8")
-    public String courseSubmit(HttpServletRequest request,
-                            @RequestParam(value = "id",required = false)Integer id,
-                            @RequestParam(value = "courseName")String courseName) {
-        if(StringUtils.isEmpty(courseName)){
-            throw new ValidationHtmlException(CodeMsg.COURSE_NAME_ERROR);
-        }
-        if(id==null||id==0){
-            questionService.insertCourse(courseName);
-        }else {
-            questionService.updateCourse(courseName,id);
-        }
-        return ViewUtils.SUCCESS_PAGE;
-    }
-    @RequestMapping(value = "/course/detail/{id}",method = RequestMethod.GET,produces = "text/html;charset=utf-8")
-    public String courseDetail(HttpServletRequest request,
-                            @PathVariable("id")Integer id){
-        TbCourse tbCourse = questionService.getCourseById(id);
-        request.setAttribute("tbCourse",tbCourse);
-        return "qdb/course/form";
-    }
-    @ResponseBody
-    @RequestMapping(value = "/course/delete/{id}",method = RequestMethod.POST,produces = "application/json;charset=utf-8")
-    public JsonResult courseDelete(HttpServletRequest request,
-                                @PathVariable("id")String id){
-        //questionService.deleteCourse(id);
-        return JsonResult.success(null);
-    }
-    @RequestMapping(value = "/course/list",method = RequestMethod.GET,produces = "text/html;charset=utf-8")
-    public String courseList(HttpServletRequest request){
-        return "qdb/course/list";
-    }
-    @ResponseBody
-    @RequestMapping(value = "/course/list/json",method = {RequestMethod.GET,RequestMethod.POST},produces = "application/json;charset=utf-8")
-    public List<TbCourse> courseListJson(HttpServletRequest request){
-        return questionService.getCourses();
-    }
 
     @RequestMapping(value = "/detail/submit",method = RequestMethod.POST,produces = "text/html;charset=utf-8")
-    public String submitQdb(HttpServletRequest request,
+    public String submit(HttpServletRequest request,
                             @Validated QdbDto qdbDto,
                             BindingResult bindingResult) {
         HttpSession session = request.getSession();
@@ -102,7 +65,7 @@ public class QdbController {
         return ViewUtils.SUCCESS_PAGE;
     }
     @RequestMapping(value = "/detail/{id}",method = RequestMethod.GET,produces = "text/html;charset=utf-8")
-    public String detailQdb(HttpServletRequest request,
+    public String detail(HttpServletRequest request,
                                 @PathVariable("id")String id){
         if(StringUtils.isEmpty(id)){
             throw new ValidationHtmlException(CodeMsg.DB_SELECT_ERROR);
@@ -115,7 +78,7 @@ public class QdbController {
     }
     @ResponseBody
     @RequestMapping(value = "/delete/{id}",method = RequestMethod.POST,produces = "application/json;charset=utf-8")
-    public JsonResult deleteQdb(HttpServletRequest request,
+    public JsonResult delete(HttpServletRequest request,
                                 @PathVariable("id")String id){
         //questionService.deleteQuestionDb(id);
         return JsonResult.success(null);

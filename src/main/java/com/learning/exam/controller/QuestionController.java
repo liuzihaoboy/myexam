@@ -50,8 +50,9 @@ public class QuestionController {
     private RedisService redisService;
     @Autowired
     private QuestionService questionService;
+
     @RequestMapping(value = "/detail/submit",method = RequestMethod.POST,produces = "text/html;charset=utf-8")
-    public String submitQdb(HttpServletRequest request,
+    public String submit(HttpServletRequest request,
                             @Validated QuestionDto questionDto,
                             BindingResult bindingResult) {
         HttpSession session = request.getSession();
@@ -94,7 +95,7 @@ public class QuestionController {
         return ViewUtils.SUCCESS_CLOSE_PAGE;
     }
     @RequestMapping(value = "/detail/{id}",method = RequestMethod.GET,produces = "text/html;charset=utf-8")
-    public String detailQdb(HttpServletRequest request,
+    public String detail(HttpServletRequest request,
                             @PathVariable("id")String id){
         if(StringUtils.isEmpty(id)){
             throw new ValidationHtmlException(CodeMsg.Q_SELECT_ERROR);
@@ -123,7 +124,7 @@ public class QuestionController {
     }
     @ResponseBody
     @RequestMapping(value = "/delete/{id}",method = RequestMethod.POST,produces = "application/json;charset=utf-8")
-    public JsonResult deleteQdb(HttpServletRequest request,
+    public JsonResult delete(HttpServletRequest request,
                                 @PathVariable("id")String id){
         //questionService.deleteQuestion(id);
         return JsonResult.success(null);

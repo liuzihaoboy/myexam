@@ -44,6 +44,7 @@ public class LoginController {
     private RedisService redisService;
     @Autowired
     private UserService userService;
+
     @RequestMapping(value = "/login",method = RequestMethod.GET,produces = "text/html;charset=utf-8")
     public String login(HttpServletRequest request){
         HttpSession session = request.getSession();

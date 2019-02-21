@@ -32,7 +32,7 @@ public class PaperController {
     private QuestionService questionService;
 
     @RequestMapping(value = "/list",method = RequestMethod.GET,produces = "text/html;charset=utf-8")
-    public String list(HttpServletRequest request){
+    public String list(){
         return "paper/list";
     }
     @ResponseBody

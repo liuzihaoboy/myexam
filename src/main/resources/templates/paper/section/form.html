@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>在线考试系统</title>
+    <link rel="shortcut icon" th:href="@{/static/favicon.ico}" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <!--[if lt IE 8]>
+    <meta http-equiv="refresh" content="0;ie.html" />
+    <![endif]-->
+    <link th:href="@{/static/css/style.css}" rel="stylesheet">
+    <link th:href="@{/static/css/ui.css}" rel="stylesheet">
+    <link th:href="@{/static/css/style-list.min.css?v=4.0.0}" rel="stylesheet">
+    <link th:href="@{/static/css/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/static/css/font-awesome.min.css}" rel="stylesheet">
+    <link th:href="@{/static/css/bootstrap-table.css}" rel="stylesheet">
+    <link th:href="@{/static/css/animate.min.css}" rel="stylesheet">
+    <link th:href="@{/static/css/admin.css}" rel="stylesheet">
+    <link th:href="@{/static/css/bootstrap-datetimepicker.min.css}" rel="stylesheet" />
+    <link  th:href="@{/static/js/dist/jquery.validator.css}" rel="stylesheet" />
+</head>
+<body class="gray-bg">
+<div class="form-group">
+    <div class="col-sm-6">
+        <form id="form" class="form-horizontal" role="form" enctype="multipart/form-data"  th:method="post" th:action="@{./submit}">
+            <input type="hidden" name="id" th:if="${paperSectionVo!=null}" th:value="${paperSectionVo?.id}"/>
+            <input type="hidden" name="id" th:if="${paperSectionVo==null}" value=""/>
+            <input type="hidden" name="paperId" th:value="${paperSectionVo?.paperId}"/>
+            <input type="hidden" name="paperType" th:value="${paperSectionVo?.paperType}"/>
+            <div class="form-group">
+                <label class="control-label col-sm-3">章节类型</label>
+                <div class="col-sm-9">
+                    <select class="form-control" name="sectionType"  id="sectionType" data-rule="required;" >
+                        <option value="">无</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group" style="display: none" id="questionNumBody">
+                <label class="control-label col-sm-3">试题数量</label>
+                <div class="col-sm-9">
+                    <input type="number" name="questionNum" id="questionNum" class="form-control" data-rule="required;"  th:value="${paperSectionVo?.questionNum}"/>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-sm-3">试题分数</label>
+                <div class="col-sm-9">
+                    <input type="number" name="questionScore" class="form-control" data-rule="required;"  th:value="${paperSectionVo?.questionScore}"/>
+                </div>
+            </div>
+            <div class="form-group" style="display: none"  id="levelScaleBody">
+                <label class="control-label col-sm-3">难度比例</label>
+                <div class="col-sm-9">
+                    <table>
+                        <tr>
+                            <td width="20%">
+                                简单：<input type="number" size="4" name="levelScale" value="0"  class="form-control" data-rule="required;"/>
+                            </td>
+                            <td width="20%">
+                                普通：<input type="number" size="4" name="levelScale" value="0" class="form-control" data-rule="required;" />
+                            </td>
+                            <td width="20%">
+                                中等：<input type="number" size="4" name="levelScale" value="0"  class="form-control" data-rule="required;"/>
+                            </td>
+                            <td width="20%">
+                                较难：<input type="number" size="4" name="levelScale" value="0" class="form-control" data-rule="required;" />
+                            </td>
+                            <td width="20%">
+                                困难：<input type="number" size="4" name="levelScale" value="0"  class="form-control" data-rule="required;"/>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            <div class="form-group" style="display: none"  id="qdbIdsBody">
+                <label class="control-label col-sm-3">包含题库</label>
+                <div class="col-sm-9">
+                    <input type="hidden" name="qdbIds" value="0" id="qdbIds" class="form-control" data-rule="required;"/>
+                    <input type="text" id="qdbNames" value="无" class="form-control"/>
+                </div>
+            </div>放
+
+            <div class="form-group">
+                <label class="control-label col-sm-3">所有试题</label>
+                <div class="col-sm-9">
+                    <table id="table" style="background-color: #fff;" data-show-toggle="true" data-show-refresh="true">
+                    </table>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="col-sm-6">
+        <div class="form-group">
+            <div id="toolbar">
+                <div class="form-inline" role="form">
+                    <div class="form-group">
+                        <div class="btn-group hidden-xs" id="exampleToolbar" role="group">
+                            <button type="button" title="添加到章节" id="addBtn"  class="btn btn-outline btn-default">
+                                <i class="glyphicon glyphicon-plus" aria-hidden="true"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <select class="form-control"  name="qdbKey" id="qdbKey">
+                            <option value="">所属题库</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <select class="form-control"  name="typeKey" id="typeKey">
+                            <option value="">试题类型</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <select class="form-control"  name="levelKey" id="levelKey">
+                            <option value="">试题难度</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <select class="form-control"  name="statusKey" id="statusKey">
+                            <option value="">试题状态</option>
+                            <option value="0">开放</option>
+                            <option value="1">关闭</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <input name="contentKey" size="14" type="text" class="form-control" placeholder="搜索试题关键字" />
+                    </div>
+                    <button id="searchBtn" class="btn btn-primary btn-md">搜索</button>
+                </div>
+            </div>
+            <table id="questionTable" style="background-color: #fff;" data-toolbar="#toolbar"  data-show-toggle="true" data-show-refresh="true" data-query-params="queryParams">
+            </table>
+        </div>
+    </div>
+</div>
+<div class="form-group" >
+    <div class="col-sm-9 col-sm-offset-3">
+        <button class="btn btn-primary" type="button" onclick="submitForm()">保存内容</button>
+        <button class="btn btn-white" type="reset">取消</button>
+    </div>
+</div>
+<script th:src="@{/static/js/jquery-3.1.1.js}" type="text/javascript" charset="utf-8"></script>
+<script th:src="@{/static/js/bootstrap.min.js}" type="text/javascript" charset="utf-8"></script>
+<script th:src="@{/static/js/bootstrap-table.min.js}" type="text/javascript" charset="utf-8"></script>
+<script th:src="@{/static/js/bootstrap-table-editable.min.js}" type="text/javascript" charset="utf-8"></script>
+<script th:src="@{/static/js/bootstrap-table-zh-CN.min.js}" type="text/javascript" charset="utf-8"></script>
+<script th:src="@{/static/js/layer/layer.js}" type="text/javascript" charset="utf-8"></script>
+<script th:src="@{/static/js/bootstrap-editable.min.js}" type="text/javascript" charset="utf-8"></script>
+<script  th:src="@{/static/js/bootstrap-datetimepicker.min.js}"></script>
+<script  th:src="@{/static/js/bootstrap-datetimepicker.zh-CN.js}"></script>
+<script  th:src="@{/static/js/dist/jquery.validator.min.js}"></script>
+<script  th:src="@{/static/js/dist/local/zh-CN.js}"></script>
+<script  th:inline="javascript">
+    /*<![CDATA[*/
+    var paperSectionVo = [[${paperSectionVo}]];
+    var types = [[${types}]];
+    var paperType = paperSectionVo.paperType;
+    for(var i=0;i<types.length;i++){
+        var type=types[i];
+        $('#sectionType').append("<option  value='"+type.id+"'>"+type.value+"</option>");
+    }
+    var qdbs = [[${qdbs}]];
+    if(qdbs!=null){
+        for(var i=0;i<qdbs.length;i++){
+            var qdb=qdbs[i];
+            $('#qdbKey').append("<option  value='"+qdb.id+"'>"+qdb.qdbName+"</option>");
+        }
+    }
+
+    if(types!=null){
+        for(var i=0;i<types.length;i++){
+            var type=types[i];
+            $('#typeKey').append("<option  value='"+type.id+"'>"+type.value+"</option>");
+        }
+    }
+    var levels = [[${levels}]];
+    if(levels!=null){
+        for(var i=0;i<levels.length;i++){
+            var level=levels[i];
+            $('#levelKey').append("<option  value='"+level.id+"'>"+level.value+"</option>");
+        }
+    }
+    /*]]>*/
+    if(paperSectionVo!=null){
+        if(paperType==2){
+            $("#questionNumBody").show();
+            $("#levelScaleBody").show();
+            $("#qdbIdsBody").show();
+            var levelScales = paperSectionVo.levelScales;
+            var levelScaleInput = $("input[name='levelScale']");
+            for (var i=0;i<levelScaleInput.length;i++){
+                levelScaleInput.eq(i).val(levelScales[i]);
+            }
+            var qdbNames=[];
+            var qdbIds=[]
+            for (var i=0;i<paperSectionVo.qdbs.length;i++){
+                qdbNames.push(paperSectionVo.qdbs[i].qdbName);
+                qdbIds.push(paperSectionVo.qdbs[i].id);
+            }
+            $("#qdbNames").val(qdbNames.length==0?'无':qdbNames.join(","));
+            $("#qdbIds").val(qdbIds.join(","));
+        }
+        $("#sectionType option[value='"+paperSectionVo.sectionTypeId+"']").attr("selected", true);
+        $("#sectionType").attr("disabled",true);
+        var table = $("#table");
+        $(table).bootstrapTable({
+            contentType: "application/x-www-form-urlencoded",
+            method:'get',
+            url: '../question/json?sectionId='+paperSectionVo.id,
+            pagination: false,
+            columns: [{
+                title: '序号',
+                align: 'center',
+                formatter: 'opIndex'
+            },{
+                field: 'questionContent',
+                title: '试题题干',
+                align: 'center',
+                sortable:true,
+            },{
+                field: 'option',
+                title: '操作',
+                align: 'center',
+                formatter: function (value,row,index) {
+                    return [
+                        '<button data-toggle="tooltip" data-id="' +"'"+ row.id+"'" + '" class="btn btn-success btn-xs edit" onclick="questionDetail('+"'" + row.id+"'" + ')" title="预览">',
+                        '<i class="glyphicon glyphicon glyphicon-eye-open"></i>',
+                        '</button>  ',
+                        '<button data-toggle="tooltop" data-id="' +"'" + row.id +"'" + '" class="btn btn-danger btn-xs edit remove" onclick="questionRemove(' +"'"+paperSectionVo.id+"',"+"'" + row.id+"'" +')" title="删除">',
+                        '<i class="glyphicon glyphicon-remove"></i>',
+                        '</button>'
+                    ].join('');
+                }
+            }]
+        });
+    }
+    var questionTable = $("#questionTable");
+    $(questionTable).bootstrapTable({
+        contentType: "application/x-www-form-urlencoded",
+        method:'get',
+        url: '../question/config/json',
+        height: 600 ,
+        pagination: true,//是否开启分页（*）
+        pageNumber: 1,//初始化加载第一页，默认第一页
+        pageSize: 50,//每页的记录行数（*）
+        pageList: [30, 50, 100,150],//可供选择的每页的行数（*）
+        sidePagination: "client", //分页方式：client客户端分页，server服务端分页（*）
+        columns: [ {
+            checkbox : true,
+            align : 'center',
+            value:"id",
+        },{
+            title: '序号',
+            align: 'center',
+            formatter: 'opIndex'
+        },{
+            field: 'questionContent',
+            title: '试题题干',
+            align: 'center',
+            sortable:true
+        },{
+            field: 'option',
+            title: '操作',
+            align: 'center',
+            formatter: function (value,row,index) {
+                return [
+                    '<button data-toggle="tooltip" data-id="' +"'"+ row.id+"'" + '" class="btn btn-success btn-xs edit" onclick="questionDetail('+"'" + row.id+"'" + ')" title="预览">',
+                    '<i class="glyphicon glyphicon glyphicon-eye-open"></i>',
+                    '</button>  '
+                ].join('');
+            }
+        }]
+    });
+    $("#addBtn").on("click",function () {
+        var selectContent = questionTable.bootstrapTable('getSelections');
+        if(selectContent.length==0) {
+            layer.alert('请选择一列数据!', {
+                icon: 2
+            });
+            return false;
+        }else{
+            var id="";
+            for(var i = 0; i <selectContent.length;i++){
+                id+=selectContent[i].id+",";
+            }
+            layer.confirm("只会添加与章节类型相同的题目！",{icon:3,title:"请选择"},function(index){
+                $.ajax({
+                    type:"post",
+                    dateType:"json",
+                    url:"../question/add",
+                    data:{
+                        'sectionId':paperSectionVo.id, 'questionId':id,
+                    },
+                    success:function(ret){
+                        if(ret.status){
+                            layer.msg("操作成功",{icon:1,time:2000});
+                        }else{
+                            layer.msg("添加失败:"+ret.data,{icon:2,time:2000});
+                        }
+                        refreshTable(table);
+                    }
+                });
+                layer.close(index);
+            });
+        }
+    });
+    $("[data-toggle='tooltip']").tooltip();
+    $('#toolbar').find('select').change(function () {
+        refreshTable(questionTable);
+    });
+    function refreshTable(t){
+        $(t).bootstrapTable('refresh',{pageNumber:1});
+    }
+    function queryParams(params){
+        $('#toolbar').find('input,select').each(function(){
+            params[$(this).attr('name')] = $(this).val();
+        });
+        return params;
+    }
+    function opIndex(value, row, index){
+        return [index+1].join('');
+    }
+    $("#searchBtn").on("click",function(){
+        refreshTable(questionTable);
+    });
+    $("#qdbNames").on("focus",function () {
+        this.blur();
+        layer.open({
+            type:2,
+            area:['780px','500px'],
+            title: '修改',
+            btn:['确定','取消'],
+            content:'../qdb/list',
+            yes:function(index,layero){
+                var iframeName = layero.find("iframe")[0]['name'];
+                var iframeWindow = window[iframeName];
+                iframeWindow.submitForm();
+            }
+        });
+    });
+    function questionDetail(id) {
+        layer.open({
+            type:2,
+            area:['780px','500px'],
+            title: '试题详情',
+            content:'./../../../qdb/question/preview/'+id,
+        });
+    }
+    function questionRemove(sectionId,id) {
+        layer.confirm("确认删除？",{icon:3,title:"请选择"},function(index){
+            $.ajax({
+                type:"post",
+                dateType:"json",
+                url:"../question/delete",
+                data:{
+                    'sectionId':sectionId, 'questionId':id,
+                },
+                success:function(ret){
+                    if(ret.status){
+                        layer.msg("操作成功",{icon:1,time:2000});
+                    }else{
+                        layer.msg("删除失败:"+ret.data,{icon:2,time:2000});
+                    }
+                    refreshTable(table);
+                }
+            });
+            layer.close(index);
+        });
+    }
+    function submitForm(){
+        if(paperType==2){
+            var qdbIds = $("#qdbIds").val();
+            if(qdbIds==null||qdbIds==""){
+                alert("请选择题库");
+                return false;
+            }
+        }
+        $("#sectionType").removeAttr("disabled");
+        $("#form").submit();
+    }
+</script>
+</body>
+</html>

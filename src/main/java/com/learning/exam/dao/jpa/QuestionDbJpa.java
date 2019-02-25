@@ -29,4 +29,8 @@ public interface QuestionDbJpa extends JpaRepository<TbQuestionDb,Integer> {
     @Modifying
     @Query(nativeQuery = true,value = "delete from tb_question_db where course_id=:courseId")
     int deleteByCourseId(@Param("courseId")Integer courseId);
+    @Query(nativeQuery = true,value = "select tqd.qdb_name from tb_question_db tqd where tqd.id=:id")
+    String findQdbNameById(@Param("id")Integer id);
+    @Query(nativeQuery = true,value = "select id from tb_question_db tqd where tqd.id=:id")
+    Integer findQdbIdById(@Param("id")Integer id);
 }

@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>在线考试系统</title>
+    <link rel="shortcut icon" th:href="@{/static/favicon.ico}" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <!--[if lt IE 8]>
+    <meta http-equiv="refresh" content="0;ie.html" />
+    <![endif]-->
+    <link th:href="@{/static/css/style.css}" rel="stylesheet">
+    <link th:href="@{/static/css/ui.css}" rel="stylesheet">
+    <link th:href="@{/static/css/style-list.min.css?v=4.0.0}" rel="stylesheet">
+    <link th:href="@{/static/css/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/static/css/font-awesome.min.css}" rel="stylesheet">
+    <link th:href="@{/static/css/bootstrap-table.css}" rel="stylesheet">
+    <link th:href="@{/static/css/animate.min.css}" rel="stylesheet">
+    <link th:href="@{/static/css/admin.css}" rel="stylesheet">
+    <link th:href="@{/static/css/bootstrap-datetimepicker.min.css}" rel="stylesheet" />
+    <link  th:href="@{/static/js/dist/jquery.validator.css}" rel="stylesheet" />
+</head>
+<body class="gray-bg">
+<form id="form" class="form-horizontal" role="form" enctype="multipart/form-data"  th:method="post" th:action="@{./submit}">
+    <input type="hidden" name="id" th:if="${paperVo!=null}" th:value="${paperVo?.id}"/>
+    <input type="hidden" name="id" th:if="${paperVo==null}" value=""/>
+    <div id="imagePreview" class="form-group" align="center">
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-3">试卷名</label>
+        <div class="col-sm-7">
+            <input type="text" name="paperName"  class="form-control" data-rule="required;"  th:value="${paperVo?.paperName}"/>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-3">所属课程</label>
+        <div class="col-sm-7">
+            <select class="form-control"  name="courseId"  id="courseId" data-rule="required;" >
+                <option value="">无</option>
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-3">试卷类型</label>
+        <div class="col-sm-7">
+            <select class="form-control"  name="paperType"  id="paperType" data-rule="required;" >
+                <option value="">无</option>
+            </select>
+            <span class="help-block m-b-none"><i class="fa fa-info-circle"></i><span id="paperTypeInfo"></span></span>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-3">试题配置</label>
+        <div class="col-sm-7">
+            <input type="hidden" id="configStatus" name="configStatus" class="form-control" data-rule="required;"  th:value="${paperVo?.configStatus}"/>
+            <input type="text"  disabled="disabled" class="form-control" data-rule="required;"  th:value="${paperVo?.configStatus==0?'已配置':'未配置'}"/>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-3">公布答案</label>
+        <div class="col-sm-7">
+            <select class="form-control" name="showKey" id="showKey" data-rule="required;">
+                <option value="0">是</option>
+                <option value="1">否</option>
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-3">开始时间</label>
+        <div class="col-sm-7">
+            <input name="startTime" id="startTime" type="text" class="form-control" data-format="yyyy-mm-dd hh:ii" th:value="${paperVo?.startTime}"/>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-3">结束时间</label>
+        <div class="col-sm-7">
+            <input name="endTime" id="endTime" type="text" class="form-control" data-format="yyyy-mm-dd hh:ii" th:value="${paperVo?.startTime}"/>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-3">考试时长(分钟)</label>
+        <div class="col-sm-7">
+            <input type="number" name="paperMinute" id="paperMinute"  class="form-control" data-rule="required;"  th:value="${paperVo?.paperMinute}"/>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-3">及格分数</label>
+        <div class="col-sm-7">
+            <input type="number" name="passScore"  class="form-control" data-rule="required;"  th:value="${paperVo?.passScore}"/>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-3">目标用户</label>
+        <div class="col-sm-7">
+            <div id="div_link_showusers">
+                <input type="hidden" name="toUserIds" id="toUserIds" th:value="${paperVo?.toUser}"/>
+                <input type="button" class="tm_btn" value="查看用户" onclick="showUsers()">
+                <input type="button" class="tm_btn" value="选择用户" onclick="selectUsers()">
+                <input type="button" class="tm_btn" value="清空" onclick="clearUsers()">
+            </div>
+        </div>
+    </div>
+    <div class="form-group" style="height: 30px;">
+    </div>
+    <div class="form-group" >
+        <div class="col-sm-7 col-sm-offset-3">
+            <button class="btn btn-primary" type="button" onclick="submitForm()">保存内容</button>
+            <button class="btn btn-white" type="reset">取消</button>
+        </div>
+    </div>
+</form>
+<script th:src="@{/static/js/jquery-3.1.1.js}" type="text/javascript" charset="utf-8"></script>
+<script th:src="@{/static/js/bootstrap.min.js}" type="text/javascript" charset="utf-8"></script>
+<script th:src="@{/static/js/bootstrap-table.min.js}" type="text/javascript" charset="utf-8"></script>
+<script th:src="@{/static/js/bootstrap-table-editable.min.js}" type="text/javascript" charset="utf-8"></script>
+<script th:src="@{/static/js/bootstrap-table-zh-CN.min.js}" type="text/javascript" charset="utf-8"></script>
+<script th:src="@{/static/js/layer/layer.js}" type="text/javascript" charset="utf-8"></script>
+<script th:src="@{/static/js/bootstrap-editable.min.js}" type="text/javascript" charset="utf-8"></script>
+<script  th:src="@{/static/js/bootstrap-datetimepicker.min.js}"></script>
+<script  th:src="@{/static/js/bootstrap-datetimepicker.zh-CN.js}"></script>
+<script  th:src="@{/static/js/dist/jquery.validator.min.js}"></script>
+<script  th:src="@{/static/js/dist/local/zh-CN.js}"></script>
+<script  th:inline="javascript">
+    /*<![CDATA[*/
+    var courses = [[${courses}]];
+    var paperVo = [[${paperVo}]];
+    var types = [[${types}]];
+    var paperType = [[${paperType}]];
+    for(var i=0;i<courses.length;i++){
+        var course=courses[i];
+        $('#courseId').append("<option  value='"+course.id+"'>"+course.courseName+"</option>");
+    }
+    for(var i=0;i<types.length;i++){
+        var type=types[i];
+        $('#paperType').append("<option  value='"+type.id+"'>"+type.value+"</option>");
+    }
+    if(paperVo!=null){
+        $("#courseId option[value='"+paperVo.courseId+"']").attr("selected", true);
+        $("#paperType option[value='"+paperType+"']").attr("selected", true);
+        paperTypeInfo(paperType);
+        $("#showKey option[value='"+paperVo.showKey+"']").attr("selected", true);
+    }
+    /*]]>*/
+    function paperTypeInfo(value){
+        if(value=="1"){
+            $("#paperTypeInfo").html("考生试卷相同");
+        }else if(value=="2"){
+            $("#paperTypeInfo").html("考生试卷随机");
+        }else {
+            $("#paperTypeInfo").html("");
+        }
+    }
+    $(function () {
+        $("#paperType").change(function () {
+            var value = $(this).val();
+            paperTypeInfo(value);
+        });
+    });
+    $('#startTime').datetimepicker({
+        //默认语言
+        language: 'zh-CN',
+        //默认选择格式
+        format: "yyyy-mm-dd hh:ii",
+        todayBtn: true,
+        autoclose:true,
+        minView: "hour",
+        //选择板所在输入框位置
+        pickerPosition: "bottom-right",
+        startDate: new Date()
+    });
+    $('#endTime').datetimepicker({
+        //默认语言
+        language: 'zh-CN',
+        //默认选择格式
+        format: "yyyy-mm-dd hh:ii",
+        todayBtn: true,
+        autoclose:true,
+        minView: "hour",
+        //选择板所在输入框位置
+        pickerPosition: "bottom-right",
+        startDate: new Date()
+    });
+    function showUsers() {
+        var toUserIds = $("#toUserIds").val();
+        userList(0,toUserIds);
+    }
+    function selectUsers() {
+        userList(1,null);
+    }
+    function clearUsers() {
+        $("#toUserIds").val("");
+        alert("清空成功！");
+    }
+    function userList(type,ids) {
+        var url = type==0?'./user/'+type+"?t="+ids:'./user/'+type;
+        layer.open({
+            type:2,
+            area:['780px','500px'],
+            title: '修改',
+            btn:['确定','取消'],
+            content:url,
+            yes:function(index,layero){
+                var iframeName = layero.find("iframe")[0]['name'];
+                var iframeWindow = window[iframeName];
+                iframeWindow.submitForm();
+            }
+        });
+    }
+    function submitForm(){
+        if(paperVo==null)$("#configStatus").val(1);
+        var d1 = new Date($("#startTime").val());
+        var d2 = new Date($("#endTime").val());
+        var m = new Number($("#paperMinute").val());
+        if((d1.getTime()+m*60000)>d2.getTime()){
+            alert('时间设定不正确！');
+            return false;
+        }
+        if($("#toUserIds").val()==null||$("#toUserIds").val()==""){
+            alert("请选择用户！");
+            return false;
+        }
+        $("#form").submit();
+    }
+</script>
+</body>
+</html>

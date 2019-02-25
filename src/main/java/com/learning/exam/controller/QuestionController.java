@@ -51,6 +51,18 @@ public class QuestionController {
     @Autowired
     private QuestionService questionService;
 
+    @RequestMapping(value = "/preview/{questionId}",method = RequestMethod.GET,produces = "text/html;charset=utf-8")
+    public String preview(HttpServletRequest request,
+                          @PathVariable("questionId")Integer questionId){
+        QuestionVo questionVo = questionService.getQuestionById(questionId);
+        if(questionVo==null){
+            throw new ValidationHtmlException(CodeMsg.Q_SELECT_ERROR);
+        }
+        request.setAttribute("questionVo",questionVo);
+        request.setAttribute("type",new RequestEnumVo(questionVo.getQType().getId(),questionVo.getQType().getType()));
+        request.setAttribute("level",new RequestEnumVo(questionVo.getQLevel().getId(),questionVo.getQLevel().getLevel()));
+        return "qdb/question/preview";
+    }
     @RequestMapping(value = "/detail/submit",method = RequestMethod.POST,produces = "text/html;charset=utf-8")
     public String submit(HttpServletRequest request,
                             @Validated QuestionDto questionDto,

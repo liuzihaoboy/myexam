@@ -1,21 +1,16 @@
 package com.learning.exam;
 
-import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.learning.exam.dao.jpa.QuestionJpa;
 import com.learning.exam.dao.jpa.QuestionOptJpa;
 import com.learning.exam.dao.mapper.QuestionDbMapper;
 import com.learning.exam.framework.cache.SessionCacheName;
-import com.learning.exam.framework.enums.QdbMenuEnum;
 import com.learning.exam.framework.redis.keys.SessionKey;
 import com.learning.exam.framework.redis.service.RedisService;
 import com.learning.exam.model.entity.*;
-import com.learning.exam.model.vo.BaseMenu;
 import com.learning.exam.model.vo.MenuVo;
-import com.learning.exam.model.vo.QuestionVo;
-import com.learning.exam.model.vo.TbUserVo;
 import com.learning.exam.service.QuestionService;
 import com.learning.exam.service.UserService;
-import com.learning.exam.util.Md5Utils;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,7 +19,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,16 +40,24 @@ public class ExamApplicationTests {
     private ObjectMapper objectMapper;
     @Autowired
     private QuestionOptJpa questionOptJpa;
+    @Autowired
+    private QuestionJpa questionJpa;
     @Test
     public void contextLoads()  {
-        TbQuestionOpt tbQuestionOpt = new TbQuestionOpt();
-        tbQuestionOpt.setQId(1);
-        tbQuestionOpt.setOrderNum(5);
-        tbQuestionOpt.setOptionContent("我是哈哈哈");
-        tbQuestionOpt = questionOptJpa.save(tbQuestionOpt);
-        log.info("************"+tbQuestionOpt.toString()+"*************");
-    //    Integer[] ids = questionOptJpa.findIdsByQId(1);
-       // log.info(ids.toString());
+        String menuVoList=redisService.hget(SessionKey.sessionById,"D749BE63842B6B1D764BDBD062E85910",SessionCacheName.BASE_MENU,String.class);
+        log.info(menuVoList+"*********");
+
+        System.out.println(menuVoList.toString());
+        //        String content = questionJpa.findQuestionContentById(1);
+//        log.info("***************"+content+"***********");
+//        TbQuestionOpt tbQuestionOpt = new TbQuestionOpt();
+//        tbQuestionOpt.setQId(1);
+//        tbQuestionOpt.setOrderNum(5);
+//        tbQuestionOpt.setOptionContent("我是哈哈哈");
+//        tbQuestionOpt = questionOptJpa.save(tbQuestionOpt);
+//        log.info("************"+tbQuestionOpt.toString()+"*************");
+//        Integer[] ids = questionOptJpa.findIdsByQId(1);
+//        log.info(ids.toString());
 //        List<TbQuestionDb> tbQuestionDbs = questionDbMapper.findQdbsByCondition("","",1,"0");
 //        System.out.println(tbQuestionDbs);
 

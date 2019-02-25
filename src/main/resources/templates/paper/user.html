@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>在线考试系统</title>
+    <link rel="shortcut icon" th:href="@{/static/favicon.ico}" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <!--[if lt IE 8]>
+    <meta http-equiv="refresh" content="0;ie.html" />
+    <![endif]-->
+    <link th:href="@{/static/css/style.css}" rel="stylesheet">
+    <link th:href="@{/static/css/style-list.min.css?v=4.0.0}" rel="stylesheet">
+    <link th:href="@{/static/css/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/static/css/font-awesome.min.css}" rel="stylesheet">
+    <link th:href="@{/static/css/bootstrap-table.css}" rel="stylesheet">
+    <link th:href="@{/static/css/animate.min.css}" rel="stylesheet">
+    <link th:href="@{/static/css/admin.css}" rel="stylesheet">
+    <link th:href="@{/static/css/jquery.validator.css}" rel="stylesheet">
+</head>
+
+<body class="gray-bg white">
+<div id="toolbar">
+    <div class="form-inline" role="form">
+        <div class="form-group">
+            <div class="btn-group hidden-xs" id="exampleToolbar" role="group">
+                <button type="button" style="display:none;" id="addBtn" title="添加选中学生" class="btn btn-outline btn-default">
+                    <i class="glyphicon glyphicon-plus" aria-hidden="true"></i>
+                </button>
+            </div>
+        </div>
+        <div class="form-group">
+            <select class="form-control"  name="gradeKey" id="gradeKey">
+                <option value="">年级</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <select class="form-control"  name="majorKey" id="majorKey">
+                <option value="">专业</option>
+            </select>
+        </div>
+    </div>
+</div>
+<table id="table" data-toolbar="#toolbar"  data-show-toggle="true" data-show-columns="true" data-show-refresh="true" data-query-params="queryParams">
+</table>
+<script th:src="@{/static/js/jquery-3.1.1.js}" type="text/javascript" charset="utf-8"></script>
+<script th:src="@{/static/js/bootstrap.min.js}" type="text/javascript" charset="utf-8"></script>
+<script th:src="@{/static/js/bootstrap-table.min.js}" type="text/javascript" charset="utf-8"></script>
+<script th:src="@{/static/js/bootstrap-table-editable.min.js}" type="text/javascript" charset="utf-8"></script>
+<script th:src="@{/static/js/bootstrap-table-zh-CN.min.js}" type="text/javascript" charset="utf-8"></script>
+<script th:src="@{/static/js/layer/layer.js}" type="text/javascript" charset="utf-8"></script>
+<script th:src="@{/static/js/bootstrap-editable.min.js}" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript" th:inline="javascript">
+    /*<![CDATA[*/
+    var type = [[${type}]];
+    var t=[[${t}]];
+    if(type!=0){
+        $("#addBtn").show();
+    }
+    var grades = [[${grades}]];
+    if(grades!=null){
+        for(var i=0;i<grades.length;i++){
+            var grade=grades[i];
+            $('#gradeKey').append("<option  value='"+grade.id+"'>"+grade.gradeName+"</option>");
+        }
+    }
+    var majors = [[${majors}]];
+    if(majors!=null){
+        for(var i=0;i<majors.length;i++){
+            var major=majors[i];
+            $('#majorKey').append("<option  value='"+major.id+"'>"+major.majorName+"</option>");
+        }
+    }
+    /*]]>*/
+    var studentTable = $('#table');
+    studentTable.bootstrapTable({
+        contentType: "application/x-www-form-urlencoded",
+        method:'post',
+        url: './json',
+        height: 400 ,
+        pagination: true,//是否开启分页（*）
+        pageNumber: 1,//初始化加载第一页，默认第一页
+        pageSize: 50,//每页的记录行数（*）
+        pageList: [30, 50, 100,150],//可供选择的每页的行数（*）
+        sidePagination: "client", //分页方式：client客户端分页，server服务端分页（*）
+        columns: [
+            {
+                checkbox : true,
+                align : 'center',
+                value:"userId",
+            },
+            {
+                title: '序号',
+                align: 'center',
+                formatter: 'opIndex'
+            },{
+                field: 'accountId',
+                title: '学号',
+                align: 'center',
+                sortable:true,
+            },{
+                field: 'name',
+                title: '姓名',
+                align: 'center',
+                sortable:true,
+            }, {
+                field: 'institute',
+                title: '学院',
+                align: 'center',
+            }, {
+                field: 'gradeName',
+                title: '年级',
+                align: 'center',
+            }, {
+                field: 'majorName',
+                title: '专业',
+                align: 'center',
+            }, {
+                field: 'sex',
+                title: '性别',
+                align: 'center',
+            }],
+        onEditableSave:function(field,row,oldValue,el){
+            studentTable.bootstrapTable("resetView");
+        }
+    });
+    function refreshTable(){
+        studentTable.bootstrapTable('refresh',{pageNumber:1});
+    }
+    function queryParams(params){
+        $('#toolbar').find('input,select').each(function(){
+            params[$(this).attr('name')] = $(this).val();
+        });
+        params['type']=type;
+        params['t']=t;
+        return params;
+    }
+    function opIndex(value, row, index){
+        return [index+1].join('');
+    }
+    $("#searchBtn").on("click",function(){
+        refreshTable();
+    });
+    $("#addBtn").on("click",function () {
+        if(type!=1){
+            return false;
+        }
+        var selectContent = studentTable.bootstrapTable('getSelections');
+        if(selectContent.length==0) {
+            layer.alert('请选择一列数据!', {
+                icon: 2
+            });
+            return false;
+        }else{
+            var id=[];
+            for(var i = 0; i <selectContent.length;i++){
+                id.push(selectContent[i].userId);
+            }
+        }
+        $("#toUserIds", window.parent.document).val(id.join(","));
+        alert("添加成功！");
+    });
+    $("[data-toggle='tooltip']").tooltip();
+    $('#toolbar').find('select').change(function () {
+        studentTable.bootstrapTable('refresh',{pageNumber:1});
+    });
+    function submitForm() {
+        parent.layer.closeAll();
+    }
+</script>
+</body>
+</html>

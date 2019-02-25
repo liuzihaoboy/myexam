@@ -16,14 +16,12 @@ public class TbStudent {
     @Id
     @GeneratedValue
     private Integer id;
-    private String accountId;
+    private Integer userId;
+    private Integer gradeId;
+    private Integer majorId;
+    private String classes;
+    private String institute;
     private String idCard;
     private String sex;
-    private String grade;
     private String icon;
-    private String phone;
-    private String email;
-    private String institute;
-    private String classes;
-    private String major;
 }

@@ -1,0 +1,27 @@
+
+.manu {   
+    padding:3px; margin:3px; text-align:center; font-size: 12px; font-family:sans-serif, verdana, arial;   
+}   
+.manu a {   
+    border:#eee 1px solid; padding:2px 5px; margin: 2px; color: #036cb4; text-decoration:none   
+}
+.manu a:hover {   
+    border:#999 1px solid; color:#666
+}
+.manu a:active {   
+    border:#999 1px solid; color:#666   
+}
+.manu .current {   
+    border:#036cb4 1px solid; padding:2px 5px; font-weight: bold; color: #fff; background: #036cb4; margin:2px
+}
+.manu .disabled {   
+    border:#eee 1px solid; padding:2px 5px; margin: 2px; color: #ddd;
+}
+.tm_qscore{
+    background-color:#fff; border:1px solid #ccc;
+    height:15px; padding:3px 5px; font-size:12px; line-height:15px; color:#555;
+    vertical-align:middle; -webkit-border-radius:3px; -moz-border-radius:3px; border-radius:3px;
+}
+.tm_position_adjustment{
+    float:left; margin-right:10px; margin-top:3px;
+}

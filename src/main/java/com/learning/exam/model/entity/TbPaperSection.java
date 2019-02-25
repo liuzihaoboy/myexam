@@ -2,6 +2,7 @@ package com.learning.exam.model.entity;
 
 import lombok.Data;
 
+import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
@@ -10,6 +11,7 @@ import javax.persistence.Id;
  * @date 2019-02-21  11:13
  */
 @Data
+@Entity
 public class TbPaperSection {
     @Id
     @GeneratedValue

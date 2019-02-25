@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.learning.exam.dao.mapper.StudentMapper">
+    <select id="findStudentsByCondition" resultType="TbStudent">
+        select t.* from tb_student t
+        <where>
+            <if test="gradeKey!=null and gradeKey!=''">
+                AND t.grade_id=#{gradeKey}
+            </if>
+            <if test="majorKey!=null and majorKey!=''">
+                AND t.major_id=#{majorKey}
+            </if>
+        </where>
+    </select>
+</mapper>

@@ -1,6 +1,4 @@
 
-@import "ui.css";
-
 html{ padding:0; margin:0; font-family:Tahoma, Geneva, 'Simsun';}
 body, form, ul, li, img{margin:0; padding:0; border:none}
 div, span,a, td, font{ font-size:9pt;}

@@ -3,9 +3,7 @@ package com.learning.exam.service;
 import com.learning.exam.model.dto.QuestionDto;
 import com.learning.exam.model.entity.TbCourse;
 import com.learning.exam.model.entity.TbQuestionDb;
-import com.learning.exam.model.vo.QuestionDbVo;
-import com.learning.exam.model.vo.QuestionVo;
-import com.learning.exam.model.vo.TbUserVo;
+import com.learning.exam.model.vo.*;
 
 import java.util.List;
 
@@ -14,6 +12,10 @@ import java.util.List;
  * @date 2019-02-11  13:58
  */
 public interface QuestionService {
+    List<Integer> getQuestionIdsBySectionId(Integer sectionId);
+    List<QuestionContentVo> getQuestionContentsBySectionId(Integer sectionId);
+    List<QuestionContentVo> getQuestionContentsByCondition(String qdbKey, String typeKey, String levelKey, String statusKey, String contentKey);
+    List<QuestionContentVo> getQuestionContents();
     void deleteQuestion(String id);
     void submitQuestion(QuestionDto questionDto, TbUserVo tbUserVo);
     QuestionVo getQuestionById(Integer id);
@@ -27,6 +29,7 @@ public interface QuestionService {
     void updateQuestionDb(TbQuestionDb tbQuestionDb);
     void insertQuestionDb(TbQuestionDb tbQuestionDb);
     void deleteQuestionDb(String id);
+    Integer getQdbIdById(Integer id);
     List<TbQuestionDb> getTbQdbs();
     QuestionDbVo getQdbById(Integer id);
     List<QuestionDbVo> getQdbs();

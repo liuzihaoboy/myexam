@@ -11,6 +11,7 @@ import java.util.Map;
  */
 public interface RedisService {
     <T> void set(KeyPrefix prefix, String key, T t);
+    <T> void setex(KeyPrefix prefix, String key, T t,int expire);
     <T> T get(KeyPrefix prefix, String key, Class<T> c);
     void hsetMap(KeyPrefix prefix, String key, Map<String,Object> valueMap);
     <T> void hset(KeyPrefix prefix,String key,String paramKey,T paramValue);

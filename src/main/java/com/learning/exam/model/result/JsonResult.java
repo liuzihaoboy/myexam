@@ -36,12 +36,12 @@ public class JsonResult<T> implements Serializable{
         jsonResult.setData(data);
         return jsonResult;
     }
-    public static <T> JsonResult<T> error(CodeMsg codeMsg){
-        JsonResult<T> jsonResult = new JsonResult<T>();
+    public static JsonResult<String> error(CodeMsg codeMsg){
+        JsonResult<String> jsonResult = new JsonResult<>();
         jsonResult.setStatus(false);
         jsonResult.setCode(codeMsg.getCode());
         jsonResult.setMsg(codeMsg.getMsg());
-        jsonResult.setData(null);
+        jsonResult.setData(codeMsg.getMsg());
         return jsonResult;
     }
     public static <T> JsonResult<T> error(CodeMsg codeMsg,T data){

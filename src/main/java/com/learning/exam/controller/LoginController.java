@@ -51,7 +51,7 @@ public class LoginController {
         //查看是否登录过
         TbUserVo tbUserVo = redisService.hget(SessionKey.sessionById,session.getId(),SessionCacheName.LOGIN_USER,TbUserVo.class);
         if(tbUserVo != null){
-            String loginSessionId = redisService.get(SessionKey.sessionByUserId,Integer.toString(tbUserVo.getId()),String.class);
+            String loginSessionId = redisService.hget(SessionKey.sessionByUserId,Integer.toString(tbUserVo.getId()),SessionCacheName.SESSION_ID,String.class);
             if(!StringUtils.isEmpty(loginSessionId)
                     &&!session.getId().equals(loginSessionId)){
                 request.setAttribute("errorMsg",CodeMsg.LOGIN_OTHER_ERROR.getMsg());
@@ -71,7 +71,7 @@ public class LoginController {
         HttpSession session = request.getSession();
         TbUserVo tbUserVo = redisService.hget(SessionKey.sessionById,session.getId(),SessionCacheName.LOGIN_USER,TbUserVo.class);
         if(tbUserVo != null){
-            String loginSessionId = redisService.get(SessionKey.sessionByUserId,Integer.toString(tbUserVo.getId()),String.class);
+            String loginSessionId = redisService.hget(SessionKey.sessionByUserId,Integer.toString(tbUserVo.getId()),SessionCacheName.SESSION_ID,String.class);
             if(!session.getId().equals(loginSessionId)){
                 return JsonResult.error(CodeMsg.LOGIN_OTHER_ERROR);
             }else{
@@ -98,7 +98,7 @@ public class LoginController {
         }
         TbUserVo tbUserVo = userService.getUserVoFromTb(tbUser);
         //更新session信息
-        String oldSessionId = redisService.get(SessionKey.sessionByUserId,Integer.toString(tbUserVo.getId()),String.class);
+        String oldSessionId = redisService.hget(SessionKey.sessionByUserId,Integer.toString(tbUserVo.getId()),SessionCacheName.SESSION_ID,String.class);
         redisService.updateLoginSerssion(session.getId(),oldSessionId,tbUserVo);
         return JsonResult.success(tbUserVo);
     }

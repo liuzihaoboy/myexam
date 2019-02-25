@@ -46,6 +46,18 @@ public class RedisServiceImpl implements RedisService {
     }
 
     @Override
+    public <T> void setex(KeyPrefix prefix, String key, T t, int expire) {
+        Jedis jedis = null;
+        try {
+            jedis = jedisPool.getResource();
+            String realKey=realKey(prefix,key);
+            jedis.setex(realKey.getBytes(UTF8_CHARSET),expire,serialize(t));
+        }finally {
+            close(jedis);
+        }
+    }
+
+    @Override
     public <T> T get(KeyPrefix prefix,String key, Class<T> c) {
         Jedis jedis = null;
         try {
@@ -98,11 +110,9 @@ public class RedisServiceImpl implements RedisService {
             if (SessionKey.sessionById.expireSeconds()>0){
                 transaction.expire(newSessionRealKey.getBytes(UTF8_CHARSET),SessionKey.sessionById.expireSeconds());
             }
-            int expire = SessionKey.sessionByUserId.expireSeconds();
-            if(expire <= 0){
-                transaction.set(userRealKey.getBytes(UTF8_CHARSET),serialize(sessionId));
-            }else{
-                transaction.setex(userRealKey.getBytes(UTF8_CHARSET),SessionKey.sessionByUserId.expireSeconds(),serialize(sessionId));
+            transaction.hset(userRealKey.getBytes(UTF8_CHARSET),SessionCacheName.SESSION_ID.getBytes(UTF8_CHARSET),serialize(sessionId));
+            if(SessionKey.sessionByUserId.expireSeconds() > 0){
+                transaction.expire(userRealKey.getBytes(UTF8_CHARSET),SessionKey.sessionByUserId.expireSeconds());
             }
             transaction.exec();
             jedis.unwatch();

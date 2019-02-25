@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>在线考试系统</title>
+    <link rel="shortcut icon" th:href="@{/static/favicon.ico}" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <!--[if lt IE 8]>
+    <meta http-equiv="refresh" content="0;ie.html" />
+    <![endif]-->
+    <link th:href="@{/static/css/style.css}" rel="stylesheet">
+    <link th:href="@{/static/css/style-list.min.css?v=4.0.0}" rel="stylesheet">
+    <link th:href="@{/static/css/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/static/css/font-awesome.min.css}" rel="stylesheet">
+    <link th:href="@{/static/css/bootstrap-table.css}" rel="stylesheet">
+    <link th:href="@{/static/css/animate.min.css}" rel="stylesheet">
+    <link th:href="@{/static/css/admin.css}" rel="stylesheet">
+    <link th:href="@{/static/css/jquery.validator.css}" rel="stylesheet">
+    <link th:href="@{/static/css/ui.css}" rel="stylesheet">
+</head>
+
+<body class="gray-bg white">
+<div class="form-inline" role="form">
+    <div class="tm_main">
+        <div class="tm_container">
+            <ul class="tm_breadcrumb">
+                <li><a th:href="@{/index.html}">首页</a> <span class="divider">&gt;</span></li>
+                <li><a th:href="@{/system/paper/list}">试卷管理</a> <span class="divider">&gt;</span></li>
+                <li class="active">配置试卷</li>
+            </ul>
+        </div>
+        <div class="tm_container">
+            <table border="0" cellpadding="0" width="100%">
+                <TBODY><tr>
+                    <!-- left -->
+                    <td valign="top">
+                        <form action="system/paper/updateDetail.do" id="form_paper_detail" method="post">
+                            <div class="tm_adm_paper">
+                                <div class="tm_adm_paper_head">
+                                    <h1 th:text="${paperVo.paperName}">测试考试123</h1>
+                                    <h2 style="background:#ddd; padding:5px 0;">
+                                        <b th:text="${paperType.value}">普通试卷</b> &nbsp;
+                                        <span th:if="${paperType.id==1}">考生试卷相同</span>
+                                        <span th:if="${paperType.id==2}">考生试卷随机</span>
+                                    </h2>
+                                    <h2>
+                                        <b>时间设定</b> : <span th:text="${paperVo.startTime+'--'+paperVo.endTime}"></span> &nbsp;&nbsp;
+                                        <b>考试时长</b> : <span th:text="${paperVo.paperMinute}"></span> 分钟
+                                    </h2>
+                                    <h3>
+                                        <b>卷面总分</b> :
+                                        <input class="tm_txt" id="paperScore" readonly="readonly" style="background:#eee;" type="text" value="0" />
+                                        &nbsp;&nbsp;
+                                        <b>及格分数</b> :
+                                        <input class="tm_txt" th:value="${paperVo.passScore}" data-rule="required;" name="passScore" type="number" value="80" />
+                                    </h3>
+                                </div>
+                            </div>
+                        </form>
+                    </td><!-- /left -->
+                </tr>
+                </TBODY>
+            </table>
+        </div>
+    </div>
+</div>
+<div id="toolbar">
+    <div class="form-inline" role="form">
+        <div class="form-group">
+            <div class="btn-group hidden-xs" id="exampleToolbar" role="group">
+                <button type="button" id="addBtn"  class="btn btn-outline btn-default">
+                    <i class="glyphicon glyphicon-plus" aria-hidden="true"></i>
+                </button>
+                <button type="button" id="btn_delete" class="btn btn-outline btn-default">
+                    <i class="glyphicon glyphicon-trash" aria-hidden="true"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<table id="table" data-toolbar="#toolbar"  data-show-toggle="true" data-show-columns="true" data-show-refresh="true" data-query-params="queryParams">
+</table>
+<script th:src="@{/static/js/jquery-3.1.1.js}" type="text/javascript" charset="utf-8"></script>
+<script th:src="@{/static/js/bootstrap.min.js}" type="text/javascript" charset="utf-8"></script>
+<script th:src="@{/static/js/bootstrap-table.min.js}" type="text/javascript" charset="utf-8"></script>
+<script th:src="@{/static/js/bootstrap-table-editable.min.js}" type="text/javascript" charset="utf-8"></script>
+<script th:src="@{/static/js/bootstrap-table-zh-CN.min.js}" type="text/javascript" charset="utf-8"></script>
+<script th:src="@{/static/js/layer/layer.js}" type="text/javascript" charset="utf-8"></script>
+<script th:src="@{/static/js/bootstrap-editable.min.js}" type="text/javascript" charset="utf-8"></script>
+<script  th:src="@{/static/js/bootstrap-datetimepicker.min.js}"></script>
+<script  th:src="@{/static/js/bootstrap-datetimepicker.zh-CN.js}"></script>
+<script type="text/javascript" th:inline="javascript">
+    /*<![CDATA[*/
+    var paperId = [[${paperVo}]].id;
+    var paperType = [[${paperType}]].id;
+    /*]]>*/
+    var table = $('#table');
+    table.bootstrapTable({
+        contentType: "application/x-www-form-urlencoded",
+        method:'get',
+        url: './json?paperId='+ paperId+"&paperType="+paperType,
+        height: 600 ,
+        pagination: true,//是否开启分页（*）
+        pageNumber: 1,//初始化加载第一页，默认第一页
+        pageSize: 50,//每页的记录行数（*）
+        pageList: [30, 50, 100,150],//可供选择的每页的行数（*）
+        sidePagination: "client", //分页方式：client客户端分页，server服务端分页（*）
+        detailView:true,
+        columns: [
+            {
+                checkbox : true,
+                align : 'center',
+                value:"id",
+            },
+            {
+                title: '序号',
+                align: 'center',
+                formatter: 'opIndex'
+            },{
+                field: 'sectionTypeName',
+                title: '章节类型',
+                align: 'center',
+                sortable:true,
+            },{
+                field: 'questionNum',
+                title: '题目数量',
+                align: 'center',
+                sortable:true,
+            }, {
+                field: 'questionScore',
+                title: '题目分数',
+                align: 'center',
+            }, {
+                field: 'totalScore',
+                title: '章节总分',
+                align: 'center',
+            }, {
+                title: '包含题库',
+                align: 'center',
+                formatter:function(value,row,index){
+                    if(row.paperType==1){
+                        return "无"
+                    }else {
+                        var qdbs = row.qdbs;
+                        var html = [];
+                        for (var i=0;i<qdbs.length;i++){
+                            html.push(qdbs[i].qdbName);
+                        }
+                        return html.join("<br>");
+                    }
+                }
+            }, {
+                field: 'levelScale',
+                title: '难度比例',
+                align: 'center',
+                formatter:function(value,row,index){
+                    if(row.paperType==1){
+                        return "无"
+                    }else {
+                        return row.levelScale;
+                    }
+                }
+            },{
+                field: 'option',
+                title: '操作',
+                align: 'center',
+                formatter: 'opFormatter'
+
+            }],
+        onLoadSuccess:function (data) {
+            if(data.length>0){
+                $("#paperScore").val(data[0].paperScore);
+            }
+        },
+        onExpandRow:function (index, row, $detail) {
+            initSubTable(index,row,$detail);
+        }
+    });
+    function initSubTable(index,row,$detail) {
+        var sectionId = row.id;
+        var cur_table = $detail.html('<table id="subTable"></table>').find('table');
+        $(cur_table).bootstrapTable({
+            contentType: "application/x-www-form-urlencoded",
+            method:'get',
+            url: '../question/json?sectionId='+sectionId,
+            pagination: false,
+            columns: [{
+                title: '序号',
+                align: 'center',
+                formatter: 'opIndex'
+            },{
+                field: 'questionContent',
+                title: '试题题干',
+                align: 'center',
+                sortable:true,
+            },{
+                field: 'option',
+                title: '操作',
+                align: 'center',
+                formatter: function (value,row,index) {
+                    return [
+                        '<button data-toggle="tooltip" data-id="' +"'"+ row.id+"'" + '" class="btn btn-success btn-xs edit" onclick="questionDetail('+"'" + row.id+"'" + ')" title="预览">',
+                        '<i class="glyphicon glyphicon glyphicon-eye-open"></i>',
+                        '</button>  ',
+                        '<button data-toggle="tooltop" data-id="' +"'" + row.id +"'" + '" class="btn btn-danger btn-xs edit remove" onclick="questionRemove(' +"'"+sectionId+"',"+"'" + row.id+"'," +'this)" title="删除">',
+                        '<i class="glyphicon glyphicon-remove"></i>',
+                        '</button>'
+                    ].join('');
+                }
+            }]
+        });
+    }
+    function refreshTable(){
+        table.bootstrapTable('refresh',{pageNumber:1});
+    }
+    function queryParams(params){
+        $('#toolbar').find('input,select').each(function(){
+            params[$(this).attr('name')] = $(this).val();
+        });
+        return params;
+    }
+    function opIndex(value, row, index){
+        return [index+1].join('');
+    }
+    function opFormatter(value, row, index) {
+        return [
+            '<button data-toggle="tooltip" data-id="' +"'"+ row.id+"'" + '" class="btn btn-success btn-xs edit" onclick="initEdit('+"'" + row.id+"'" + ')" title="详情">',
+            '<i class="glyphicon glyphicon-pencil"></i>',
+            '</button>  ',
+            '<button data-toggle="tooltop" data-id="' +"'" + row.id +"'" + '" class="btn btn-danger btn-xs edit remove" onclick="initRemove(' +"'" + row.id+"'" +')" title="删除">',
+            '<i class="glyphicon glyphicon-remove"></i>',
+            '</button>'
+        ].join('');
+    }
+    $("#searchBtn").on("click",function(){
+        refreshTable();
+    });
+    $("#addBtn").on("click",function () {
+        if(paperType==2){
+            window.open('../add/'+paperId+"?paperType="+paperType);
+        }else {
+            layer.open({
+                type:2,
+                area:['780px','500px'],
+                title: '修改',
+                btn:['确定','取消'],
+                content:'../add/'+paperId+"?paperType="+paperType,
+                yes:function(index,layero){
+                    var iframeName = layero.find("iframe")[0]['name'];
+                    var iframeWindow = window[iframeName];
+                    iframeWindow.submitForm();
+                }
+            });
+        }
+    });
+    function initEdit(id){
+        window.open('../detail/'+id+"?t="+paperId+"&paperType="+paperType);
+    }
+    $("[data-toggle='tooltip']").tooltip();
+    $('#toolbar').find('select').change(function () {
+        table.bootstrapTable('refresh',{pageNumber:1});
+    });
+    $("#btn_delete").on("click",function () {
+        var selectContent = table.bootstrapTable('getSelections');
+        if(selectContent.length==0) {
+            layer.alert('请选择一列数据!', {
+                icon: 2
+            });
+            return false;
+        }else{
+            var id="";
+            for(var i = 0; i <selectContent.length;i++){
+                id+=selectContent[i].id+",";
+            }
+            initRemove(id);
+        }
+    });
+    function initRemove(id){
+        layer.confirm("确认删除？",{icon:3,title:"请选择"},function(index){
+            $.ajax({
+                type:"post",
+                dateType:"json",
+                url:"../delete/"+paperId+"/"+id,
+                success:function(ret){
+                    if(ret.status){
+                        layer.msg("操作成功",{icon:1,time:2000});
+                    }else{
+                        layer.msg("删除失败:"+ret.msg,{icon:2,time:2000});
+                    }
+                    refreshTable();
+                }
+            });
+            layer.close(index);
+        });
+    }
+    function questionDetail(id) {
+        layer.open({
+            type:2,
+            area:['780px','500px'],
+            title: '试题详情',
+            content:'./../../../qdb/question/preview/'+id
+        });
+    }
+    function questionRemove(sectionId,id,button) {
+        layer.confirm("确认删除？",{icon:3,title:"请选择"},function(index){
+            $.ajax({
+                type:"post",
+                dateType:"json",
+                url:"../question/delete",
+                data:{
+                  'sectionId':sectionId, 'questionId':id,
+                },
+                success:function(ret){
+                    if(ret.status){
+                        layer.msg("操作成功",{icon:1,time:2000});
+                    }else{
+                        layer.msg("删除失败:"+ret.data,{icon:2,time:2000});
+                    }
+                    refreshTable();
+                }
+            });
+            layer.close(index);
+        });
+    }
+</script>
+</body>
+</html>

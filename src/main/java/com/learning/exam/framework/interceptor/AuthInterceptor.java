@@ -38,7 +38,7 @@ public class AuthInterceptor implements HandlerInterceptor {
             httpServletResponse.sendRedirect(httpServletRequest.getContextPath()+"/login");
             return false;
         }else {
-            String loginSessionId = redisService.get(SessionKey.sessionByUserId,Integer.toString(tbUserVo.getId()),String.class);
+            String loginSessionId = redisService.hget(SessionKey.sessionByUserId,Integer.toString(tbUserVo.getId()),SessionCacheName.SESSION_ID,String.class);
             //旧的登录信息
             if(!loginSessionId.equals(session.getId())){
                 httpServletResponse.sendRedirect(httpServletRequest.getContextPath()+"/login");

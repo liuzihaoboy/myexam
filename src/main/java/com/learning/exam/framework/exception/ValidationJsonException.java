@@ -19,6 +19,7 @@ public class ValidationJsonException extends RuntimeException {
         this.codeMsg=codeMsg;
     }
 
+
     public CodeMsg getCodeMsg() {
         return codeMsg;
     }

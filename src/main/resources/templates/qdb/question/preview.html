@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>在线考试系统</title>
+    <link rel="shortcut icon" th:href="@{/static/favicon.ico}" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <!--[if lt IE 8]>
+    <meta http-equiv="refresh" content="0;ie.html" />
+    <![endif]-->
+    <link th:href="@{/static/css/style.css}" rel="stylesheet"/>
+    <link th:href="@{/static/css/ui.css}" rel="stylesheet"/>
+    <style>
+        .tmx-body p{margin:0 0;}
+        .tmx-option p{margin:0 0;}
+    </style>
+</head>
+<body>
+<div style="margin:15px 15px;">
+    <table width="100%" cellpadding="5" border="0" class="tm_table_form">
+        <tr>
+            <th style="width:100px"><b>试题类型</b></th>
+            <td th:text="${type.value}"></td>
+        </tr>
+        <tr>
+            <th><b>试题难度</b></th>
+            <td th:text="${level.value}"></td>
+        </tr>
+        <tr>
+            <th><b>所属题库</b></th>
+            <td th:text="${questionVo.qdbName}"></td>
+        </tr>
+        <tr>
+            <th><b>试题题干</b></th>
+            <td style="word-break:break-all;" class="tmx-body" th:text="${questionVo.qContent}"></td>
+        </tr>
+        <tr id="opt">
+            <th><b>选项设置</b></th>
+            <td >
+                <table id='optTable' width="100%" cellpadding="5" border="0"></table>
+            </td>
+        </tr>
+        <tr >
+            <th><b>试题答案</b></th>
+            <td style="word-break:break-all;">
+                <table id='keyTable' width="100%" cellpadding="5" border="0"></table>
+            </td>
+        </tr>
+        <tr>
+            <th><b>答案解析</b></th>
+            <td th:text="${questionVo.keyInfo}">
+            </td>
+        </tr>
+    </table>
+</div>
+<script th:src="@{/static/js/jquery-3.1.1.js}" type="text/javascript" charset="utf-8"></script>
+<script th:src="@{/static/js/layer/layer.js}" type="text/javascript" charset="utf-8"></script>
+<script th:inline="javascript">
+    var typeId = [[${type}]].id;
+    var questionVo = [[${questionVo}]];
+    if(typeId==1|| typeId==2){
+        var html = "";
+        var keyHtml = "";
+        for (var i=0;i<questionVo.opts.length;i++){
+            var opt = questionVo.opts[i];
+            html+="<tr>\n" +
+                "<td style=\"width:50px; text-align:center; background:#f5f5f5\">"+opt.orderNum+"</td>\n" +
+                "<td style=\"word-break:break-all;\" class=\"tmx-option\">"+opt.optionContent+"</td>\n" +
+                "</tr>\n";
+            for(var j=0;j<questionVo.optKey.length;j++){
+                var key = questionVo.optKey[j];
+                if(key==opt.id){
+                    keyHtml+="<td style=\"word-break:break-all;\">"+opt.optionContent+"</td>\n";
+                    break;
+                }
+            }
+        }
+        $("#optTable").append(html);
+        $("#keyTable").append(keyHtml);
+    }else if(typeId==3 || typeId==4){
+        $("#opt").hide();
+        var keyHtml = "";
+        for(var j=0;j<questionVo.optKey.length;j++){
+            var key = questionVo.optKey[j];
+            keyHtml+="<td style=\"word-break:break-all;\">"+key+"</td>\n";
+        }
+        $("#keyTable").append(keyHtml);
+    }
+
+</script>
+</body>
+</html>

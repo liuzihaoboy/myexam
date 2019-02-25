@@ -13,15 +13,22 @@ import com.learning.exam.framework.interceptor.AuthInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.convert.converter.Converter;
+import org.springframework.core.convert.support.GenericConversionService;
 import org.springframework.data.geo.Distance;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.support.ConfigurableWebBindingInitializer;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
 
+import javax.annotation.PostConstruct;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -84,5 +91,56 @@ public class WebMvcConfig extends WebMvcConfigurerAdapter {
         objectMapper.setDateFormat(new SimpleDateFormat("yyyy年M月dd日 HH:mm"));
         //objectMapper.setTimeZone(TimeZone.getTimeZone("GMT+2"));
         return objectMapper;
+    }
+    @Autowired
+    private RequestMappingHandlerAdapter handlerAdapter;
+    /**
+     * 增加字符串转日期的功能
+     */
+    @PostConstruct
+    public void initEditableValidation() {
+        ConfigurableWebBindingInitializer initializer = (ConfigurableWebBindingInitializer) handlerAdapter
+                .getWebBindingInitializer();
+        if (initializer.getConversionService() != null) {
+            GenericConversionService genericConversionService = (GenericConversionService) initializer
+                    .getConversionService();
+            genericConversionService.addConverter(new StringToDateConverter());
+        }
+    }
+    /**
+     * 字符串转日期的转换器
+     * @author byshome
+     */
+    class StringToDateConverter implements Converter<String, Date> {
+        private static final String dateFormat = "yyyy-MM-dd HH:mm";
+        private static final String shortDateFormat = "yyyy-MM-dd";
+        /**
+         * @see org.springframework.core.convert.converter.Converter#convert(java.lang.Object)
+         */
+        @Override
+        public Date convert(String source) {
+            if (StringUtils.isEmpty(source)) {
+                return null;
+            }
+            source = source.trim();
+            try {
+                if (source.contains("-")) {
+                    SimpleDateFormat formatter;
+                    if (source.contains(":")) {
+                        formatter = new SimpleDateFormat(dateFormat);
+                    } else {
+                        formatter = new SimpleDateFormat(shortDateFormat);
+                    }
+                    Date dtDate = formatter.parse(source);
+                    return dtDate;
+                } else if (source.matches("^\\d+$")) {
+                    Long lDate = new Long(source);
+                    return new Date(lDate);
+                }
+            } catch (Exception e) {
+                throw new RuntimeException(String.format("parser %s to Date fail", source));
+            }
+            throw new RuntimeException(String.format("parser %s to Date fail", source));
+        }
     }
 }

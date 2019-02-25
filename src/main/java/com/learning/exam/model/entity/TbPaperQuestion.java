@@ -2,6 +2,7 @@ package com.learning.exam.model.entity;
 
 import lombok.Data;
 
+import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
@@ -9,6 +10,7 @@ import javax.persistence.Id;
  * @author liuzihao
  * @date 2019-02-21  11:15
  */
+@Entity
 @Data
 public class TbPaperQuestion {
     @Id

@@ -23,4 +23,30 @@
             </if>
         </where>
     </select>
+    <select id="findQuestionContentsByCondition" resultType="QuestionContentVo">
+        select t.id,t.q_content as question_content,t.q_type from tb_question t
+        <where>
+            <if test="qdbKey != null and qdbKey !=''">
+                AND t.qdb_id=#{qdbKey}
+            </if>
+            <if test="typeKey != null and typeKey !=''">
+                AND t.q_type=#{typeKey}
+            </if>
+            <if test="levelKey != null and levelKey !=''">
+                AND t.q_level=#{levelKey}
+            </if>
+            <if test="statusKey != null and statusKey !=''">
+                AND t.q_status=#{statusKey}
+            </if>
+            <if test="contentKey != null and contentKey !=''">
+                AND t.q_content like #{contentKey}
+            </if>
+        </where>
+    </select>
+    <select id="findQuestionContents" resultType="QuestionContentVo">
+        select t.id,t.q_content as question_content,t.q_type from tb_question t
+    </select>
+    <select id="findQuestionContentById" resultType="QuestionContentVo">
+        select t.id,t.q_content as question_content,t.q_type from tb_question t where t.id=#{id}
+    </select>
 </mapper>

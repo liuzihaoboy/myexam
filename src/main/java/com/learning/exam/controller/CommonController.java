@@ -1,5 +1,6 @@
 package com.learning.exam.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.learning.exam.framework.cache.SessionCacheName;
 import com.learning.exam.framework.enums.RoleEnum;
 import com.learning.exam.framework.exception.AuthException;
@@ -10,6 +11,7 @@ import com.learning.exam.model.result.CodeMsg;
 import com.learning.exam.model.vo.BaseMenu;
 import com.learning.exam.model.vo.MenuVo;
 import com.learning.exam.model.vo.TbUserVo;
+import com.learning.exam.service.PaperService;
 import com.learning.exam.service.PermissionService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,23 +59,7 @@ public class CommonController {
             }else if(RoleEnum.SuperAdmin.getId().equals(tbUserVo.getTbRole().getId())){
                 return "menu_admin";
             }else {
-               List<MenuVo> menuVos = redisService.hget(SessionKey.sessionById,session.getId(),SessionCacheName.BASE_MENU,ArrayList.class);
-               if(menuVos == null){
-                   List<TbPermission> permissions = tbUserVo.getTbPermissions();
-                   menuVos = new ArrayList<>();
-                   for (TbPermission tbPermission:permissions){
-                       String url = tbPermission.getPerUrl();
-                       if("/*".equals(url)||"/".equals(url)){
-                           continue;
-                       }
-                       MenuVo menuVo = new MenuVo();
-                       menuVo.setTitle(tbPermission.getPerTitle());
-                       List<BaseMenu> baseMenus = permissionService.getPerMenus(tbPermission.getId());
-                       menuVo.setMenus(baseMenus);
-                       menuVos.add(menuVo);
-                   }
-                   redisService.hset(SessionKey.sessionById,session.getId(),SessionCacheName.BASE_MENU,menuVos);
-               }
+                List<MenuVo> menuVos = menuVos(session.getId(),tbUserVo);
                 request.setAttribute("menuVos",menuVos);
             }
         }
@@ -81,6 +67,36 @@ public class CommonController {
     }
     @RequestMapping(value = "/welcome",method = RequestMethod.GET,produces = "text/html;charset=utf-8")
     public String welcome(HttpServletRequest request){
-        return  "welcome";
+        HttpSession session = request.getSession();
+        TbUserVo tbUserVo = redisService.hget(SessionKey.sessionById,session.getId(),SessionCacheName.LOGIN_USER,TbUserVo.class);
+        if(RoleEnum.Student.getId().equals(tbUserVo.getTbRole().getId())){
+            return "redirect:/user/index";
+        }else if(RoleEnum.SuperAdmin.getId().equals(tbUserVo.getTbRole().getId())){
+            return "welcome_admin";
+        }else {
+            List<MenuVo> menuVos = menuVos(session.getId(),tbUserVo);
+            return "redirect:"+menuVos.get(0).getMenus().get(0).getUrl();
+        }
+    }
+    private List<MenuVo> menuVos(String sessionId,TbUserVo tbUserVo){
+        String menuVosJson = redisService.hget(SessionKey.sessionById,sessionId,SessionCacheName.BASE_MENU,String.class);
+        List<MenuVo> menuVos = JSONObject.parseArray(menuVosJson,MenuVo.class);
+        if(menuVos == null){
+            List<TbPermission> permissions = tbUserVo.getTbPermissions();
+            menuVos = new ArrayList<>();
+            for (TbPermission tbPermission:permissions){
+                String url = tbPermission.getPerUrl();
+                if("/*".equals(url)||"/".equals(url)){
+                    continue;
+                }
+                MenuVo menuVo = new MenuVo();
+                menuVo.setTitle(tbPermission.getPerTitle());
+                List<BaseMenu> baseMenus = permissionService.getPerMenus(tbPermission.getId());
+                menuVo.setMenus(baseMenus);
+                menuVos.add(menuVo);
+            }
+            redisService.hset(SessionKey.sessionById,sessionId,SessionCacheName.BASE_MENU,menuVos);
+        }
+        return menuVos;
     }
 }

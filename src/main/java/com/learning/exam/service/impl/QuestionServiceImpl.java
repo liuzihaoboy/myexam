@@ -12,9 +12,7 @@ import com.learning.exam.framework.exception.ValidationHtmlException;
 import com.learning.exam.model.dto.QuestionDto;
 import com.learning.exam.model.entity.*;
 import com.learning.exam.model.result.CodeMsg;
-import com.learning.exam.model.vo.QuestionDbVo;
-import com.learning.exam.model.vo.QuestionVo;
-import com.learning.exam.model.vo.TbUserVo;
+import com.learning.exam.model.vo.*;
 import com.learning.exam.service.QuestionService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +21,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.util.*;
+import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import static org.codehaus.groovy.runtime.DefaultGroovyMethods.collect;
 import static org.codehaus.groovy.runtime.DefaultGroovyMethods.tr;
@@ -48,6 +49,46 @@ public class QuestionServiceImpl implements QuestionService {
     private QuestionOptJpa questionOptJpa;
     @Autowired
     private UserJpa userJpa;
+    @Autowired
+    private PaperQuestionJpa paperQuestionJpa;
+
+    @Override
+    public List<Integer> getQuestionIdsBySectionId(Integer sectionId) {
+        String questionIdsStr = paperQuestionJpa.findQuestionIdsBySectionId(sectionId);
+        if(StringUtils.isEmpty(questionIdsStr)) {
+            return null;
+        }
+        return Arrays.stream(questionIdsStr.split(","))
+                .map(Integer::parseInt).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<QuestionContentVo> getQuestionContentsBySectionId(Integer sectionId) {
+        //普通试卷需要获取试题
+        List<Integer> questionIds = getQuestionIdsBySectionId(sectionId);
+        if(questionIds == null){
+            return new ArrayList<>();
+        }
+        List<QuestionContentVo> questionContentVos = new ArrayList<>();
+        QuestionContentVo questionContentVo = null;
+        for (Integer questionId:questionIds){
+            questionContentVo  = questionMapper.findQuestionContentById(questionId);
+            if(questionContentVo != null){
+                questionContentVos.add(questionContentVo);
+            }
+        }
+        return questionContentVos;
+    }
+
+    @Override
+    public List<QuestionContentVo> getQuestionContentsByCondition(String qdbKey, String typeKey, String levelKey, String statusKey, String contentKey) {
+        return questionMapper.findQuestionContentsByCondition(qdbKey,typeKey,levelKey,statusKey,contentKey);
+    }
+
+    @Override
+    public List<QuestionContentVo> getQuestionContents() {
+        return questionMapper.findQuestionContents();
+    }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -68,32 +109,48 @@ public class QuestionServiceImpl implements QuestionService {
         String optKey = null;
         if(questionDto.getQType().equals(QtypeEnum.EXCLUSIVE_CHOICE.getId())
                 ||questionDto.getQType().equals(QtypeEnum.MULTIPLE_CHOICE.getId())){
+            //提交的选项内容
             String[] qOptions = questionDto.getQ_options();
+            //选项排序
             String[] orderNum = questionDto.getOrderNum();
             if(orderNum.length!=qOptions.length){
                 throw new ValidationHtmlException(CodeMsg.Q_OPT_ERROR);
             }
+            //更新前数据库选项id集合
             List<Integer> oldOptIds = new ArrayList<>(Arrays.asList(questionOptJpa.findIdsByQId(questionDto.getId())));
-            List<String> oldOptKeys = new ArrayList<>(Arrays.asList(questionDto.getOptKey().split(",")));
+            //提交的答案id集合
+            List<String> optKeys = new ArrayList<>(Arrays.asList(questionDto.getOptKey().split(",")));
+            //更新后的答案选项id集合
             List<String> optKeyId = new ArrayList<>();
             TbQuestionOpt tbQuestionOpt;
+            //更新选项
             for (int i=0;i<qOptions.length;i++){
+                //选项内容切割（内容+#&#+id）（如果id前有:表示是更新的选项，否则是原来没有改动的选项）
                 String[] content = qOptions[i].split("#&#");
+                //得到正确id的整数类型
                 Integer optId = Integer.parseInt(content[1].replaceAll(":",""));
                 tbQuestionOpt = new TbQuestionOpt();
+                //选项内容
                 tbQuestionOpt.setOptionContent(content[0]);
                 tbQuestionOpt.setOrderNum(Integer.parseInt(orderNum[i]));
                 tbQuestionOpt.setQId(questionDto.getId());
+                //如果是原来没有改动的选项并且数据库存在
                 if(!content[1].startsWith(":")&&oldOptIds.contains(optId)){
                     tbQuestionOpt.setId(optId);
                 }
                 TbQuestionOpt questionOpt = questionOptJpa.save(tbQuestionOpt);
-                if(oldOptKeys.contains(content[1])){
+                //答案匹配选项id
+                if(optKeys.contains(content[1])){
+                    //获取选项插入数据库后返回的id
                     optKeyId.add(questionOpt.getId().toString());
                 }
-                if(!content[1].startsWith(":"))oldOptIds.remove(optId);
+                //移除操作过的id
+                if(!content[1].startsWith(":")){
+                    oldOptIds.remove(optId);
+                }
             }
             optKey = String.join(",",optKeyId);
+            //删除其他没有旧的选项
             for (Integer optId:oldOptIds){
                 questionOptJpa.deleteById(optId);
             }
@@ -244,12 +301,7 @@ public class QuestionServiceImpl implements QuestionService {
     }
     @Override
     public List<QuestionDbVo> getQdbsByCondition(String nameKey, String userNameKey, String courseKey,String statusKey) {
-        List<TbQuestionDb> tbQuestionDbs = null;
-        if(!StringUtils.isEmpty(courseKey)){
-            tbQuestionDbs = questionDbMapper.findQdbsByCondition(nameKey+'%',userNameKey+'%',Integer.parseInt(courseKey),statusKey);
-        }else {
-            tbQuestionDbs = questionDbMapper.findQdbsByCondition(nameKey+'%',userNameKey+'%',null,statusKey);
-        }
+        List<TbQuestionDb> tbQuestionDbs = questionDbMapper.findQdbsByCondition("%"+nameKey+'%',userNameKey+'%',courseKey,statusKey);
         List<QuestionDbVo> questionDbVos = new ArrayList<>();
         Map<String,Object> map =new HashMap<>(8);
         for (TbQuestionDb tbQuestionDb:tbQuestionDbs){
@@ -271,6 +323,12 @@ public class QuestionServiceImpl implements QuestionService {
             questionDbJpa.delete(Integer.parseInt(id));
         }
     }
+
+    @Override
+    public Integer getQdbIdById(Integer id) {
+        return questionDbJpa.findQdbIdById(id);
+    }
+
 
     @Override
     public List<TbQuestionDb> getTbQdbs() {

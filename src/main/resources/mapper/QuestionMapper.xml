@@ -3,6 +3,20 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.learning.exam.dao.mapper.QuestionMapper">
+    <select id="findQuestionResultById"  resultType="QuestionResultVo">
+        select t.id,t.q_content as question_content,t.q_type as question_type,t.opt_key,t.key_info
+        from tb_question t
+        where t.id=#{id}
+    </select>
+    <select id="findQuestionIdsByQdbIdAndQtype"  resultType="QuestionContentVo">
+        select t.id,t.q_content as question_content,t.q_type,t.opt_key,t.q_level
+        from tb_question t
+        where t.q_type=#{qtype} and qdb_id in
+        <foreach item="item" index="index" collection="qdbIds"
+                 open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
     <select id="findQuestionsByCondition" resultType="TbQuestion" >
         select t.* from tb_question t
         <where>
@@ -47,6 +61,6 @@
         select t.id,t.q_content as question_content,t.q_type from tb_question t
     </select>
     <select id="findQuestionContentById" resultType="QuestionContentVo">
-        select t.id,t.q_content as question_content,t.q_type from tb_question t where t.id=#{id}
+        select t.id,t.q_content as question_content,t.q_type,t.opt_key from tb_question t where t.id=#{id}
     </select>
 </mapper>

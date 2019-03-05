@@ -16,8 +16,8 @@ import java.util.List;
  */
 @Repository
 public interface QuestionOptJpa extends JpaRepository<TbQuestionOpt,Integer> {
-    @Query(nativeQuery = true,value = "select opt.id,opt.option_content,opt.order_num,opt.q_id from tb_question_opt opt where opt.q_id=:qId order by opt.order_num asc")
-    List<TbQuestionOpt> findByQId(@Param("qId") Integer qId);
+//    @Query(nativeQuery = true,value = "select opt.id,opt.option_content,opt.order_num,opt.q_id from tb_question_opt opt where opt.q_id=:qId order by opt.order_num asc")
+//    List<TbQuestionOpt> findByQId(@Param("qId") Integer qId);
     @Transactional
     @Modifying
     @Query(nativeQuery = true,value = "insert into tb_question_opt(option_content, q_id, order_num) values (:#{#tbQuestionOpt.optionContent},:#{#tbQuestionOpt.qId},:#{#tbQuestionOpt.orderNum})")

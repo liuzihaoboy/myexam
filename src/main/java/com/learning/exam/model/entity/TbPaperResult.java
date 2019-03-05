@@ -22,5 +22,5 @@ public class TbPaperResult {
     private Integer resultScore;
     private Integer resultMinute;
     private Date submitTime;
-    private Integer leaveTimes;
+    private String questionScore;
 }

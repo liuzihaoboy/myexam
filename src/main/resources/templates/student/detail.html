@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en"  xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>在线考试系统</title>
+    <link rel="shortcut icon" th:href="@{/static/favicon.ico}" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <!--[if lt IE 8]>
+    <meta http-equiv="refresh" content="0;ie.html" />
+    <![endif]-->
+    <link rel="stylesheet" type="text/css" th:href="@{/static/css/style.css}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/static/css/ui.css}" />
+    <!--<link th:href="@{/static/css/bootstrap.min.css}" rel="stylesheet">-->
+    <style>
+        .div-key-container{margin:5px 25px; border:dotted 0px #ddd; padding:0px;}
+        .div-key-container span{font-weight:bold; clear:both}
+        .div-key-container fieldset{border:solid 1px #ddd; margin-top:5px}
+        .div-key-container fieldset legend{font-weight:bold}
+        .div-key-container fieldset p{display:inline}
+        .tm_question_tools{list-style:none; padding:0; margin:0; }
+        .tm_question_tools li{list-style:none; padding:0; margin:0; width:40px; float:left; background:#eee; text-align:center; height:35px}
+        .tm_question_tools li img{margin-top:8px;}
+        .tm_question_tools li span{line-height:30px;}
+        .tm_question_tools li span a{color:#00a; text-decoration:underline}
+        .tm_userkey{word-break:break-all;}
+    </style>
+</head>
+<body>
+<div class="tm_main">
+    <div class="tm_container">
+        <ul class="tm_breadcrumb">
+            <li><a th:href="@{/common/welcome}">首页</a> <span class="divider">&gt;</span></li>
+            <li><a th:href="@{/user/paper/history}">历史考试</a> <span class="divider">&gt;</span></li>
+            <li class="active" th:text="${paperResultVo.paperName}"></li>
+        </ul>
+    </div>
+    <div class="tm_container">
+        <table border="0" width="100%" cellpadding="0" style="min-width:860px;">
+            <tr>
+                <!-- left -->
+                <td valign="top">
+                    <div class="tm_paper">
+                        <div class="tm_paper_head">
+                            <h1 th:text="${paperResultVo.paperName}"></h1>
+                            <h2 style="background:#ddd; padding:5px 0; font-size:14px; font-weight:bold">
+                                试卷信息
+                            </h2>
+                            <h2>
+                                <b>时间设定</b> :
+                                <span th:text="${#dates.format(paperResultVo.startTime,'yyyy-MM-dd HH:mm:ss')+'--'+#dates.format(paperResultVo.endTime,'yyyy-MM-dd HH:mm:ss')}"></span>
+                                &nbsp;&nbsp;
+                                <b>考试时长</b> : <span th:text="${paperResultVo.paperMinute}"></span> 分钟
+                                &nbsp;&nbsp;
+                                <b>卷面总分</b> : <span th:text="${paperResultVo.totalScore}"></span>
+                                &nbsp;&nbsp;
+                                <b>及格分数</b> : <span th:text="${paperResultVo.passScore}"></span>
+                            </h2>
+                            <h2 style="background:#ddd; padding:5px 0; font-size:14px; font-weight:bold">
+                                考生信息
+                            </h2>
+                            <h2>
+                                <b>开考时间</b> :
+                                <span th:text="${#dates.format(paperResultVo.testStartTime,'yyyy-MM-dd HH:mm:ss')}"></span>
+                                &nbsp;&nbsp;
+                                <b>交卷时间</b> :
+                                <span th:text="${#dates.format(paperResultVo.submitTime,'yyyy-MM-dd HH:mm:ss')}"></span>
+                                <br/><br/>
+                                <b>耗时(分钟)</b> :
+                                <span class="tm_label" th:text="${paperResultVo.resultMinute}"></span>
+                                分钟
+                                &nbsp;&nbsp;
+                                <b>得分</b> : <span id="tm_span_score" class="tm_label" th:text="${paperResultVo.resultScore}"></span>
+                            </h2>
+                        </div>
+                        <div class="tm_toolbar">
+                            公布答案 :&nbsp;<span th:text="${paperResultVo.showKey==0?'是':'否'}"></span>
+                        </div>
+                        <div class="tm_paper_body">
+                            <div class="tm_paper_section" id="question_boy">
+                            </div>
+                        </div>
+                        <!-- /tm_paper_body -->
+                        <div class="tm_adm_paper_foot">
+                            <button class="tm_btn tm_btn_primary" type="button" onclick="history.go(-1)">返回</button>
+                        </div>
+                    </div>
+                </td><!-- /left -->
+                <td width="10">&nbsp;</td>
+                <!--  right-->
+                <td width="220" valign="top">
+                </td>
+                <!--  /right-->
+            </tr>
+        </table>
+    </div>
+</div>
+<div id="div_processor">
+    <div id="div_processor_timer" style="margin-top:5px;"></div>
+    <div id="div_processor_fastto">
+        <dl>
+            <dd id="question_list_boy">
+            </dd>
+        </dl>
+    </div>
+    <div id="div_processor_ops">
+        <button class="tm_btn tm_btn_primary" type="button" onclick="history.go(-1)">返回</button>
+    </div>
+    <div style="margin-top:10px; text-align:center"><img th:src="@{/static/images/exam_status_user.jpg}" /></div>
+</div>
+<script th:src="@{/static/js/jquery-3.3.1.min.js}" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript" th:inline="javascript">
+    var questions = [[${questions}]];
+    var paperResultVo = [[${paperResultVo}]];
+    $(document).ready(function() {
+        $(".tm_paper_section").click(function(){
+            $(this).parent().children(".tm_paper_question").toggle();
+        });
+        tm_resetPosition();
+    });
+    function tm_resetPosition(){
+        var nw = $(".tm_paper_head").width() + 45;
+        $("#div_processor").css("left",nw + "px");
+    }
+    $(window).resize(function(){
+        tm_resetPosition();
+    });
+    $(window).scroll(function(){
+        var tp = $(window).scrollTop();
+        if(tp > 240){
+            $("#div_processor").css("top", "20px");
+        }else{
+            var ntp = 240 - tp;
+            $("#div_processor").css("top", ntp + "px");
+        }
+    });
+    for (var i=0;i<questions.length;i++){
+        var question = questions[i];
+        var opts = question.opts;
+        var name="qu_"+question.id;
+        var html ="<table border=\"0\" id='"+name+"' cellpadding=\"0\" cellspacing=\"0\" class=\"tm_paper_question\" style=\"table-layout:fixed;\">\n" +
+            "                                    <thead>\n" +
+            "                                    <tr>\n" +
+            "                                        <th valign=\"top\" class=\"tm_question_lineheight\"><cite>"+(i+1)+"</cite></th>\n" +
+            "                                        <td class=\"tm_question_lineheight\"><span style='margin-right: 5px;'>("+question.questionTypeName+")</span><span style='margin-right: 5px;'>("+question.questionScore+"分)</span>" +question.questionContent+
+            "                                        </td>\n" +
+            "                                        <td width=\"125\" valign=\"top\">\n" +
+            "                                            <ul class=\"tm_question_tools\">\n" +
+            "                                                <li id='"+name+"_flag'>\n" +
+            "                                                </li>\n" +
+            "                                            </ul>\n" +
+            "                                        </td>\n" +
+            "                                    </tr>\n" +
+            "                                    </thead>\n" +
+            "                                    <tbody>\n" +
+            "                                    <tr>\n" +
+            "                                        <td colspan=\"3\" >\n" +
+            "                                            <div class=\"div-key-container tm_userkey\">\n" +
+            "                                                <fieldset>\n" +
+            "                                                    <legend>题目选项 :</legend>\n" +
+            "                                                    <p id='"+name+"_opt'>" +
+            "                                                    </p>\n" +
+            "                                                </fieldset>\n" +
+            "                                            </div>\n"+
+            "                                            <div class=\"div-key-container tm_userkey\">\n" +
+            "                                                <fieldset>\n" +
+            "                                                    <legend>用户答案 :</legend>\n" +
+            "                                                    <p>\n" +question.userKey+
+            "                                                    </p>\n" +
+            "                                                </fieldset>\n" +
+            "                                            </div>\n" +
+            "                                            <div class=\"div-key-container\">\n" +
+            "                                                <fieldset>\n" +
+            "                                                    <legend>标准答案 :</legend>\n" +
+            "                                                    <p>"+question.optKey+"</p>\n" +
+            "                                                </fieldset>\n" +
+            "                                                <fieldset>\n" +
+            "                                                    <legend>试题解析 :</legend>\n" +
+            "                                                    <p>"+question.keyInfo+"</p>\n" +
+            "                                                </fieldset>\n" +
+            "                                            </div>\n" +
+            "                                        </td>\n" +
+            "                                    </tr>\n" +
+            "                                    </tbody>\n" +
+            "                                </table>";
+        $("#question_boy").append(html);
+        if(question.flag==0){
+            $("#question_list_boy").append("<a href=\"#"+name+"\">"+(i+1)+"</a>");
+            $("#"+name+"_flag").append( "<img src=\"/static/images/success.png\" width='20' />\n");
+        }else{
+            $("#question_list_boy").append("<a href=\"#"+name+"\" class='wrong'>"+(i+1)+"</a>");
+            $("#"+name+"_flag").append( "<img src=\"/static/images/error.png\" width='20' />\n");
+        }
+        if(opts!=null&&opts.length!=0){
+            var opthtml=[];
+            for(var j=0;j<opts.length;j++){
+                opthtml.push(opts[j].optionContent);
+            }
+            $("#"+name+"_opt").html(opthtml.join("<br>"));
+        }else{
+            $("#"+name+"_opt").html("无");
+        }
+    }
+    $("#question_list_boy").append("<div class=\"tm_clear\"></div>");
+</script>
+</body>
+</html>

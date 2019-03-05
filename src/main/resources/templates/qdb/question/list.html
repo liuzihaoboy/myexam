@@ -24,10 +24,18 @@
     <div class="tm_main">
         <div class="tm_container">
             <ul class="tm_breadcrumb">
-                <li><a th:href="@{/index.html}">首页</a> <span class="divider">&gt;</span></li>
+                <li><a th:href="@{/common/welcome}">首页</a> <span class="divider">&gt;</span></li>
                 <li class="active">试题列表</li>
             </ul>
         </div>
+    </div>
+</div>
+<div class="form-inline" role="form">
+    <div class="form-group">
+        <a th:href="@{/system/download/question}" target="_blank" class="btn btn-default btn-md">下载导入模板</a>
+    </div>
+    <div class="form-group">
+        <button class="btn btn-primary btn-md" onclick="showUpload()">导入试题</button>
     </div>
 </div>
 <div id="toolbar">
@@ -72,7 +80,7 @@
 </div>
 <table id="table" data-toolbar="#toolbar"  data-show-toggle="true" data-show-columns="true" data-show-refresh="true" data-query-params="queryParams">
 </table>
-<script th:src="@{/static/js/jquery-3.1.1.js}" type="text/javascript" charset="utf-8"></script>
+<script th:src="@{/static/js/jquery-3.3.1.min.js}" type="text/javascript" charset="utf-8"></script>
 <script th:src="@{/static/js/bootstrap.min.js}" type="text/javascript" charset="utf-8"></script>
 <script th:src="@{/static/js/bootstrap-table.min.js}" type="text/javascript" charset="utf-8"></script>
 <script th:src="@{/static/js/bootstrap-table-editable.min.js}" type="text/javascript" charset="utf-8"></script>
@@ -245,7 +253,7 @@
                 url:"./delete/"+id,
                 success:function(ret){
                     if(ret.status){
-                        layer.msg("操作成功,系统不允许删除",{icon:1,time:2000});
+                        layer.msg("操作成功",{icon:1,time:2000});
                     }else{
                         layer.msg("删除失败:"+ret.data,{icon:2,time:2000});
                     }
@@ -254,6 +262,48 @@
             });
             layer.close(index);
         });
+    };
+    function showUpload() {
+        layer.open({
+            title:'导入',
+            content:"<div style=\"margin:30px auto;width:200px\">\n" +
+            "        <form id=\"uploadform\" action=\"./upload\" method=\"post\" enctype=\"multipart/form-data\" >\n" +
+            "        <div class=\"form-group\">\n" +
+            "        <input id=\"file\" name=\"file\" type=\"file\" class=\"form-controller\"/>\n" +
+            "        </div>\n" +
+            "        </form>\n" +
+            "        </div>",
+            btn: ['确定', '取消'],
+            yes: function(index){
+                submitInfoFile();
+            }
+        });
+    }
+    function submitInfoFile(){
+        var file = $("#file").val();
+        if(checkForm(file)){
+            $("#uploadform").submit();
+        }
+    }
+    function checkForm(file){
+        if(!file){
+            alert("请选择上传文件");
+            return false;
+        }
+        //检测后缀
+        var index = file.lastIndexOf(".");
+        if(index<0){
+            //上传文件格式不正确，情绪那则Excel文件(*.xls或者*.xlsx);
+            alert("上传文件格式不正确，请选择Excel文件(*.xls)");
+            return false;
+        }else{
+            var ext = file.substring(index+1,file.length);
+            if(ext != "xls"){
+                alert("请选择Excel文件(*.xls)");
+                return false;
+            }
+        }
+        return true;
     }
 </script>
 </body>

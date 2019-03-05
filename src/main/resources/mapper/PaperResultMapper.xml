@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.learning.exam.dao.mapper.PaperResultMapper">
+    <select id="findResultVosByPaperId" resultType="ScoreResultVo">
+        select u.user_id,t.start_time,r.submit_time,r.result_score,r.result_minute,tu.account,tu.name,ts.classes,tsg.grade_name,tsm.major_name
+        from  tb_paper_user u,tb_paper_test t,tb_paper_result r,tb_user tu,tb_student ts,tb_student_grade tsg,tb_student_major tsm
+        where
+        u.paper_id=#{paperId} and r.paper_test_id=t.id and t.paper_user_id=u.id and u.user_id=tu.id and ts.user_id=tu.id and ts.grade_id=tsg.id and ts.major_id=tsm.id
+        <if test="majorKey != null and majorKey!=''">
+            and ts.major_id=#{majorKey}
+        </if>
+        <if test="nameKey != null and nameKey!=''">
+            and tu.account like #{nameKey}
+        </if>
+    </select>
+    <select id="findResultScoreByPaperId" resultType="Integer">
+        select r.result_score
+        from tb_paper_user u,tb_paper_test t,tb_paper_result r
+        where u.paper_id=#{paperId} and r.paper_test_id=t.id and t.paper_user_id=u.id
+    </select>
+    <select id="findPaperResultByPaperUserId" resultType="PaperResultVo" >
+        select u.user_id,u.paper_id,p.paper_name,p.start_time,p.end_time,p.paper_minute,p.pass_score,p.show_key,
+            t.question_ids,t.start_time as test_start_time,r.result_keys,r.result_score,r.result_minute,r.submit_time,r.question_score
+        from tb_paper p,tb_paper_user u,tb_paper_test t,tb_paper_result r
+        where u.id=#{paperUserId} and r.paper_test_id=t.id and t.paper_user_id=u.id and u.paper_id=p.id
+    </select>
+    <insert id="insertPaperResult">
+        insert into tb_paper_result(paper_test_id, result_keys, result_score, result_minute,submit_time,question_score)
+                values (#{tbPaperResult.paperTestId},#{tbPaperResult.resultKeys},#{tbPaperResult.resultScore},#{tbPaperResult.resultMinute},#{tbPaperResult.submitTime},#{tbPaperResult.questionScore})
+    </insert>
+</mapper>

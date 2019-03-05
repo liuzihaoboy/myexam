@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en"  xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>在线考试系统</title>
+    <link rel="shortcut icon" th:href="@{/static/favicon.ico}" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <!--[if lt IE 8]>
+    <meta http-equiv="refresh" content="0;ie.html" />
+    <![endif]-->
+    <link rel="stylesheet" type="text/css" th:href="@{/static/css/style.css}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/static/css/ui.css}" />
+</head>
+<body>
+<div class="tm_main">
+    <div class="tm_container">
+        <ul class="tm_breadcrumb">
+            <li><a th:href="@{/common/welcome}">首页</a> <span class="divider">&gt;</span></li>
+            <li class="active">修改账户信息</li>
+        </ul>
+    </div>
+    <br/>
+    <div class="tm_container">
+        <table width="100%" th:if="${tbUserVo.studentVo!=null}" cellpadding="5" border="0" class="tm_table_form">
+            <tbody>
+            <tr>
+                <th width="120">学号 : </th>
+                <td>（同账号）</td>
+            </tr>
+            <tr>
+                <th>证件编号 : </th>
+                <td th:text="${tbUserVo.studentVo.idCard}"></td>
+            </tr>
+            <tr>
+                <th>学院 : </th>
+                <td th:text="${tbUserVo.studentVo.institute}"></td>
+            </tr>
+            <tr>
+                <th>年级 : </th>
+                <td th:text="${tbUserVo.studentVo.gradeName}"></td>
+            </tr>
+            <tr>
+                <th>专业 : </th>
+                <td th:text="${tbUserVo.studentVo.majorName}"></td>
+            </tr>
+            <tr>
+                <th>班级 : </th>
+                <td th:text="${tbUserVo.studentVo.classes}"></td>
+            </tr>
+            </tbody>
+            <tfoot>
+        </table>
+        <form method="post" id="form_user_load" th:action="@{/common/profile/update}">
+            <table width="100%" cellpadding="5" border="0" class="tm_table_form">
+                <tbody>
+                <tr>
+                    <th>账号 : </th>
+                    <td th:text="${tbUserVo.account}"></td>
+                </tr>
+                <tr>
+                    <th>角色 : </th>
+                    <td th:text="${tbUserVo.tbRole.roleName}"></td>
+                </tr>
+                <tr>
+                    <th>真实姓名 : </th>
+                    <td th:text="${tbUserVo.name}"></td>
+                </tr>
+                <tr>
+                    <th width="120">手机号 : </th>
+                    <td><input type="number" th:value="${tbUserVo.phone}" id="phone" name="phone" class="tm_txt" size="50" maxlength="30" /></td>
+                </tr>
+                <tr>
+                    <th>邮箱 : </th>
+                    <td><input type="text" th:value="${tbUserVo.email}" id="email" name="email" class="tm_txt" size="50" maxlength="30" /></td>
+                </tr>
+                </tbody>
+                <tfoot>
+                <tr>
+                    <th></th>
+                    <td>
+                        <button class="tm_btn tm_btn_primary" type="button" onclick="tmProfile.doUpdate();">提交</button>
+                    </td>
+                </tr>
+                </tfoot>
+            </table>
+        </form>
+    </div>
+</div>
+<script th:src="@{/static/js/jquery-3.3.1.min.js}" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript">
+    var tmProfile = {
+        doUpdate : function(){
+            var wcm = window.confirm('是否修改？');
+            if(!wcm){
+                return;
+            }
+            if($("#phone").val()==''){
+                alert("手机号不能为空");
+                return;
+            }
+            if($("#email").val()==''){
+                alert("邮箱不能为空");
+                return;
+            }
+            $("#form_user_load").submit();
+        }
+    };
+</script>
+</body>
+</html>

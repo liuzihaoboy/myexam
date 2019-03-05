@@ -19,6 +19,7 @@ public class DateTimeUtils {
     public  static final String DATE_TIME_PATTERN = "yyyy-MM-dd HH:mm";
     public static  final String SINGLE_MINUTE_PATTERN = "yyyy-M-dd HH:mm";
     public static   final String HOUR_PATTERN = "yyyy-MM-dd HH:mm:ss";
+    public static   final String HOUR_PATTERN_TYPE = "yyyy/MM/dd HH:mm:ss";
     public static  final String DATE_PATTERN = "yyyy-MM-dd";
     public static  final String WEIXIN_DATE_PATTERN = "MMddyyyy";
     public static  final String CH_DATE_PATTERN = "yyyy年MM月dd日";

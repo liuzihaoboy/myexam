@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.learning.exam.dao.mapper.PaperTestMapper">
+    <select id="findPaperUserIdByPaperUserId" resultType="Integer">
+        select t.id from tb_paper_test t where paper_user_id=#{paperUserId};
+    </select>
+    <insert id="insertPaperTest" useGeneratedKeys="true" keyProperty="id" parameterType="TbPaperTest">
+       insert into tb_paper_test(paper_user_id, question_ids,start_time) values (#{paperUserId},#{questionIds},#{startTime})
+    </insert>
+</mapper>

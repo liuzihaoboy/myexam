@@ -9,6 +9,7 @@ import com.learning.exam.framework.exception.ValidationJsonException;
 import com.learning.exam.model.dto.PaperSectionDto;
 import com.learning.exam.model.dto.QuestionDto;
 import com.learning.exam.model.entity.TbCourse;
+import com.learning.exam.model.entity.TbPaper;
 import com.learning.exam.model.entity.TbQuestionDb;
 import com.learning.exam.model.result.CodeMsg;
 import com.learning.exam.model.result.JsonResult;
@@ -82,7 +83,7 @@ public class SectionController {
             }
         }
         paperService.submitPaperSection(paperSectionDto);
-        return ViewUtils.SUCCESS_PAGE;
+        return ViewUtils.SUCCESS_CLOSE_PAGE;
     }
     @RequestMapping(value = "/detail/{sectionId}",method = RequestMethod.GET,produces = "text/html;charset=utf-8")
     public String detail(HttpServletRequest request,
@@ -187,10 +188,20 @@ public class SectionController {
     @ResponseBody
     @RequestMapping(value = "/question/add",method = {RequestMethod.POST},produces = "application/json;charset=utf-8")
     public JsonResult questionAdd(HttpServletRequest request,
+                                     @RequestParam("paperId")Integer paperId,
                                      @RequestParam("sectionId")Integer sectionId,
                                      @RequestParam("questionId")String questionId){
         if(StringUtils.isEmpty(questionId)){
             throw new ValidationJsonException(CodeMsg.Q_SELECT_ERROR);
+        }
+        PaperVo paperVo = paperService.getPaper(paperId);
+        Date startTime = DateTimeUtils.getDateInstance().dateParse(paperVo.getStartTime(),DateTimeUtils.DATE_TIME_PATTERN);
+        if(startTime.getTime()<=System.currentTimeMillis()){
+            throw new ValidationJsonException(CodeMsg.PAPER_STARTTIME_OVER);
+        }
+        //开始前2小时
+        if(startTime.getTime()<=(System.currentTimeMillis()+3600000)){
+            throw new ValidationJsonException(CodeMsg.PAPER_STARTTIME_LIMIT);
         }
         paperService.addQuestionIdBySectionId(sectionId,questionId);
         return JsonResult.success(null);
@@ -198,10 +209,20 @@ public class SectionController {
     @ResponseBody
     @RequestMapping(value = "/question/delete",method = {RequestMethod.POST},produces = "application/json;charset=utf-8")
     public JsonResult questionDelete(HttpServletRequest request,
+                                     @RequestParam("paperId")Integer paperId,
                                      @RequestParam("sectionId")Integer sectionId,
                                      @RequestParam("questionId")Integer questionId){
         if(StringUtils.isEmpty(sectionId)){
             throw new ValidationJsonException(CodeMsg.SECTION_SELECT_ERROR);
+        }
+        PaperVo paperVo = paperService.getPaper(paperId);
+        Date startTime = DateTimeUtils.getDateInstance().dateParse(paperVo.getStartTime(),DateTimeUtils.DATE_TIME_PATTERN);
+        if(startTime.getTime()<=System.currentTimeMillis()){
+            throw new ValidationJsonException(CodeMsg.PAPER_STARTTIME_OVER);
+        }
+        //开始前2小时
+        if(startTime.getTime()<=(System.currentTimeMillis()+3600000)){
+            throw new ValidationJsonException(CodeMsg.PAPER_STARTTIME_LIMIT);
         }
         List<Integer> questionIds = questionService.getQuestionIdsBySectionId(sectionId);
         if(CollectionUtils.isEmpty(questionIds)){

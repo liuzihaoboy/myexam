@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>在线考试系统</title>
+    <link rel="shortcut icon" th:href="@{/static/favicon.ico}" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <!--[if lt IE 8]>
+    <meta http-equiv="refresh" content="0;ie.html" />
+    <![endif]-->
+    <link th:href="@{/static/css/style.css}" rel="stylesheet">
+    <link th:href="@{/static/css/style-list.min.css?v=4.0.0}" rel="stylesheet">
+    <link th:href="@{/static/css/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/static/css/font-awesome.min.css}" rel="stylesheet">
+    <link th:href="@{/static/css/bootstrap-table.css}" rel="stylesheet">
+    <link th:href="@{/static/css/animate.min.css}" rel="stylesheet">
+    <link th:href="@{/static/css/admin.css}" rel="stylesheet">
+    <link th:href="@{/static/css/bootstrap-datetimepicker.min.css}" rel="stylesheet" />
+    <link th:href="@{/static/css/jquery.validator.css}" rel="stylesheet">
+</head>
+
+<body class="gray-bg white">
+<div class="form-inline" role="form">
+    <div class="tm_main">
+        <div class="tm_container">
+            <ul class="tm_breadcrumb">
+                <li><a th:href="@{/common/welcome}">首页</a> <span class="divider">&gt;</span></li>
+                <li class="active">专业列表</li>
+            </ul>
+        </div>
+    </div>
+</div>
+<div id="toolbar">
+    <div class="form-inline" role="form">
+        <div class="form-group">
+            <div class="btn-group hidden-xs" id="exampleToolbar" role="group">
+                <button type="button" id="addBtn"  class="btn btn-outline btn-default">
+                    <i class="glyphicon glyphicon-plus" aria-hidden="true"></i>
+                </button>
+                <button type="button" id="btn_delete" class="btn btn-outline btn-default">
+                    <i class="glyphicon glyphicon-trash" aria-hidden="true"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<table id="table" data-toolbar="#toolbar"  data-show-toggle="true" data-show-columns="true" data-show-refresh="true" data-query-params="queryParams">
+</table>
+<script th:src="@{/static/js/jquery-3.3.1.min.js}" type="text/javascript" charset="utf-8"></script>
+<script th:src="@{/static/js/bootstrap.min.js}" type="text/javascript" charset="utf-8"></script>
+<script th:src="@{/static/js/bootstrap-table.min.js}" type="text/javascript" charset="utf-8"></script>
+<script th:src="@{/static/js/bootstrap-table-editable.min.js}" type="text/javascript" charset="utf-8"></script>
+<script th:src="@{/static/js/bootstrap-table-zh-CN.min.js}" type="text/javascript" charset="utf-8"></script>
+<script th:src="@{/static/js/layer/layer.js}" type="text/javascript" charset="utf-8"></script>
+<script th:src="@{/static/js/bootstrap-editable.min.js}" type="text/javascript" charset="utf-8"></script>
+<script  th:src="@{/static/js/bootstrap-datetimepicker.min.js}"></script>
+<script  th:src="@{/static/js/bootstrap-datetimepicker.zh-CN.js}"></script>
+<script type="text/javascript" th:inline="javascript">
+    var table = $('#table');
+    table.bootstrapTable({
+        contentType: "application/x-www-form-urlencoded",
+        method:'get',
+        url: './list/json' ,
+        height: 600 ,
+        pagination: true,//是否开启分页（*）
+        pageNumber: 1,//初始化加载第一页，默认第一页
+        pageSize: 50,//每页的记录行数（*）
+        pageList: [30, 50, 100,150],//可供选择的每页的行数（*）
+        sidePagination: "client", //分页方式：client客户端分页，server服务端分页（*）
+        columns: [
+            {
+                checkbox : true,
+                align : 'center',
+                value:"id",
+            },
+            {
+                title: '序号',
+                align: 'center',
+                formatter: 'opIndex'
+            },{
+                field: 'majorName',
+                title: '专业名称',
+                align: 'center',
+                sortable:true,
+            },{
+                field: 'option',
+                title: '操作',
+                align: 'center',
+                formatter: 'opFormatter'
+
+            }],
+        onEditableSave:function(field,row,oldValue,el){
+            table.bootstrapTable("resetView");
+        }
+    });
+    function refreshTable(){
+        table.bootstrapTable('refresh',{pageNumber:1});
+    }
+    function queryParams(params){
+        $('#toolbar').find('input,select').each(function(){
+            params[$(this).attr('name')] = $(this).val();
+        });
+        return params;
+    }
+    function opIndex(value, row, index){
+        return [index+1].join('');
+    }
+    function opFormatter(value, row, index) {
+        return [
+            '<button data-toggle="tooltip" data-id="' +"'"+ row.id+"'" + '" class="btn btn-success btn-xs edit" onclick="initEdit('+"'" + row.id+"'" + ')" title="Edit">',
+            '<i class="glyphicon glyphicon-pencil"></i>',
+            '</button>  ',
+            '<button data-toggle="tooltop" data-id="' +"'" + row.id +"'" + '" class="btn btn-danger btn-xs edit remove" onclick="initRemove(' +"'" + row.id+"'" +')" title="Remove">',
+            '<i class="glyphicon glyphicon-remove"></i>',
+            '</button>'
+        ].join('');
+    }
+    $("#searchBtn").on("click",function(){
+        refreshTable();
+    });
+    $("#addBtn").on("click",function () {
+        initEdit(0);
+    });
+    function initEdit(id){
+        layer.open({
+            type:2,
+            area:['780px','500px'],
+            title: '修改',
+            btn:['确定','取消'],
+            content:'./detail/'+id,
+            yes:function(index,layero){
+                var iframeName = layero.find("iframe")[0]['name'];
+                var iframeWindow = window[iframeName];
+                iframeWindow.submitForm();
+            }
+        });
+    }
+    $("[data-toggle='tooltip']").tooltip();
+    $('#toolbar').find('select').change(function () {
+        table.bootstrapTable('refresh',{pageNumber:1});
+    });
+    $("#btn_delete").on("click",function () {
+        var selectContent = table.bootstrapTable('getSelections');
+        if(selectContent.length==0) {
+            layer.alert('请选择一列数据!', {
+                icon: 2
+            });
+            return false;
+        }else{
+            var id="";
+            for(var i = 0; i <selectContent.length;i++){
+                id+=selectContent[i].id+",";
+            }
+            initRemove(id);
+        }
+    });
+    function initRemove(id){
+        layer.confirm("确认删除？",{icon:3,title:"请选择"},function(index){
+            $.ajax({
+                type:"post",
+                dateType:"json",
+                url:"./delete/"+id,
+                success:function(ret){
+                    if(ret.status){
+                        layer.msg("操作成功,系统不允许删除",{icon:1,time:2000});
+                    }else{
+                        layer.msg("删除失败:"+ret.data,{icon:2,time:2000});
+                    }
+                    refreshTable();
+                }
+            });
+            layer.close(index);
+        });
+    }
+</script>
+</body>
+</html>

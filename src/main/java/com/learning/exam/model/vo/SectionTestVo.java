@@ -11,10 +11,8 @@ import java.util.List;
 @Data
 public class SectionTestVo {
     private Integer sectionType;
-    private String sectionTypeName;
     Integer questionNum;
     Integer questionScore;
     private String levelScale;
     private String qdbIds;
-    List<QuestionTestVo> questions;
 }

@@ -4,6 +4,7 @@ import com.google.code.kaptcha.impl.DefaultKaptcha;
 import com.learning.exam.framework.cache.SessionCacheName;
 import com.learning.exam.framework.enums.RoleEnum;
 import com.learning.exam.framework.enums.converter.RoleEnumConverter;
+import com.learning.exam.framework.exception.ValidationHtmlException;
 import com.learning.exam.framework.exception.ValidationJsonException;
 import com.learning.exam.framework.redis.service.RedisService;
 import com.learning.exam.framework.redis.keys.SessionKey;
@@ -11,6 +12,7 @@ import com.learning.exam.model.dto.UserDto;
 import com.learning.exam.model.entity.TbUser;
 import com.learning.exam.model.result.CodeMsg;
 import com.learning.exam.model.result.JsonResult;
+import com.learning.exam.model.result.ViewUtils;
 import com.learning.exam.model.vo.TbUserVo;
 import com.learning.exam.service.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -18,9 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import javax.imageio.ImageIO;
 import javax.servlet.ServletOutputStream;
@@ -28,8 +28,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+import java.io.*;
+import java.net.URLEncoder;
 
 /**
  * @author liuzihao
@@ -131,5 +131,53 @@ public class LoginController {
         servletOutputStream.flush();
         servletOutputStream.close();
     }
+    @RequestMapping(value = "/system/download/{filename}",method = RequestMethod.GET)
+    public void download(@PathVariable("filename")String fileName, HttpServletResponse response) throws IOException{
+        OutputStream out=null;
+        InputStream in=null;
+        try {
+            response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8");
+            response.setHeader("Content-Disposition", "attachment;filename="+URLEncoder.encode(fileName+".xls", "UTF-8"));
+            in = this.getClass().getResourceAsStream("/file/"+fileName+".xls");
+            byte[] buf = new byte[1024];
+            out=new BufferedOutputStream(response.getOutputStream());
+            while((in.read(buf))!=-1){
+                out.write(buf);
+            }
+        }catch (Exception e){
+            log.error("[导出excel文件]发送异常,filename={},错误内容={}",fileName,e.getMessage());
+            throw new ValidationHtmlException("找不到文件");
+        }finally {
+            try {
+                if(in!=null){
+                    in.close();
+                }
+                if(out!=null){
+                    out.flush();
+                    out.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
 
+    }
+    @GetMapping("/system/profile.html")
+    public String profile(HttpServletRequest request){
+        HttpSession session = request.getSession();
+        TbUserVo tbUserVo = redisService.hget(SessionKey.sessionById,session.getId(),SessionCacheName.LOGIN_USER,TbUserVo.class);
+        request.setAttribute("tbUserVo",tbUserVo);
+        return "profile";
+    }
+    @RequestMapping(value = "/profile/update",method = RequestMethod.POST,produces = "application/json;charset=utf-8")
+    public String pfUpdate(HttpServletRequest request,
+                           @RequestParam("phone")String phone,
+                           @RequestParam("email")String email){
+        HttpSession session = request.getSession();
+        TbUserVo tbUserVo = redisService.hget(SessionKey.sessionById,session.getId(),SessionCacheName.LOGIN_USER,TbUserVo.class);
+
+
+        redisService.hset(SessionKey.sessionById,session.getId(),SessionCacheName.LOGIN_USER,tbUserVo);
+        return ViewUtils.SUCCESS_PAGE;
+    }
 }

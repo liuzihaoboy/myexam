@@ -40,7 +40,7 @@ public class AuthInterceptor implements HandlerInterceptor {
         }else {
             String loginSessionId = redisService.hget(SessionKey.sessionByUserId,Integer.toString(tbUserVo.getId()),SessionCacheName.SESSION_ID,String.class);
             //旧的登录信息
-            if(!loginSessionId.equals(session.getId())){
+            if(!session.getId().equals(loginSessionId)){
                 httpServletResponse.sendRedirect(httpServletRequest.getContextPath()+"/login");
                 return false;
             }
@@ -62,6 +62,9 @@ public class AuthInterceptor implements HandlerInterceptor {
                 //其他
             }else if(uri.startsWith("/system")){
                 String s = uri.replaceFirst("/system","");
+                if(s.startsWith("/download")){
+                    return true;
+                }
                 List<TbPermission> permissions = tbUserVo.getTbPermissions();
                 int prefixIndex = s.indexOf((int)'/',1);
                 String prefixStr = prefixIndex==-1?null:s.substring(0,prefixIndex);

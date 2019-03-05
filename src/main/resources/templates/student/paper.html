@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en"  xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>在线考试系统</title>
+    <link rel="shortcut icon" th:href="@{/static/favicon.ico}" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <!--[if lt IE 8]>
+    <meta http-equiv="refresh" content="0;ie.html" />
+    <![endif]-->
+    <link rel="stylesheet" type="text/css" th:href="@{/static/css/style.css}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/static/css/ui.css}" />
+    <link th:href="@{/static/css/bootstrap.min.css}" rel="stylesheet">
+    <style type="text/css">
+        body {
+            background-color: rgb(255,255,255);
+        }
+        ul.countdown {
+            list-style: none;
+            margin: 25px 0;
+            padding: 0;
+            display: block;
+            text-align: center;
+        }
+        ul.countdown li {
+            display: inline-block;
+        }
+        ul.countdown li span {
+            font-size: 80px;
+            font-weight: 300;
+            line-height: 80px;
+        }
+        ul.countdown li.seperator {
+            font-size: 80px;
+            line-height: 70px;
+            vertical-align: top;
+        }
+        ul.countdown li p {
+            color: #a7abb1;
+            font-size: 14px;
+        }
+        a {
+            color: #76949F;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+
+</head>
+<body>
+<div class="form-inline" role="form">
+    <div class="tm_main">
+        <div class="tm_container">
+            <table border="0" cellpadding="0" width="100%">
+                <TBODY><tr>
+                    <!-- left -->
+                    <td valign="top">
+                            <div class="tm_adm_paper">
+                                <div class="tm_adm_paper_head">
+                                    <h1 th:text="${paperTestVo.paperName}">测试考试123</h1>
+                                    <h2 style="background:#ddd; padding:5px 0;">
+                                        <b th:text="${paperTestVo.paperTypeName}">普通试卷</b> &nbsp;
+                                        <span th:if="${paperTestVo.paperType==1}">考生试卷相同</span>
+                                        <span th:if="${paperTestVo.paperType==2}">考生试卷随机</span>
+                                    </h2>
+                                    <h2>
+                                        <b>时间设定</b> : <span th:text="${#dates.format(paperTestVo.startTime,'yyyy-MM-dd HH:mm:ss')+'--'+#dates.format(paperTestVo.endTime,'yyyy-MM-dd HH:mm:ss')}"></span> &nbsp;&nbsp;
+                                        <b>考试时长</b> : <span th:text="${paperTestVo.paperMinute}"></span> 分钟
+                                    </h2>
+                                    <h3>
+                                        <b>卷面总分</b> :
+                                        <input class="tm_txt"  readonly="readonly" th:value="${paperTestVo?.totalScore}" style="background:#eee;" type="number" value="0" />
+                                        &nbsp;&nbsp;
+                                        <b>及格分数</b> :
+                                        <input class="tm_txt" readonly="readonly" th:value="${paperTestVo?.passScore}" style="background:#eee;" type="number" value="80" />
+                                    </h3>
+                                    <input th:value="${paperTestVo?.paperId}" id="paperId" type="hidden"/>
+                                    <input th:value="${paperTestVo?.startTime}" id="startTime" type="hidden"/>
+                                </div>
+                            </div>
+                    </td><!-- /left -->
+                </tr>
+                </TBODY>
+            </table>
+        </div>
+        <div class="tm_container">
+            <h1 align="center" style="margin-top:100px;" id="endBody">倒计时</h1>
+            <ul class="countdown">
+                <li>
+                    <span class="days">00</span>
+                    <p class="days_ref">天</p>
+                </li>
+                <li class="seperator">.</li>
+                <li>
+                    <span class="hours">00</span>
+                    <p class="hours_ref">时</p>
+                </li>
+                <li class="seperator">:</li>
+                <li>
+                    <span class="minutes">00</span>
+                    <p class="minutes_ref">分</p>
+                </li>
+                <li class="seperator">:</li>
+                <li>
+                    <span class="seconds">00</span>
+                    <p class="seconds_ref">秒</p>
+                </li>
+            </ul>
+            <div class="tm_container" align="center" id="content-main">
+
+            </div>
+        </div>
+    </div>
+</div>
+<script th:src="@{/static/js/jquery-3.3.1.min.js}" type="text/javascript" charset="utf-8"></script>
+<script th:src="@{/static/js/jquery.downCount.min.js}" type="text/javascript" charset="utf-8"></script>
+<script th:src="@{/static/js/baseutil.js}" type="text/javascript" charset="utf-8"></script>
+<script  type="text/javascript" th:inline="javascript">
+    var paperId = $("#paperId").val();
+    var start = [[${start}]];
+    var end = [[${end}]];
+    var startTime = new Date([[${paperTestVo}]].startTime);
+    if(end!=null&&end){
+        $("#endBody").html("已结束");
+    }else if(start!=null&&start){
+        tm_test(paperId,true);
+    }else {
+        $('.countdown').downCount({
+            date: startTime,
+            offset: +8
+        }, function () {
+            tm_test(paperId,true);
+        });
+    }
+
+</script>
+</body>
+</html>

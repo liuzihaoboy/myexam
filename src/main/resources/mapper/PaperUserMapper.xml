@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.learning.exam.dao.mapper.PaperUserMapper">
+    <select id="findByUserIdAndPaperId" resultType="TbPaperUser">
+        select u.id,u.status,u.paper_id,u.user_id
+        from tb_paper_user u
+        where u.user_id=#{userId} and u.paper_id=#{paperId}
+    </select>
+    <select id="findByUserIdSubmit" resultType="TbPaperUser">
+        select u.id,u.paper_id,u.status,u.user_id
+        from tb_paper_user u,tb_paper p
+        where  u.paper_id=p.id and u.user_id=#{userId} and u.status in(0,3)
+        order by start_time asc
+    </select>
+    <select id="findByUserIdNoSubmit" resultType="TbPaperUser">
+        select u.id,u.paper_id,u.status,u.user_id
+        from tb_paper_user u,tb_paper p
+        where  u.paper_id=p.id and u.user_id=#{userId} and u.status in(1,2)
+        order by start_time asc
+    </select>
+    <select id="findStatusByUserIdAndPaperId" resultType="Integer">
+        select u.status from  tb_paper_user u
+        where u.user_id=#{userId} and u.paper_id=#{paperId}
+    </select>
+    <select id="findStatusByUserIdAndPaperIdForUpdate" resultType="Integer">
+        select u.status from  tb_paper_user u
+        where u.user_id=#{userId} and u.paper_id=#{paperId} for update
+    </select>
+    <delete id="deletePaperUserByPaperId">
+        delete from tb_paper_user where paper_id=#{paperId}
+    </delete>
+    <update id="updateStatus">
+        update tb_paper_user set status=#{status} where id=#{id}
+    </update>
+    <insert id="insertPaperUser">
+        insert into tb_paper_user(user_id, paper_id, status) VALUES (#{userId},#{paperId},#{status})
+    </insert>
+</mapper>

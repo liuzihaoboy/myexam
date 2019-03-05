@@ -26,10 +26,8 @@
 	<div class="tm_head_tools">
 				<span style="cursor:pointer" th:title="${title}" th:text="${text}">
 				</span> |
-		<a href="http://demo.tomexam.com/system/profile.thtml" target="main">
+		<a th:href="@{/common/profile.html}" target="main">
 			<img th:src="@{/static/images/ico_profile.png}" align="absmiddle">帐户</a> |
-		<!--<a href="http://demo.tomexam.com/system/user/onlineusers.thtml" target="main">-->
-			<!--<img th:src="@{/static/images/ico_users.png}" align="absmiddle">在线用户</a> |-->
 		<a href="javascript:void(0);" onclick="return tm.logout();">
 			<img th:src="@{/static/images/ico_exit.png}" align="absmiddle">退出</a>
 	</div>
@@ -73,38 +71,6 @@
             }
         }
     }
-</script>
-<script type="text/javascript">
-    var VAR_FAILED_TIMES = 0;
-    function doKeepHeartBeat(){
-        $.ajax({
-            type: "POST",
-            url: "http://demo.tomexam.com/inc/heartbeat.jsp?t=" + Math.random(),
-            dataType: "json",
-            data: {},
-            success: function(retdata){
-                if(retdata && retdata["data"]){
-                    VAR_FAILED_TIMES = 0;
-                }else{
-                    VAR_FAILED_TIMES++;
-                    if(VAR_FAILED_TIMES>=3){
-                        alert("您和服务器的连接已经中断，请重新登录");
-                        top.location.href = "http://demo.tomexam.com/login.thtml";
-                    }else{
-                        alert("系统检测到您和服务器的连接中断，稍后会再次检查，如仍然失效，则需要您重新登录");
-                    }
-                }
-            },
-            error: function(e){
-                alert("网络不给力，会话状态丢失，请重新登录");
-                top.location.href = "http://demo.tomexam.com/login.thtml";
-            }
-        });
-    }
-    var tm_heartbeat = setInterval(function(){
-        //doKeepHeartBeat();
-    } , 2 * 60 * 1000);
-
 </script>
 </body>
 </html>

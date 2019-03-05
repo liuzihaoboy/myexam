@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>在线考试系统</title>
+    <link rel="shortcut icon" th:href="@{/static/favicon.ico}" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <!--[if lt IE 8]>
+    <meta http-equiv="refresh" content="0;ie.html" />
+    <![endif]-->
+    <link th:href="@{/static/css/style.css}" rel="stylesheet">
+    <link th:href="@{/static/css/ui.css}" rel="stylesheet">
+    <link th:href="@{/static/css/style-list.min.css?v=4.0.0}" rel="stylesheet">
+    <link th:href="@{/static/css/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/static/css/font-awesome.min.css}" rel="stylesheet">
+    <link th:href="@{/static/css/bootstrap-table.css}" rel="stylesheet">
+    <link th:href="@{/static/css/animate.min.css}" rel="stylesheet">
+    <link th:href="@{/static/css/admin.css}" rel="stylesheet">
+    <link th:href="@{/static/css/bootstrap-datetimepicker.min.css}" rel="stylesheet" />
+    <link th:href="@{/static/css/jquery.validator.css}" rel="stylesheet">
+    <link th:href="@{/static/css/ui.css}" rel="stylesheet">
+</head>
+
+<body class="gray-bg white">
+<div class="form-inline" role="form">
+    <div class="tm_main">
+        <div class="tm_container">
+            <ul class="tm_breadcrumb">
+                <li><a th:href="@{/common/welcome}">首页</a> <span class="divider">&gt;</span></li>
+                <li class="active">学生管理</li>
+            </ul>
+        </div>
+    </div>
+</div>
+<div class="form-inline" role="form">
+<div class="form-group">
+<a th:href="@{/system/download/student}" target="_blank" class="btn btn-default btn-md">下载导入模板</a>
+</div>
+<div class="form-group">
+<button class="btn btn-primary btn-md" onclick="showUpload()">导入学生</button>
+</div>
+</div>
+<div id="toolbar">
+    <div class="form-inline" role="form">
+        <div class="form-group">
+            <div class="btn-group hidden-xs" id="exampleToolbar" role="group">
+                <button type="button" id="addBtn"  class="btn btn-outline btn-default">
+                    <i class="glyphicon glyphicon-plus" aria-hidden="true"></i>
+                </button>
+                <button type="button" id="btn_delete" class="btn btn-outline btn-default">
+                    <i class="glyphicon glyphicon-trash" aria-hidden="true"></i>
+                </button>
+            </div>
+        </div>
+        <div class="form-group">
+            <select class="form-control"  name="gradeKey" id="gradeKey">
+                <option value="">年级</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <select class="form-control"  name="majorKey" id="majorKey">
+                <option value="">专业</option>
+            </select>
+        </div>
+    </div>
+</div>
+<table id="table" data-toolbar="#toolbar"  data-show-toggle="true" data-show-columns="true" data-show-refresh="true" data-query-params="queryParams">
+</table>
+<script th:src="@{/static/js/jquery-3.3.1.min.js}" type="text/javascript" charset="utf-8"></script>
+<script th:src="@{/static/js/bootstrap.min.js}" type="text/javascript" charset="utf-8"></script>
+<script th:src="@{/static/js/bootstrap-table.min.js}" type="text/javascript" charset="utf-8"></script>
+<script th:src="@{/static/js/bootstrap-table-editable.min.js}" type="text/javascript" charset="utf-8"></script>
+<script th:src="@{/static/js/bootstrap-table-zh-CN.min.js}" type="text/javascript" charset="utf-8"></script>
+<script th:src="@{/static/js/layer/layer.js}" type="text/javascript" charset="utf-8"></script>
+<script  th:src="@{/static/js/bootstrap-datetimepicker.min.js}"></script>
+<script  th:src="@{/static/js/bootstrap-datetimepicker.zh-CN.js}"></script>
+<script type="text/javascript" th:inline="javascript">
+    /*<![CDATA[*/
+    var grades = [[${grades}]];
+    if(grades!=null){
+        for(var i=0;i<grades.length;i++){
+            var grade=grades[i];
+            $('#gradeKey').append("<option  value='"+grade.id+"'>"+grade.gradeName+"</option>");
+        }
+    }
+    var majors = [[${majors}]];
+    if(majors!=null){
+        for(var i=0;i<majors.length;i++){
+            var major=majors[i];
+            $('#majorKey').append("<option  value='"+major.id+"'>"+major.majorName+"</option>");
+        }
+    }
+    /*]]>*/
+    var table = $('#table');
+    table.bootstrapTable({
+        contentType: "application/x-www-form-urlencoded",
+        method:'get',
+        url: './list/json' ,
+        height: 600 ,
+        pagination: true,//是否开启分页（*）
+        pageNumber: 1,//初始化加载第一页，默认第一页
+        pageSize: 50,//每页的记录行数（*）
+        pageList: [30, 50, 100,150],//可供选择的每页的行数（*）
+        sidePagination: "client", //分页方式：client客户端分页，server服务端分页（*）
+        columns: [
+            {
+                checkbox : true,
+                align : 'center',
+                value:"userId",
+            },
+            {
+                title: '序号',
+                align: 'center',
+                formatter: 'opIndex'
+            }, {
+                field: 'accountId',
+                title: '账号（学号）',
+                align: 'center',
+            }, {
+                field: 'name',
+                title: '姓名',
+                align: 'center',
+            }, {
+                field: 'sex',
+                title: '性别',
+                align: 'center',
+            }, {
+                field: 'institute',
+                title: '学院',
+                align: 'center',
+            }, {
+                field: 'gradeName',
+                title: '年级',
+                align: 'center',
+            }, {
+                field: 'majorName',
+                title: '专业',
+                align: 'center',
+            }, {
+                field: 'classes',
+                title: '班级',
+                align: 'center',
+            }, {
+                title: '修改密码',
+                align: 'center',
+                formatter:function (value,row,index) {
+                    return "<button type=\"button\" class=\"tm_btns\" style='padding: 0px 3px;' onclick='updatePw("+row.userId+")'>修改</button>";
+                }
+            },{
+                title:'操作',
+                align:'center',
+                formatter: 'opFormatter'
+            }
+        ],
+        onEditableSave:function(field,row,oldValue,el){
+            table.bootstrapTable("resetView");
+        }
+    });
+    function opFormatter(value, row, index) {
+        return [
+            '<button data-toggle="tooltip" data-id="' +"'"+ row.userId+"'" + '" class="btn btn-success btn-xs edit" onclick="initEdit('+"'" + row.userId+"'" + ')" title="Edit">',
+            '<i class="glyphicon glyphicon-pencil"></i>',
+            '</button>  ',
+            '<button data-toggle="tooltop" data-id="' +"'" + row.userId +"'" + '" class="btn btn-danger btn-xs edit remove" onclick="initRemove(' +"'" + row.userId+"'" +')" title="Remove">',
+            '<i class="glyphicon glyphicon-remove"></i>',
+            '</button>'
+        ].join('');
+    }
+    function updatePw(id) {
+        layer.prompt({title: '输入新密码', formType: 1}, function(pass, index){
+            layer.close(index);
+            layer.prompt({title: '确认密码', formType: 1}, function(text, index){
+                layer.close(index);
+                if(pass!=text){
+                    alert('输入不一致！');
+                }else{
+                    $.ajax({
+                        url:'../update/pw/'+id,
+                        method:'post',
+                        data:{
+                            'pw':text
+                        },
+                        success:function (res) {
+                            if(res.status){
+                                alert('修改成功！');
+                            }else {
+                                alert('修改失败！');
+                            }
+                        },
+                        error:function () {
+                            alert('修改失败！');
+                        }
+                    })
+                }
+            });
+        });
+    }
+    function refreshTable(){
+        table.bootstrapTable('refresh',{pageNumber:1});
+    }
+    function queryParams(params){
+        $('#toolbar').find('input,select').each(function(){
+            params[$(this).attr('name')] = $(this).val();
+        });
+        return params;
+    }
+    function opIndex(value, row, index){
+        return [index+1].join('');
+    }
+    $("#searchBtn").on("click",function(){
+        refreshTable();
+    });
+    $("[data-toggle='tooltip']").tooltip();
+    $('#toolbar').find('select').change(function () {
+        table.bootstrapTable('refresh',{pageNumber:1});
+    });
+    $("#addBtn").on("click",function () {
+        initEdit(0);
+    });
+    function initEdit(id){
+        window.open('./detail/'+id);
+    }
+    $("#btn_delete").on("click",function () {
+        var selectContent = table.bootstrapTable('getSelections');
+        if(selectContent.length==0) {
+            layer.alert('请选择一列数据!', {
+                icon: 2
+            });
+            return false;
+        }else{
+            var id="";
+            for(var i = 0; i <selectContent.length;i++){
+                id+=selectContent[i].userId+",";
+            }
+            initRemove(id);
+        }
+    });
+    function initRemove(id){
+        layer.confirm("确认删除？",{icon:3,title:"请选择"},function(index){
+            $.ajax({
+                type:"post",
+                dateType:"json",
+                url:"./delete/"+id,
+                success:function(ret){
+                    if(ret.status){
+                        layer.msg("操作成功",{icon:1,time:2000});
+                    }else{
+                        layer.msg("删除失败:"+ret.data,{icon:2,time:2000});
+                    }
+                    refreshTable();
+                }
+            });
+            layer.close(index);
+        });
+    }
+    function showUpload() {
+        layer.open({
+            title:'导入',
+            content:"<div style=\"margin:30px auto;width:200px\">\n" +
+            "        <form id=\"uploadform\" action=\"./upload\" method=\"post\" enctype=\"multipart/form-data\" >\n" +
+            "        <div class=\"form-group\">\n" +
+            "        <input id=\"file\" name=\"file\" type=\"file\" class=\"form-controller\"/>\n" +
+            "        </div>\n" +
+            "        </form>\n" +
+            "        </div>",
+            btn: ['确定', '取消'],
+            yes: function(index){
+                submitInfoFile();
+            }
+        });
+    }
+    function submitInfoFile(){
+        var file = $("#file").val();
+        if(checkForm(file)){
+            $("#uploadform").submit();
+        }
+    }
+    function checkForm(file){
+        if(!file){
+            alert("请选择上传文件");
+            return false;
+        }
+        //检测后缀
+        var index = file.lastIndexOf(".");
+        if(index<0){
+            //上传文件格式不正确，情绪那则Excel文件(*.xls或者*.xlsx);
+            alert("上传文件格式不正确，请选择Excel文件(*.xls)");
+            return false;
+        }else{
+            var ext = file.substring(index+1,file.length);
+            if(ext != "xls"){
+                alert("请选择Excel文件(*.xls)");
+                return false;
+            }
+        }
+        return true;
+    }
+</script>
+</body>
+</html>

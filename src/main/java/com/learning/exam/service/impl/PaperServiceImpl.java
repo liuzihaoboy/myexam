@@ -1,16 +1,20 @@
 package com.learning.exam.service.impl;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.learning.exam.dao.jpa.*;
-import com.learning.exam.dao.mapper.PaperMapper;
-import com.learning.exam.dao.mapper.QuestionMapper;
+import com.learning.exam.dao.mapper.*;
 import com.learning.exam.framework.enums.PaperTypeEnum;
 import com.learning.exam.framework.enums.PaperUserStatusEnum;
 import com.learning.exam.framework.enums.QtypeEnum;
 import com.learning.exam.framework.enums.converter.PaperTypeEnumConverter;
+import com.learning.exam.framework.enums.converter.PaperUserStatusEnumConverter;
 import com.learning.exam.framework.enums.converter.QtypeEnumConverter;
+import com.learning.exam.framework.exception.AuthException;
 import com.learning.exam.framework.exception.ValidationHtmlException;
 import com.learning.exam.framework.exception.ValidationJsonException;
 import com.learning.exam.framework.redis.keys.PaperKey;
+import com.learning.exam.framework.redis.keys.PaperResultKey;
 import com.learning.exam.framework.redis.keys.QuestionKey;
 import com.learning.exam.framework.redis.keys.UserKey;
 import com.learning.exam.framework.redis.service.RedisService;
@@ -21,6 +25,7 @@ import com.learning.exam.model.result.CodeMsg;
 import com.learning.exam.model.vo.*;
 import com.learning.exam.service.PaperService;
 import com.learning.exam.util.DateTimeUtils;
+import com.learning.exam.util.SnowFlake;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
@@ -40,9 +45,9 @@ import java.util.stream.Collectors;
 @Slf4j
 public class PaperServiceImpl implements PaperService {
     @Autowired
-    private PaperJpa paperJpa;
-    @Autowired
     private PaperMapper paperMapper;
+    @Autowired
+    private PaperJpa paperJpa;
     @Autowired
     private PaperSectionJpa paperSectionJpa;
     @Autowired
@@ -58,64 +63,166 @@ public class PaperServiceImpl implements PaperService {
     @Autowired
     private QuestionOptJpa questionOptJpa;
     @Autowired
+    private QuestionOptMapper questionOptMapper;
+    @Autowired
     private UserJpa userJpa;
     @Autowired
-    private PaperUserJpa paperUserJpa;
+    private PaperUserMapper paperUserMapper;
     @Autowired
     private PaperResultJpa paperResultJpa;
+    @Autowired
+    private PaperResultMapper paperResultMapper;
     @Autowired
     private RedisService redisService;
 
     @Override
+    public List<QuestionResultVo> getQuestionResultByPaperResult(PaperResultVo paperResultVo) {
+        List<Integer> questionIds = Arrays.stream(paperResultVo.getQuestionIds().split(",")).map(Integer::parseInt).collect(Collectors.toList());
+        List<QuestionResultVo> questions = new ArrayList<>(questionIds.size());
+        String resultKeys = StringUtils.isEmpty(paperResultVo.getResultKeys())?JSONObject.toJSONString(new String[questionIds.size()][]):paperResultVo.getResultKeys();
+        List<String> userOptKey = JSONArray.parseArray(resultKeys,String.class);
+        List<Integer> questionScores = Arrays.stream(paperResultVo.getQuestionScore().split(",")).map(Integer::parseInt).collect(Collectors.toList());
+        for (int i = 0; i < questionIds.size(); i++) {
+            Integer questionId = questionIds.get(i);
+            QuestionResultVo question = questionMapper.findQuestionResultById(questionId);
+            QtypeEnum qtypeEnum = QtypeEnumConverter.converter(question.getQuestionType());
+            question.setQuestionTypeName(qtypeEnum.getType());
+            List<String> key = new ArrayList<>(Arrays.asList(question.getOptKey().split(",")));
+            List<String> userKey = StringUtils.isEmpty(userOptKey.get(i))?new ArrayList<>(key.size()):JSONArray.parseArray(userOptKey.get(i),String.class);
+            int flag=0;
+            if(key.size()!=userKey.size()){
+                flag=1;
+            }else{
+                for (String s:key){
+                    if(!userKey.contains(s)){
+                        flag=1;break;
+                    }
+                }
+            }
+            question.setFlag(flag);
+            if(qtypeEnum == QtypeEnum.EXCLUSIVE_CHOICE||
+                    qtypeEnum == QtypeEnum.MULTIPLE_CHOICE){
+                List<QuestionOptVo> opts = questionOptMapper.findQuestionOptVosByQId(questionId);
+                question.setOpts(opts);
+                List<String> userKeyList = opts.stream()
+                        .filter(o -> key.contains(Integer.toString(o.getId())))
+                        .map(QuestionOptVo::getOptionContent).collect(Collectors.toList());
+                List<String> optKeyList  = opts.stream()
+                        .filter(o -> userKey.contains(Integer.toString(o.getId())))
+                        .map(QuestionOptVo::getOptionContent).collect(Collectors.toList());
+                question.setOptKey(optKeyList.stream().collect(Collectors.joining("<br>")));
+                question.setUserKey(userKeyList.stream().collect(Collectors.joining("<br>")));
+            }else{
+                question.setUserKey(String.join("<br>",userKey));
+                question.setOptKey(String.join("<br>",key));
+            }
+            question.setQuestionScore(questionScores.get(i));
+            questions.add(question);
+        }
+        return questions;
+    }
+
+    @Override
+    public PaperResultVo getPaperResultByPaperUserId(Integer paperUserId){
+        String paperUserIdStr = Integer.toString(paperUserId);
+        PaperResultVo paperResultVo = redisService.get(PaperResultKey.resultByPaperUserId,paperUserIdStr,PaperResultVo.class);
+        if(paperResultVo == null){
+            paperResultVo = paperResultMapper.findPaperResultByPaperUserId(paperUserId);
+        }
+        if(paperResultVo!=null){
+            paperResultVo.setTotalScore(getPaperTotalScore(paperResultVo.getPaperId()));
+            redisService.set(PaperResultKey.resultByPaperUserId,paperUserIdStr,paperResultVo);
+        }
+        return  paperResultVo;
+    }
+
+    @Override
     public TbPaperUser getPaperUser(Integer userId, Integer paperId) {
-        return paperUserJpa.findByUserIdAndPaperId(userId,paperId);
+        return paperUserMapper.findByUserIdAndPaperId(userId,paperId);
     }
 
     @Override
     public List<PaperResultVo> getPaperResultByUserIdSubmit(Integer userId) {
-        List<TbPaperUser> tbPaperUsers = paperUserJpa.findByUserIdSubmit(userId);
+        List<TbPaperUser> tbPaperUsers = paperUserMapper.findByUserIdSubmit(userId);
         List<PaperResultVo> paperResultVos = new ArrayList<>();
         for (TbPaperUser tbPaperUser :tbPaperUsers){
-            TbPaperResult tbPaperResult = redisService.get();
-            if(tbPaperResult==null){
-                tbPaperResult = paperResultJpa.findByPaperUserId(tbPaperUser.getId());
+            PaperResultVo paperResultVo = getPaperResultByPaperUserId(tbPaperUser.getId());
+            if(paperResultVo!=null){
+                paperResultVos.add(paperResultVo);
             }
         }
-        return null;
+        return paperResultVos;
     }
-
     @Override
     @Transactional(rollbackFor = Exception.class)
     public List<PaperTestVo> getPaperTestByUserIdNoSubmit(Integer userId) {
-        List<TbPaperUser> tbPaperUsers = paperUserJpa.findByUserIdNoSubmit(userId);
+        List<TbPaperUser> tbPaperUsers = paperUserMapper.findByUserIdNoSubmit(userId);
         List<PaperTestVo> paperUserVos = new ArrayList<>();
         for (TbPaperUser tbPaperUser:tbPaperUsers) {
             PaperTestVo paperTestVo = redisService.get(PaperKey.paperById,Integer.toString(tbPaperUser.getPaperId()),PaperTestVo.class);
             if(paperTestVo == null){
-                paperTestVo = paperTestVo(paperJpa.findByIdAndConfigStatus(tbPaperUser.getPaperId(),0));
+                paperTestVo = paperTestVo(paperMapper.findByIdAndConfigStatus(tbPaperUser.getPaperId(),0));
             }
             if(paperTestVo!=null){
                 if(paperTestVo.getEndTime().getTime()<=System.currentTimeMillis()){
                     Integer status = tbPaperUser.getStatus();
                     if(status.equals(PaperUserStatusEnum.WAIT_START.getId())) {
-                        paperUserJpa.updateStatus(PaperUserStatusEnum.NO_JOIN.getId(), tbPaperUser.getId());
+                        paperUserMapper.updateStatus(PaperUserStatusEnum.NO_JOIN.getId(), tbPaperUser.getId());
                     }else if(status.equals(PaperUserStatusEnum.BE_IN.getId())){
-                        paperUserJpa.updateStatus(PaperUserStatusEnum.HAD_SUBMIT.getId(), tbPaperUser.getId());
+                        paperUserMapper.updateStatus(PaperUserStatusEnum.HAD_SUBMIT.getId(), tbPaperUser.getId());
                     }
                     continue;
                 }
-                int expire = (int)((paperTestVo.getEndTime().getTime()-System.currentTimeMillis())/1000);
+                int expire = (int)((paperTestVo.getEndTime().getTime()-System.currentTimeMillis())/1000)+300;
                 //开始时间在一天之内，则存入缓存
                 if(paperTestVo.getStartTime().getTime()<=(System.currentTimeMillis()+86400000)){
-                    redisService.setex(UserKey.userByPaperUserId,tbPaperUser.getUserId()+":"+tbPaperUser.getPaperId(),tbPaperUser,expire);
+                    redisService.setex(PaperKey.paperByUserPaperId,tbPaperUser.getPaperId()+":"+tbPaperUser.getUserId(),tbPaperUser,expire);
                     redisService.setex(PaperKey.paperById,Integer.toString(paperTestVo.getPaperId()),paperTestVo,expire);
                 }
                 paperTestVo.setSections(null);
-                paperUserVos.add(paperTestVo);
             }
+            paperUserVos.add(paperTestVo);
         }
         return paperUserVos;
     }
+
+    @Override
+    public PaperTestVo getPaperTestByUserIdAndPaperId(Integer userId, Integer paperId) {
+        PaperTestVo paperTestVo = redisService.get(PaperKey.paperById,Integer.toString(paperId),PaperTestVo.class);
+        boolean existCachePt = true;
+        if(paperTestVo == null){
+            paperTestVo = paperTestVo(paperMapper.findByIdAndConfigStatus(paperId,0));
+            existCachePt = false;
+            if(paperTestVo == null){
+                throw new AuthException(CodeMsg.PAPER_SELECT_ERROR);
+            }
+        }
+        TbPaperUser tbPaperUser = redisService.get(PaperKey.paperByUserPaperId,paperId+":"+userId,TbPaperUser.class);
+        boolean existCachePu = true;
+        if(tbPaperUser == null){
+            tbPaperUser = paperUserMapper.findByUserIdAndPaperId(userId,paperId);
+            existCachePu = false;
+            if(tbPaperUser == null){
+                throw new AuthException(CodeMsg.PAPER_USER_JOIN_ERROR);
+            }
+        }
+        if(paperTestVo.getEndTime().getTime()<=System.currentTimeMillis()){
+            Integer status = tbPaperUser.getStatus();
+            if(status.equals(PaperUserStatusEnum.WAIT_START.getId())) {
+                paperUserMapper.updateStatus(PaperUserStatusEnum.NO_JOIN.getId(), tbPaperUser.getId());
+            }else if(status.equals(PaperUserStatusEnum.BE_IN.getId())){
+                paperUserMapper.updateStatus(PaperUserStatusEnum.HAD_SUBMIT.getId(), tbPaperUser.getId());
+            }
+        }
+        int expire = (int)((paperTestVo.getEndTime().getTime()-System.currentTimeMillis())/1000)+300;
+        //开始时间在一天之内，则存入缓存
+        if(paperTestVo.getStartTime().getTime()<=(System.currentTimeMillis()+86400000)){
+            if(!existCachePu)redisService.setex(PaperKey.paperByUserPaperId,tbPaperUser.getPaperId()+":"+tbPaperUser.getUserId(),tbPaperUser,expire);
+            if(!existCachePt)redisService.setex(PaperKey.paperById,Integer.toString(paperTestVo.getPaperId()),paperTestVo,expire);
+        }
+        return paperTestVo;
+    }
+
     private PaperTestVo paperTestVo(TbPaper tbPaper){
         if(tbPaper == null){
             return null;
@@ -125,12 +232,21 @@ public class PaperServiceImpl implements PaperService {
         paperTestVo.setStartTime(tbPaper.getStartTime());
         paperTestVo.setEndTime(tbPaper.getEndTime());
         paperTestVo.setPaperName(tbPaper.getPaperName());
+        paperTestVo.setShowKey(tbPaper.getShowKey());
         paperTestVo.setPaperMinute(tbPaper.getPaperMinute());
-        paperTestVo.setPaperType(tbPaper.getPaperType());
-        paperTestVo.setPaperTypeName(PaperTypeEnumConverter.converter(tbPaper.getPaperType()).getType());
+        PaperTypeEnum paperTypeEnum = PaperTypeEnumConverter.converter(tbPaper.getPaperType());
+        paperTestVo.setPaperType(paperTypeEnum.getId());
+        paperTestVo.setPaperTypeName(paperTypeEnum.getType());
         paperTestVo.setPassScore(tbPaper.getPassScore());
         paperTestVo.setTotalScore(getPaperTotalScore(tbPaper.getId()));
-        paperTestVo.setSections(sectionTestVos(tbPaper.getId()));
+        paperTestVo.setUuid(SnowFlake.getInstance().nextId());
+        if(paperTestVo.getEndTime().getTime()>System.currentTimeMillis()){
+            if(paperTypeEnum == PaperTypeEnum.NORMAL_TYPE){
+                paperTestVo.setQuestionIds(questionIds(tbPaper.getId()));
+            }else if(paperTypeEnum == PaperTypeEnum.RANDOM_TYPE){
+                paperTestVo.setSections(sectionTestVos(tbPaper.getId()));
+            }
+        }
         return paperTestVo;
     }
     private List<SectionTestVo> sectionTestVos(Integer paperId){
@@ -138,38 +254,38 @@ public class PaperServiceImpl implements PaperService {
         SectionTestVo sectionTestVo = null;
         List<TbPaperSection> tbPaperSections = paperSectionJpa.findByPaperId(paperId);
         for (TbPaperSection tbPaperSection : tbPaperSections){
+            //随机试卷
             sectionTestVo = new SectionTestVo();
+            sectionTestVo.setSectionType(tbPaperSection.getSectionType());
             sectionTestVo.setQuestionNum(tbPaperSection.getQuestionNum());
             sectionTestVo.setQuestionScore(tbPaperSection.getQuestionScore());
-            sectionTestVo.setSectionType(tbPaperSection.getSectionType());
-            sectionTestVo.setSectionTypeName(QtypeEnumConverter.converter(tbPaperSection.getSectionType()).getType());
-            String qdbIds = tbPaperSection.getQdbIds();
-            String levelScale = tbPaperSection.getLevelScale();
-            if("0".equals(qdbIds)&&"0,0,0,0,0".equals(levelScale)){
-                //获取普通试卷题目
-                String questionIdsStr = paperQuestionJpa.findQuestionIdsBySectionId(tbPaperSection.getId());
-                if(!StringUtils.isEmpty(questionIdsStr)){
-                    String[] questionIds = questionIdsStr.split(",");
-                    List<QuestionTestVo> questions = new ArrayList<>(questionIds.length);
-                    for (String id:questionIds){
-                        QuestionTestVo questionTestVo = questionTestVo(Integer.parseInt(id));
-                        if(questionTestVo!=null){
-                            questions.add(questionTestVo);
-                        }
-                    }
-                    sectionTestVo.setQuestions(questions);
-                    sectionTestVos.add(sectionTestVo);
-                }
-            }else {
-                sectionTestVo.setQdbIds(qdbIds);
-                sectionTestVo.setLevelScale(levelScale);
-                sectionTestVos.add(sectionTestVo);
-            }
+            sectionTestVo.setQdbIds(tbPaperSection.getQdbIds());
+            sectionTestVo.setLevelScale(tbPaperSection.getLevelScale());
+            sectionTestVos.add(sectionTestVo);
         }
         return sectionTestVos;
     }
-    private QuestionTestVo questionTestVo(Integer questionId){
-        QuestionTestVo questionTestVo = redisService.get(QuestionKey.questionById,Integer.toString(questionId),QuestionTestVo.class);
+    private String questionIds(Integer paperId){
+        List<String> questions = new ArrayList<>();
+        List<TbPaperSection> tbPaperSections = paperSectionJpa.findByPaperId(paperId);
+        for (TbPaperSection tbPaperSection : tbPaperSections){
+            //获取普通试卷题目
+            String questionIdsStr = paperQuestionJpa.findQuestionIdsBySectionId(tbPaperSection.getId());
+            if(!StringUtils.isEmpty(questionIdsStr)){
+                Integer questionScore = tbPaperSection.getQuestionScore();
+                String[] questionIds = questionIdsStr.split(",");
+                for (String id:questionIds){
+                    QuestionTestVo questionTestVo = questionTestVo(paperId,Integer.parseInt(id),questionScore);
+                    if(questionTestVo!=null){
+                        questions.add(Integer.toString(questionTestVo.getId()));
+                    }
+                }
+            }
+        }
+        return questions.stream().collect(Collectors.joining(","));
+    }
+    private QuestionTestVo questionTestVo(Integer paperId,Integer questionId,Integer questionScore){
+        QuestionTestVo questionTestVo = redisService.get(QuestionKey.byPaperId,paperId+":"+questionId,QuestionTestVo.class);
         if(questionTestVo!=null){
             return questionTestVo;
         }
@@ -180,11 +296,20 @@ public class PaperServiceImpl implements PaperService {
         questionTestVo = new QuestionTestVo();
         questionTestVo.setId(question.getId());
         questionTestVo.setQuestionContent(question.getQuestionContent());
-        questionTestVo.setQuestionType(question.getQType());
-        questionTestVo.setQuestionTypeName(QtypeEnumConverter.converter(question.getQType()).getType());
-        List<TbQuestionOpt> opts = questionOptJpa.findByQId(questionId);
-        questionTestVo.setOpts(opts);
-        redisService.set(QuestionKey.questionById,Integer.toString(questionId),questionTestVo);
+        QtypeEnum qtypeEnum = QtypeEnumConverter.converter(question.getQType());
+        questionTestVo.setQuestionType(qtypeEnum.getId());
+        questionTestVo.setQuestionTypeName(qtypeEnum.getType());
+        questionTestVo.setQuestionScore(questionScore);
+        questionTestVo.setOptKey(question.getOptKey());
+        if(qtypeEnum == QtypeEnum.EXCLUSIVE_CHOICE||
+                qtypeEnum == QtypeEnum.MULTIPLE_CHOICE){
+            List<QuestionOptVo> opts = questionOptMapper.findQuestionOptVosByQId(questionId);
+            questionTestVo.setOpts(opts);
+        }else if(qtypeEnum == QtypeEnum.FILL_BLANKS){
+            String[] optKeys = question.getOptKey().split(",");
+            questionTestVo.setBlankNum(optKeys.length);
+        }
+        redisService.set(QuestionKey.byPaperId,paperId+":"+questionId,questionTestVo);
         return questionTestVo;
     }
     @Override
@@ -207,13 +332,13 @@ public class PaperServiceImpl implements PaperService {
         }
         int paperSectionNum = paperSectionJpa.findPaperSectionNumByPaerId(paperId);
         if(paperSectionNum<=0){
-            paperJpa.updatePaperConfigStatus(1,paperId);
+            paperMapper.updatePaperConfigStatus(1,paperId);
         }
     }
 
     @Override
     public void submitPaperSection(PaperSectionDto paperSectionDto) {
-        Integer paperType = paperJpa.findPaperTypeById(paperSectionDto.getPaperId());
+        Integer paperType = paperMapper.findPaperTypeById(paperSectionDto.getPaperId());
         PaperTypeEnum paperTypeEnum = PaperTypeEnumConverter.converter(paperType);
         TbPaperSection tbPaperSection = new TbPaperSection();
         tbPaperSection.setQuestionScore(paperSectionDto.getQuestionScore());
@@ -232,7 +357,7 @@ public class PaperServiceImpl implements PaperService {
                 tbPaperSection.setLevelScale("0,0,0,0,0");
             }
             paperSectionJpa.insertPaperSection(tbPaperSection);
-            paperJpa.updatePaperConfigStatus(0,paperSectionDto.getPaperId());
+            paperMapper.updatePaperConfigStatus(0,paperSectionDto.getPaperId());
         }else {
             tbPaperSection.setId(paperSectionDto.getId());
             if(paperTypeEnum == PaperTypeEnum.NORMAL_TYPE){
@@ -307,13 +432,15 @@ public class PaperServiceImpl implements PaperService {
         tbPaper.setCUid(cUserId);
         if(paperDto.getId()!=null&&paperDto.getId()!=0){
             tbPaper.setId(paperDto.getId());
-            paperUserJpa.deletePaperUserByPaperId(paperDto.getId());
+            paperUserMapper.deletePaperUserByPaperId(paperDto.getId());
+            redisService.delete(PaperKey.paperByUserPaperId,tbPaper.getId()+":*");
+            redisService.delete(PaperKey.paperById,Integer.toString(tbPaper.getId()));
         }
         TbPaper paper = paperJpa.save(tbPaper);
         String[] userIds = paperDto.getToUserIds().split(",");
         if(userIds.length!=0){
             for (String userIdStr:userIds){
-                paperUserJpa.insertPaperUser(Integer.parseInt(userIdStr),paper.getId(),PaperUserStatusEnum.WAIT_START.getId());
+                paperUserMapper.insertPaperUser(Integer.parseInt(userIdStr),paper.getId(),PaperUserStatusEnum.WAIT_START.getId());
             }
         }
     }
@@ -331,8 +458,8 @@ public class PaperServiceImpl implements PaperService {
                     paperQuestionJpa.deletePaperQuestionBySectionId(sectionId);
                     paperSectionJpa.deletePaperSectionByIdAndPaperId(paperId,sectionId);
                 }
-                paperUserJpa.deletePaperUserByPaperId(paperId);
-                paperJpa.deletePaperById(paperId);
+                paperUserMapper.deletePaperUserByPaperId(paperId);
+                paperMapper.deletePaperById(paperId);
             }
         }else {
             Integer paperId = Integer.parseInt(id);
@@ -342,8 +469,8 @@ public class PaperServiceImpl implements PaperService {
                 paperQuestionJpa.deletePaperQuestionBySectionId(sectionId);
                 paperSectionJpa.deletePaperSectionByIdAndPaperId(paperId,sectionId);
             }
-            paperUserJpa.deletePaperUserByPaperId(paperId);
-            paperJpa.deletePaperById(paperId);
+            paperUserMapper.deletePaperUserByPaperId(paperId);
+            paperMapper.deletePaperById(paperId);
         }
     }
     private void deletePaper(Integer id){
@@ -364,7 +491,7 @@ public class PaperServiceImpl implements PaperService {
 
     @Override
     public Date getPaperStartTimeById(Integer paperId) {
-        return paperJpa.findPaperStartTimeById(paperId);
+        return paperMapper.findPaperStartTimeById(paperId);
     }
 
     /**
@@ -381,7 +508,7 @@ public class PaperServiceImpl implements PaperService {
 
     @Override
     public Integer getPaperIdById(Integer paperId) {
-        return paperJpa.findPaperIdById(paperId);
+        return paperMapper.findPaperIdById(paperId);
     }
 
     @Override
@@ -396,8 +523,39 @@ public class PaperServiceImpl implements PaperService {
     }
 
     @Override
+    public List<ScoreResultVo> getScoreResultsByPaperId(Integer paperId, String nameKey, String majorKey) {
+        return paperResultMapper.findResultVosByPaperId(paperId,"%"+nameKey+"%",majorKey);
+    }
+
+    @Override
+    public List<ScoreVo> getScores(String nameKey) {
+        Date nowTime = new Date();
+        List<ScoreVo> scoreVos = paperMapper.findPaperHadStart(nowTime,"%"+nameKey+"%");
+        for (ScoreVo scoreVo:scoreVos){
+            Integer userNum = scoreVo.getToUser().split(",").length;
+            scoreVo.setUserNum(userNum);
+            scoreVo.setTotalScore(getPaperTotalScore(scoreVo.getId()));
+            List<Integer> scores = paperResultMapper.findResultScoreByPaperId(scoreVo.getId());
+            scoreVo.setSubmitNum(scores.size());
+            scoreVo.setPaperTypeName(PaperTypeEnumConverter.converter(scoreVo.getPaperType()).getType());
+            int maxScore=Integer.MIN_VALUE;
+            int minScore=Integer.MAX_VALUE;
+            int sumScore=0;
+            for (Integer i:scores){
+                maxScore=i>=maxScore?i:minScore;
+                minScore=i<=minScore?i:minScore;
+                sumScore+=i;
+            }
+            scoreVo.setMinScore(minScore==Integer.MAX_VALUE?0:minScore);
+            scoreVo.setMaxScore(maxScore==Integer.MIN_VALUE?0:maxScore);
+            scoreVo.setAveScore(scores.size()==0?0:sumScore*1.00/scores.size());
+        }
+        return scoreVos;
+    }
+
+    @Override
     public List<PaperVo> getPapers() {
-        List<TbPaper> tbPapers = paperJpa.findAll();
+        List<TbPaper> tbPapers = paperMapper.findPapers();
         List<PaperVo> paperVos = new ArrayList<>();
         PaperVo paperVo;
         for (TbPaper tbPaper:tbPapers){
@@ -457,6 +615,11 @@ public class PaperServiceImpl implements PaperService {
         if(paperSectionFlag){
             List<PaperSectionVo> sectionVos = paperSectionVos(paperTypeEnum,tbPaper.getId());
             paperVo.setSectionVos(sectionVos);
+        }
+        //已结束
+        if(tbPaper.getEndTime().getTime()<System.currentTimeMillis()){
+            redisService.delete(PaperKey.paperById,Integer.toString(tbPaper.getId()));
+            redisService.delete(QuestionKey.byPaperId,Integer.toString(tbPaper.getId())+":");
         }
         return paperVo;
     }

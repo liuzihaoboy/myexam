@@ -13,4 +13,5 @@ import java.util.List;
 @Repository
 public interface StudentJpa extends JpaRepository<TbStudent,Integer> {
     List<TbStudent> findByUserIdIn(List<Integer> ids);
+    TbStudent findByUserId(Integer userId);
 }

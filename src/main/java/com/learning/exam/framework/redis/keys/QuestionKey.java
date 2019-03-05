@@ -12,5 +12,5 @@ public class QuestionKey extends BasePrefix{
     public QuestionKey(String prefix,int expireSeconds) {
         super(prefix,expireSeconds);
     }
-    public static final QuestionKey questionById = new QuestionKey("id",86400);
+    public static final QuestionKey byPaperId = new QuestionKey("paperId");
 }

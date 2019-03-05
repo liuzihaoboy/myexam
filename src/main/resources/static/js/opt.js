@@ -85,7 +85,7 @@ function optTable(qType,opts,keys) {
             "                            <input type='hidden' name=\"orderNum\" value='1'/>\n" +
             "                        </td>\n" +
             "                        <th width=\"85%\">\n" +
-            "                            <textarea rows=\"3\" name=\"q_options\" class=\"tm_txtx\"></textarea>\n" +
+            "                            <textarea rows=\"3\" optId='1' name=\"q_options\" class=\"tm_txtx\"></textarea>\n" +
             "                        </th>\n" +
             "                        <td width=\"5%\">\n" +
             "                        </td>\n" +
@@ -107,7 +107,7 @@ function optTable(qType,opts,keys) {
             "                            <input type='hidden' name=\"orderNum\" value='1'/>\n" +
             "                        </td>\n" +
             "                        <th width=\"85%\">\n" +
-            "                            <textarea rows=\"3\" name=\"q_options\" class=\"tm_txtx\" ></textarea>\n" +
+            "                            <textarea rows=\"3\" optId='1' name=\"q_options\" class=\"tm_txtx\" ></textarea>\n" +
             "                        </th>\n" +
             "                        <td width=\"5%\">\n" +
             "                        </td>\n" +

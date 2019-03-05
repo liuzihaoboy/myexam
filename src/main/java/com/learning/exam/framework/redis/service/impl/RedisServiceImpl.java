@@ -15,7 +15,9 @@ import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.Transaction;
 
 import java.nio.charset.Charset;
+import java.util.Arrays;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author liuzihao
@@ -76,6 +78,7 @@ public class RedisServiceImpl implements RedisService {
         try {
             jedis = jedisPool.getResource();
             String realKey = realKey(prefix,key);
+            //s
             jedis.expire(realKey.getBytes(UTF8_CHARSET),time);
         }finally {
             close(jedis);
@@ -88,6 +91,7 @@ public class RedisServiceImpl implements RedisService {
         try {
             jedis = jedisPool.getResource();
             String realKey = realKey(prefix,key);
+            //ms
             return jedis.pttl(realKey.getBytes(UTF8_CHARSET));
         }finally {
             close(jedis);
@@ -201,8 +205,16 @@ public class RedisServiceImpl implements RedisService {
         try {
             jedis = jedisPool.getResource();
             String realKey=realKey(prefix,key);
-            byte[] bytes = jedis.get(realKey.getBytes(UTF8_CHARSET));
-            jedis.del(bytes);
+            if(realKey.endsWith("*")){
+                Set<String> set = jedis.keys(realKey);
+                if(set.size()>0){
+                    String[] keys = new String[set.size()];
+                    set.toArray(keys);
+                    jedis.del(keys);
+                }
+            }else{
+                jedis.del(realKey.getBytes(UTF8_CHARSET));
+            }
         }finally {
             close(jedis);
         }

@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>在线考试系统</title>
+    <link rel="shortcut icon" th:href="@{/static/favicon.ico}" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <!--[if lt IE 8]>
+    <meta http-equiv="refresh" content="0;ie.html" />
+    <![endif]-->
+    <link th:href="@{/static/css/style.css}" rel="stylesheet">
+    <link th:href="@{/static/css/ui.css}" rel="stylesheet">
+    <link th:href="@{/static/css/style-list.min.css?v=4.0.0}" rel="stylesheet">
+    <link th:href="@{/static/css/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/static/css/font-awesome.min.css}" rel="stylesheet">
+    <link th:href="@{/static/css/bootstrap-table.css}" rel="stylesheet">
+    <link th:href="@{/static/css/animate.min.css}" rel="stylesheet">
+    <link th:href="@{/static/css/admin.css}" rel="stylesheet">
+    <link th:href="@{/static/css/bootstrap-datetimepicker.min.css}" rel="stylesheet" />
+    <link th:href="@{/static/css/jquery.validator.css}" rel="stylesheet">
+    <link th:href="@{/static/css/ui.css}" rel="stylesheet">
+</head>
+
+<body class="gray-bg white">
+<div class="form-inline" role="form">
+    <div class="tm_main">
+        <div class="tm_container">
+            <ul class="tm_breadcrumb">
+                <li><a th:href="@{/common/welcome}">首页</a> <span class="divider">&gt;</span></li>
+                <li class="active">成绩分析</li>
+            </ul>
+        </div>
+    </div>
+</div>
+<div id="toolbar">
+    <div class="form-inline" role="form">
+        <div class="form-group">
+            <input name="nameKey" type="text" class="form-control" placeholder="搜索试卷名称" />
+        </div>
+        <button id="searchBtn" class="btn btn-primary btn-md">搜索</button>
+    </div>
+</div>
+<table id="table" data-toolbar="#toolbar"  data-show-toggle="true" data-show-columns="true" data-show-refresh="true" data-query-params="queryParams">
+</table>
+<script th:src="@{/static/js/jquery-3.3.1.min.js}" type="text/javascript" charset="utf-8"></script>
+<script th:src="@{/static/js/bootstrap.min.js}" type="text/javascript" charset="utf-8"></script>
+<script th:src="@{/static/js/bootstrap-table.min.js}" type="text/javascript" charset="utf-8"></script>
+<script th:src="@{/static/js/bootstrap-table-editable.min.js}" type="text/javascript" charset="utf-8"></script>
+<script th:src="@{/static/js/bootstrap-table-zh-CN.min.js}" type="text/javascript" charset="utf-8"></script>
+<script th:src="@{/static/js/layer/layer.js}" type="text/javascript" charset="utf-8"></script>
+<script th:src="@{/static/js/bootstrap-editable.min.js}" type="text/javascript" charset="utf-8"></script>
+<script  th:src="@{/static/js/bootstrap-datetimepicker.min.js}"></script>
+<script  th:src="@{/static/js/bootstrap-datetimepicker.zh-CN.js}"></script>
+<script type="text/javascript" th:inline="javascript">
+    var table = $('#table');
+    table.bootstrapTable({
+        contentType: "application/x-www-form-urlencoded",
+        method:'get',
+        url: './list/json' ,
+        height: 600 ,
+        pagination: true,//是否开启分页（*）
+        pageNumber: 1,//初始化加载第一页，默认第一页
+        pageSize: 50,//每页的记录行数（*）
+        pageList: [30, 50, 100,150],//可供选择的每页的行数（*）
+        sidePagination: "client", //分页方式：client客户端分页，server服务端分页（*）
+        columns: [
+            {
+                checkbox : true,
+                align : 'center',
+                value:"id",
+            },
+            {
+                title: '序号',
+                align: 'center',
+                formatter: 'opIndex'
+            },{
+                field: 'paperName',
+                title: '试卷名称',
+                align: 'center',
+                sortable:true,
+            }, {
+                field: 'paperTypeName',
+                title: '试卷类型',
+                align: 'center',
+            }, {
+                title: '时间设定',
+                align: 'center',
+                formatter:function (value,row,index) {
+                    return row.startTime+"<br>"+row.endTime;
+                }
+            }, {
+                field: 'paperMinute',
+                title: '考试时长(分钟)',
+                align: 'center',
+            }, {
+                field: 'totalScore',
+                title: '卷面分数',
+                align: 'center',
+            }, {
+                field: 'passScore',
+                title: '及格分数',
+                align: 'center',
+            }, {
+                field:'userNum',
+                title: '考试人数',
+                align: 'center',
+            }, {
+                field: 'showKey',
+                title: '公布答案',
+                align: 'center',
+                formatter:function (value) {
+                    if(value==0){
+                        return "是";
+                    }else {
+                        return "否";
+                    }
+                }
+            }, {
+                field: 'submitNum',
+                title: '提交人数',
+                align: 'center',
+            }, {
+                field: 'maxScore',
+                title: '最高分',
+                align: 'center',
+            }, {
+                field: 'minScore',
+                title: '最低分',
+                align: 'center',
+            }, {
+                field: 'aveScore',
+                title: '平均分',
+                align: 'center',
+            },{
+                title:'操作',
+                align:'center',
+                formatter: function (value,row,index) {
+                    return [
+                        '<button data-toggle="tooltip" data-id="' +"'"+ row.id+"'" + '" class="btn btn-success btn-xs edit" onclick="detail('+"'" + row.id+"'" + ')" title="详情">',
+                        '<i class="glyphicon glyphicon glyphicon-eye-open"></i>',
+                        '</button>  '
+                    ].join('');
+                }
+            }
+        ],
+        onEditableSave:function(field,row,oldValue,el){
+            table.bootstrapTable("resetView");
+        }
+    });
+    function refreshTable(){
+        table.bootstrapTable('refresh',{pageNumber:1});
+    }
+    function queryParams(params){
+        $('#toolbar').find('input,select').each(function(){
+            params[$(this).attr('name')] = $(this).val();
+        });
+        return params;
+    }
+    function opIndex(value, row, index){
+        return [index+1].join('');
+    }
+    $("#searchBtn").on("click",function(){
+        refreshTable();
+    });
+    $("[data-toggle='tooltip']").tooltip();
+    $('#toolbar').find('select').change(function () {
+        table.bootstrapTable('refresh',{pageNumber:1});
+    });
+    function detail(id) {
+        window.location.href="./detail/"+id;
+    }
+</script>
+</body>
+</html>

@@ -16,9 +16,12 @@ public class PaperTestVo {
     private Date startTime;
     private Date endTime;
     private Integer paperMinute;
+    private Integer showKey;
     private Integer paperType;
     private String paperTypeName;
     private Integer passScore;
     private Integer totalScore;
-    List<SectionTestVo> sections;
+    private String uuid;
+    private String questionIds;
+    private List<SectionTestVo> sections;
 }

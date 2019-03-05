@@ -2,6 +2,7 @@ package com.learning.exam.model.entity;
 
 import lombok.Data;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -27,6 +28,7 @@ public class TbQuestion {
     private Integer qStatus;
     private Date cDate;
     private Date uDate;
+    @Column(updatable = false)
     private Integer cUid;
     private Integer uUid;
     private String optKey;

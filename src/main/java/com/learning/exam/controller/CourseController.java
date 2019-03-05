@@ -43,7 +43,7 @@ public class CourseController {
                                @PathVariable("id")Integer id){
         TbCourse tbCourse = questionService.getCourseById(id);
         request.setAttribute("tbCourse",tbCourse);
-        return "qdb/form";
+        return "qdb/course/form";
     }
     @ResponseBody
     @RequestMapping(value = "/delete/{id}",method = RequestMethod.POST,produces = "application/json;charset=utf-8")
@@ -53,7 +53,7 @@ public class CourseController {
     }
     @RequestMapping(value = "/list",method = RequestMethod.GET,produces = "text/html;charset=utf-8")
     public String courseList(){
-        return "qdb/list";
+        return "qdb/course/list";
     }
     @ResponseBody
     @RequestMapping(value = "/list/json",method = {RequestMethod.GET,RequestMethod.POST},produces = "application/json;charset=utf-8")

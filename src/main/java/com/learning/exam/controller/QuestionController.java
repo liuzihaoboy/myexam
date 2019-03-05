@@ -18,7 +18,9 @@ import com.learning.exam.model.vo.QuestionDbVo;
 import com.learning.exam.model.vo.QuestionVo;
 import com.learning.exam.model.vo.RequestEnumVo;
 import com.learning.exam.model.vo.TbUserVo;
+import com.learning.exam.service.ExcelService;
 import com.learning.exam.service.QuestionService;
+import com.learning.exam.util.FileUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -26,10 +28,8 @@ import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -50,6 +50,8 @@ public class QuestionController {
     private RedisService redisService;
     @Autowired
     private QuestionService questionService;
+    @Autowired
+    private ExcelService excelService;
 
     @RequestMapping(value = "/preview/{questionId}",method = RequestMethod.GET,produces = "text/html;charset=utf-8")
     public String preview(HttpServletRequest request,
@@ -138,7 +140,7 @@ public class QuestionController {
     @RequestMapping(value = "/delete/{id}",method = RequestMethod.POST,produces = "application/json;charset=utf-8")
     public JsonResult delete(HttpServletRequest request,
                                 @PathVariable("id")String id){
-        //questionService.deleteQuestion(id);
+        questionService.deleteQuestion(id);
         return JsonResult.success(null);
     }
     @RequestMapping(value = "/list",method = RequestMethod.GET,produces = "text/html;charset=utf-8")
@@ -175,5 +177,15 @@ public class QuestionController {
             questionVos = questionService.getQuestionsByCondition(qdbKey,typeKey,levelKey,statusKey,contentKey);
         }
         return questionVos;
+    }
+    @RequestMapping(value = "/upload",method = RequestMethod.POST,produces = "text/html;charset=utf-8")
+    public String upload(HttpServletRequest request,
+                         @RequestParam("file") MultipartFile file){
+        String path = FileUtils.saveFile(file,"/upload");
+        if(path == null){
+            return ViewUtils.ERROR_PAGE;
+        }
+        excelService.readExcel(path,2);
+        return ViewUtils.SUCCESS_PAGE;
     }
 }

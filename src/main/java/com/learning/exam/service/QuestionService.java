@@ -12,6 +12,7 @@ import java.util.List;
  * @date 2019-02-11  13:58
  */
 public interface QuestionService {
+    QuestionResultVo getQuestionResultById(Integer id);
     List<Integer> getQuestionIdsBySectionId(Integer sectionId);
     List<QuestionContentVo> getQuestionContentsBySectionId(Integer sectionId);
     List<QuestionContentVo> getQuestionContentsByCondition(String qdbKey, String typeKey, String levelKey, String statusKey, String contentKey);

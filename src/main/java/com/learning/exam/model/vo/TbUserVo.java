@@ -2,6 +2,7 @@ package com.learning.exam.model.vo;
 
 import com.learning.exam.model.entity.TbPermission;
 import com.learning.exam.model.entity.TbRole;
+import com.learning.exam.model.entity.TbStudent;
 import lombok.Data;
 
 import java.util.List;
@@ -19,4 +20,5 @@ public class TbUserVo {
     private String email;
     private TbRole tbRole;
     private List<TbPermission> tbPermissions;
+    private StudentVo studentVo;
 }

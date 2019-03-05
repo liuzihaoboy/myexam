@@ -89,7 +89,7 @@ public class PaperController {
         PaperTypeEnum paperTypeEnum = PaperTypeEnumConverter.converter(paperDto.getPaperType());
         TbUserVo tbUserVo = redisService.hget(SessionKey.sessionById,session.getId(),SessionCacheName.LOGIN_USER,TbUserVo.class);
         paperService.submitPaper(paperDto,tbUserVo.getId(),paperTypeEnum);
-        return ViewUtils.SUCCESS_PAGE;
+        return ViewUtils.SUCCESS_CLOSE_PAGE;
     }
     @RequestMapping(value = "/detail/{id}",method = RequestMethod.GET,produces = "text/html;charset=utf-8")
     public String detail(HttpServletRequest request,

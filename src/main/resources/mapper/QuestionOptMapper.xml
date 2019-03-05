@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.learning.exam.dao.mapper.QuestionOptMapper">
+    <select id="findQuestionOptVosByQId" resultType="QuestionOptVo">
+        select t.id,t.option_content,t.order_num from tb_question_opt t where t.q_id=#{qId}
+    </select>
+</mapper>

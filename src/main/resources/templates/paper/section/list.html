@@ -24,7 +24,7 @@
     <div class="tm_main">
         <div class="tm_container">
             <ul class="tm_breadcrumb">
-                <li><a th:href="@{/index.html}">首页</a> <span class="divider">&gt;</span></li>
+                <li><a th:href="@{/common/welcome}">首页</a> <span class="divider">&gt;</span></li>
                 <li><a th:href="@{/system/paper/list}">试卷管理</a> <span class="divider">&gt;</span></li>
                 <li class="active">配置试卷</li>
             </ul>
@@ -80,7 +80,7 @@
 </div>
 <table id="table" data-toolbar="#toolbar"  data-show-toggle="true" data-show-columns="true" data-show-refresh="true" data-query-params="queryParams">
 </table>
-<script th:src="@{/static/js/jquery-3.1.1.js}" type="text/javascript" charset="utf-8"></script>
+<script th:src="@{/static/js/jquery-3.3.1.min.js}" type="text/javascript" charset="utf-8"></script>
 <script th:src="@{/static/js/bootstrap.min.js}" type="text/javascript" charset="utf-8"></script>
 <script th:src="@{/static/js/bootstrap-table.min.js}" type="text/javascript" charset="utf-8"></script>
 <script th:src="@{/static/js/bootstrap-table-editable.min.js}" type="text/javascript" charset="utf-8"></script>
@@ -202,7 +202,7 @@
                         '<button data-toggle="tooltip" data-id="' +"'"+ row.id+"'" + '" class="btn btn-success btn-xs edit" onclick="questionDetail('+"'" + row.id+"'" + ')" title="预览">',
                         '<i class="glyphicon glyphicon glyphicon-eye-open"></i>',
                         '</button>  ',
-                        '<button data-toggle="tooltop" data-id="' +"'" + row.id +"'" + '" class="btn btn-danger btn-xs edit remove" onclick="questionRemove(' +"'"+sectionId+"',"+"'" + row.id+"'," +'this)" title="删除">',
+                        '<button data-toggle="tooltop" data-id="' +"'" + row.id +"'" + '" class="btn btn-danger btn-xs edit remove" onclick="questionRemove('  +"'"+paperId+"','"+sectionId+"',"+"'" + row.id+"'," +'this)" title="删除">',
                         '<i class="glyphicon glyphicon-remove"></i>',
                         '</button>'
                     ].join('');
@@ -301,14 +301,16 @@
             content:'./../../../qdb/question/preview/'+id
         });
     }
-    function questionRemove(sectionId,id,button) {
+    function questionRemove(paperId,sectionId,id,button) {
         layer.confirm("确认删除？",{icon:3,title:"请选择"},function(index){
             $.ajax({
                 type:"post",
                 dateType:"json",
                 url:"../question/delete",
                 data:{
-                  'sectionId':sectionId, 'questionId':id,
+                    'paperId':paperId,
+                  'sectionId':sectionId,
+                    'questionId':id
                 },
                 success:function(ret){
                     if(ret.status){

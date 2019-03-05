@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import javax.transaction.Transactional;
+import java.util.Date;
 
 /**
  * @author liuzihao
@@ -15,8 +16,4 @@ import javax.transaction.Transactional;
  */
 @Repository
 public interface PaperTestJpa extends JpaRepository<TbPaperTest,Integer> {
-    @Transactional
-    @Modifying
-    @Query(nativeQuery = true,value = "insert into tb_paper_test(paper_user_id, question_ids) values (:paperUserId,:questionIdsStr)")
-    int insertPaperTest(@Param("paperUserId") Integer paperUserId,@Param("questionIdsStr") String questionIdsStr);
 }

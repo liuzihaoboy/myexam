@@ -37,7 +37,7 @@ public class QuestionVo {
     private String cUserName;
     @JsonProperty("uUserName")
     private String uUserName;
-    private List<TbQuestionOpt> opts;
+    private List<QuestionOptVo> opts;
     private String[] optKey;
     private String keyInfo;
 }

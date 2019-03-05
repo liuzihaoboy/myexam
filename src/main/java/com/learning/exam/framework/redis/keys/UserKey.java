@@ -12,6 +12,6 @@ public class UserKey extends BasePrefix {
     public UserKey(String prefix,int expireSeconds) {
         super(prefix,expireSeconds);
     }
-    public static final UserKey userByPaperUserId = new UserKey("paperUser");
-    public static final UserKey userByPaperTestId = new UserKey("paperTest");
+    public static final UserKey userById = new UserKey("userId");
+
 }

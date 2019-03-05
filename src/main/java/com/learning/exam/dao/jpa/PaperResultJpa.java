@@ -12,6 +12,4 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface PaperResultJpa extends JpaRepository<TbPaperResult,Integer> {
-    @Query(nativeQuery = true,value = "select r.* from tb_paper_user u,tb_paper_test t,tb_paper_result r where r.paper_test_id=t.id and t.paper_user_id=u.id and u.id=:paperUserId")
-    TbPaperResult findByPaperUserId(@Param("paperUserId")Integer paperUserId);
 }

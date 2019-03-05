@@ -47,7 +47,6 @@
         <label class="control-label col-sm-3">试题难度</label>
         <div class="col-sm-7">
             <select class="form-control"  name="qLevel" d  id="qLevel" data-rule="required;" >
-                <option value="">无</option>
             </select>
         </div>
     </div>
@@ -73,7 +72,7 @@
     <div class="form-group">
         <label class="control-label col-sm-3">试题解析</label>
         <div class="col-sm-7">
-            <textarea  class="form-control" th:if="${questionVo==null}" style="height: 200px;" data-rule="required;" placeholder="没有请填无" name="keyInfo"></textarea>
+            <textarea  class="form-control" th:if="${questionVo==null}" style="height: 200px;" data-rule="required;" placeholder="没有请填无" name="keyInfo">无</textarea>
             <textarea  class="form-control" th:if="${questionVo!=null}" style="height: 200px;" data-rule="required;" placeholder="没有请填无" name="keyInfo" th:inline="text">[[${questionVo?.keyInfo}]]</textarea>
         </div>
     </div>
@@ -84,7 +83,7 @@
         </div>
     </div>
 </form>
-<script th:src="@{/static/js/jquery-3.1.1.js}" type="text/javascript" charset="utf-8"></script>
+<script th:src="@{/static/js/jquery-3.3.1.min.js}" type="text/javascript" charset="utf-8"></script>
 <script th:src="@{/static/js/bootstrap.min.js}" type="text/javascript" charset="utf-8"></script>
 <script th:src="@{/static/js/bootstrap-table.min.js}" type="text/javascript" charset="utf-8"></script>
 <script th:src="@{/static/js/bootstrap-table-editable.min.js}" type="text/javascript" charset="utf-8"></script>
@@ -151,8 +150,17 @@
     function submitForm(){
         $("#qType").removeAttr("disabled");
         var qType = $("#qType option:selected").val();
+        var qdbId = $("#qdbId option:selected").val();
+        var qLevel = $("#qLevel option:selected").val();
+        if(qdbId == null||qdbId==""){
+            alert("请选择题库！");
+            return;
+        }
+        if(qLevel == null||qLevel==""){
+            alert("请选择难度！");
+            return;
+        }
         var key="";
-        console.log(qType);
         if(qType==1){
             key = $("input[name='q_key']:checked").val();
             if(key == null ||key == ""){

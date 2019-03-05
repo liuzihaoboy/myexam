@@ -3,6 +3,7 @@ package com.learning.exam.service.impl;
 import com.learning.exam.dao.jpa.*;
 import com.learning.exam.dao.mapper.QuestionDbMapper;
 import com.learning.exam.dao.mapper.QuestionMapper;
+import com.learning.exam.dao.mapper.QuestionOptMapper;
 import com.learning.exam.framework.enums.QlevelEnum;
 import com.learning.exam.framework.enums.QtypeEnum;
 import com.learning.exam.framework.enums.converter.QlevelEnumConverter;
@@ -48,9 +49,24 @@ public class QuestionServiceImpl implements QuestionService {
     @Autowired
     private QuestionOptJpa questionOptJpa;
     @Autowired
+    private QuestionOptMapper questionOptMapper;
+    @Autowired
     private UserJpa userJpa;
     @Autowired
     private PaperQuestionJpa paperQuestionJpa;
+
+    @Override
+    public QuestionResultVo getQuestionResultById(Integer id) {
+        QuestionResultVo questionResultVo = questionMapper.findQuestionResultById(id);
+        QtypeEnum qtypeEnum = QtypeEnumConverter.converter(questionResultVo.getQuestionType());
+        questionResultVo.setQuestionTypeName(qtypeEnum.getType());
+        if(qtypeEnum == QtypeEnum.EXCLUSIVE_CHOICE||
+                qtypeEnum == QtypeEnum.MULTIPLE_CHOICE){
+            List<QuestionOptVo> opts = questionOptMapper.findQuestionOptVosByQId(id);
+            questionResultVo.setOpts(opts);
+        }
+        return questionResultVo;
+    }
 
     @Override
     public List<Integer> getQuestionIdsBySectionId(Integer sectionId) {
@@ -105,8 +121,27 @@ public class QuestionServiceImpl implements QuestionService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void submitQuestion(QuestionDto questionDto, TbUserVo tbUserVo) {
+        TbQuestion tbQuestion = new TbQuestion();
+        TbQuestionDb tbQuestionDb = questionDbJpa.findOne(questionDto.getQdbId());
+        if(tbQuestionDb == null){
+            throw new ValidationHtmlException(CodeMsg.DB_SELECT_ERROR);
+        }
+        tbQuestion.setQContent(questionDto.getQContent());
+        tbQuestion.setQdbId(questionDto.getQdbId());
+        tbQuestion.setQType(questionDto.getQType());
+        tbQuestion.setQLevel(QlevelEnumConverter.converter(questionDto.getQLevel()).getId());
+        tbQuestion.setQStatus(questionDto.getQStatus());
+        tbQuestion.setUUid(tbUserVo.getId());
+        tbQuestion.setOptKey(questionDto.getOptKey());
+        tbQuestion.setKeyInfo(questionDto.getKeyInfo());
+        boolean updateFlag = questionDto.getId()!=null&&questionDto.getId()!=0;
+        if(updateFlag){
+            tbQuestion.setId(questionDto.getId());
+        }else {
+            tbQuestion.setCUid(tbUserVo.getId());
+        }
+        questionJpa.save(tbQuestion);
         //选择题更新选项
-        String optKey = null;
         if(questionDto.getQType().equals(QtypeEnum.EXCLUSIVE_CHOICE.getId())
                 ||questionDto.getQType().equals(QtypeEnum.MULTIPLE_CHOICE.getId())){
             //提交的选项内容
@@ -133,7 +168,7 @@ public class QuestionServiceImpl implements QuestionService {
                 //选项内容
                 tbQuestionOpt.setOptionContent(content[0]);
                 tbQuestionOpt.setOrderNum(Integer.parseInt(orderNum[i]));
-                tbQuestionOpt.setQId(questionDto.getId());
+                tbQuestionOpt.setQId(tbQuestion.getId());
                 //如果是原来没有改动的选项并且数据库存在
                 if(!content[1].startsWith(":")&&oldOptIds.contains(optId)){
                     tbQuestionOpt.setId(optId);
@@ -149,32 +184,12 @@ public class QuestionServiceImpl implements QuestionService {
                     oldOptIds.remove(optId);
                 }
             }
-            optKey = String.join(",",optKeyId);
+            String optKey = String.join(",",optKeyId);
             //删除其他没有旧的选项
             for (Integer optId:oldOptIds){
                 questionOptJpa.deleteById(optId);
             }
-        }
-        TbQuestion tbQuestion = new TbQuestion();
-        TbQuestionDb tbQuestionDb = questionDbJpa.findOne(questionDto.getQdbId());
-        if(tbQuestionDb == null){
-            throw new ValidationHtmlException(CodeMsg.DB_SELECT_ERROR);
-        }
-        tbQuestion.setQContent(questionDto.getQContent());
-        tbQuestion.setQdbId(questionDto.getQdbId());
-        tbQuestion.setQType(questionDto.getQType());
-        tbQuestion.setQLevel(QlevelEnumConverter.converter(questionDto.getQLevel()).getId());
-        tbQuestion.setQStatus(questionDto.getQStatus());
-        tbQuestion.setUUid(tbUserVo.getId());
-        tbQuestion.setOptKey(optKey!=null?optKey:questionDto.getOptKey());
-        tbQuestion.setKeyInfo(questionDto.getKeyInfo());
-        boolean updateFlag = questionDto.getId()!=null&&questionDto.getId()!=0;
-        if(updateFlag){
-            tbQuestion.setId(questionDto.getId());
-            questionJpa.updateQuestion(tbQuestion);
-        }else {
-            tbQuestion.setCUid(tbUserVo.getId());
-            questionJpa.insertQuestion(tbQuestion);
+            questionJpa.updateOptKey(optKey,tbQuestion.getId());
         }
     }
     @Override
@@ -227,15 +242,19 @@ public class QuestionServiceImpl implements QuestionService {
             map.put("qdb:"+tbQuestion.getQdbId(),tbQuestionDb);
         }
         questionVo.setQdbName(tbQuestionDb.getQdbName());
-        questionVo.setQType(QtypeEnumConverter.converter(tbQuestion.getQType()));
+        QtypeEnum qtypeEnum = QtypeEnumConverter.converter(tbQuestion.getQType());
+        questionVo.setQType(qtypeEnum);
         questionVo.setQLevel(QlevelEnumConverter.converter(tbQuestion.getQLevel()));
         if(userFlag){
             questionVo.setCUserName(userName(map,tbQuestion.getCUid()));
             questionVo.setUUserName(userName(map,tbQuestion.getUUid()));
         }
         questionVo.setOptKey(tbQuestion.getOptKey().split(","));
-        List<TbQuestionOpt> tbQuestionOpts = questionOptJpa.findByQId(tbQuestion.getId());
-        questionVo.setOpts(tbQuestionOpts.size()==0?null:tbQuestionOpts);
+        if(qtypeEnum == QtypeEnum.EXCLUSIVE_CHOICE||
+                qtypeEnum == QtypeEnum.MULTIPLE_CHOICE){
+            List<QuestionOptVo> opts = questionOptMapper.findQuestionOptVosByQId(tbQuestion.getId());
+            questionVo.setOpts(opts.size()==0?null:opts);
+        }
         return questionVo;
     }
     @Override

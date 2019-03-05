@@ -17,7 +17,7 @@ public class CodeMsg {
 	public static final CodeMsg VERIFY_ERROR = new CodeMsg(500101,"验证码错误");
 	public static final CodeMsg INFO_ERROR = new CodeMsg(500102,"用户名或密码错误");
 	public static final CodeMsg ROLE_TYPE_ERROR = new CodeMsg(500103,"角色类型错误");
-    public static final CodeMsg NOT_LOGIN_ERROR = new CodeMsg(500104,"您已离线!");
+    public static final CodeMsg NO_STUDENT = new CodeMsg(500104,"没有找到该学生!");
 	public static final CodeMsg LOGIN_OTHER_ERROR = new CodeMsg(500105,"您已在其它地方登录!");
 	//权限模块 5002XX
 	public static final CodeMsg AUTH_CHECK_ERROR = new CodeMsg(500201,"访问权限限制");
@@ -36,7 +36,7 @@ public class CodeMsg {
 	public static final CodeMsg Q_KEY_ERROR_FOUR = new CodeMsg(500308,"填空题答案与选项不匹配");
 	public static final CodeMsg Q_OPT_ERROR = new CodeMsg(500308,"选项不匹配");
 	//用户管理模块 5004XX
-	
+	public static final CodeMsg MAJOR_SELECT_ERROR = new CodeMsg(500401,"专业查询失败");
 	//试卷管理模块 5005XX
 	public static final CodeMsg PAPER_TYPE_ERROR = new CodeMsg(500501,"试卷类型错误");
 	public static final CodeMsg PAPER_SELECT_ERROR = new CodeMsg(500502,"试卷查询失败!");
@@ -47,7 +47,15 @@ public class CodeMsg {
 	//考试管理模块 5006XX
 	public static final CodeMsg PAPER_USER_STATUS_ERROR = new CodeMsg(500601,"用户考试状态错误");
 	public static final CodeMsg PAPER_USER_JOIN_ERROR = new CodeMsg(500602,"您没有权限参加该考试");
-	public static final CodeMsg PAPER_URL_ERROR = new CodeMsg(500603,"url验证失败");
+	public static final CodeMsg PAPER_URL_ERROR = new CodeMsg(500603,"考试链接验证失败");
+	public static final CodeMsg PAPER_TEST_NO_START = new CodeMsg(500604,"考试未开始");
+	public static final CodeMsg PAPER_TEST_HAD_END = new CodeMsg(500605,"考试已结束");
+	public static final CodeMsg PAPER_TEST_GET_ERROR= new CodeMsg(500606,"获取试卷失败请重试！");
+	public static final CodeMsg PAPET_TEST_HAD_JOIN = new CodeMsg(500607,"您已参加过该考试");
+	public static final CodeMsg PAPER_USER_NO_JOIN = new CodeMsg(500608,"您没有参加该考试");
+	public static final CodeMsg PAPER_NO_RESULT = new CodeMsg(500609,"考试结果未出");
+	public static final CodeMsg PAPER_HAD_SUBMIT = new CodeMsg(500610,"您已提交！");
+	public static final CodeMsg PAPER_MINUTE_OVER = new CodeMsg(500611,"考试时长已过！系统已强制交卷");
 	//成绩管理模块 5007XX
 
 

@@ -16,78 +16,40 @@
 <body  marginwidth="0" marginheight="0" style="">
 <div class="tm_menu">
 
-
+    <div class="tm_menu_item clearfix">
+        <h2><a href="javascript:void(0);" onclick="tm_toggle_menu(this)" class="tmc_menu_account">用户管理</a></h2>
+        <ul>
+            <li class="itemon"><a th:href="@{/system/user/list}" target="main">用户列表</a></li>
+            <li><a th:href="@{/system/user/student/list}" target="main">学生列表</a></li>
+            <li><a th:href="@{/system/user/student/major/list}" target="main">专业列表</a></li>
+        </ul>
+    </div>
+    <div class="tm_menu_item clearfix">
+        <h2><a href="javascript:void(0);" onclick="tm_toggle_menu(this)" class="tmc_menu_paper">考试管理</a></h2>
+        <ul>
+            <li><a th:href="@{/system/paper/list}" target="main">试卷列表</a></li>
+        </ul>
+    </div>
     <div class="tm_menu_item clearfix">
         <h2><a href="javascript:void(0);" onclick="tm_toggle_menu(this)" class="tmc_menu_qdb">题库管理</a></h2>
         <ul>
-            <li><a href="system/qdb/add.thtml" target="main">新增题库</a></li>
-            <li><a href="system/qdb/list.thtml" target="main">题库列表</a></li>
-            <li><a href="system/question/add.thtml" target="main">新增试题</a></li>
-            <li><a href="system/question/import.thtml" target="main">批量导入试题</a></li>
-            <li><a href="system/question/list.thtml" target="main">管理试题</a></li>
+            <li><a th:href="@{/system/qdb/course/list}" target="main">科目列表</a></li>
+            <li><a th:href="@{/system/qdb/list}" target="main">题库列表</a></li>
+            <li><a th:href="@{/system/qdb/question/list}" target="main">试题列表</a></li>
         </ul>
     </div>
 
     <div class="tm_menu_item clearfix">
-        <h2><a href="javascript:void(0);" onclick="tm_toggle_menu(this)" class="tmc_menu_paper">试卷管理</a></h2>
+        <h2><a href="javascript:void(0);" onclick="tm_toggle_menu(this)" class="tmc_menu_paper">成绩管理</a></h2>
         <ul>
-            <li><a href="system/paper/add.thtml" target="main">创建试卷</a></li>
-            <li><a href="system/paper/fastadd.thtml" target="main">快速创建试卷</a></li>
-            <li><a href="system/paper/list.thtml" target="main">试卷管理</a></li>
-            <li><a href="system/paper/category/list.thtml" target="main">试卷分类</a></li>
+            <li><a th:href="@{/system/score/list}" target="main">成绩分析</a></li>
         </ul>
     </div>
-
     <div class="tm_menu_item clearfix">
-        <h2><a href="javascript:void(0);" onclick="tm_toggle_menu(this)" class="tmc_menu_paper">自测管理</a></h2>
-        <ul style="display:none">
-            <li><a href="system/selftest/list.thtml" target="main">用户自测记录</a></li>
-        </ul>
-    </div>
-
-    <div class="tm_menu_item clearfix">
-        <h2><a href="javascript:void(0);" onclick="tm_toggle_menu(this)" class="tmc_menu_analysis">统计分析</a></h2>
-        <ul style="display:none">
-            <li><a href="system/analysis/paper/index.thtml" target="main">试卷分析</a></li>
-            <li><a href="system/analysis/exam/index.thtml" target="main">考试分析</a></li>
-            <li><a href="system/analysis/score/index.thtml" target="main">成绩分析</a></li>
-        </ul>
-    </div>
-
-    <div class="tm_menu_item clearfix">
-        <h2><a href="javascript:void(0);" onclick="tm_toggle_menu(this)" class="tmc_menu_learn">在线学习</a></h2>
+        <h2><a href="javascript:void(0);" onclick="tm_toggle_menu(this)" class="tmc_menu_account">个人信息</a></h2>
         <ul>
-            <li class="itemon"><a href="system/course/list.thtml" target="main">课程列表</a></li>
-            <li><a href="system/course/category/list.thtml" target="main">课程分类列表</a></li>
-            <li><a href="system/course/teacher/list.thtml" target="main">讲师列表</a></li>
-        </ul>
-    </div>
-
-    <div class="tm_menu_item clearfix">
-        <h2><a href="javascript:void(0);" onclick="tm_toggle_menu(this)" class="tmc_menu_user">用户管理</a></h2>
-        <ul style="display:none">
-            <li><a href="system/user/list.thtml" target="main">管理用户</a></li>
-            <li><a href="system/branch/list.thtml" target="main">管理部门</a></li>
-            <li><a href="system/userposition/list.thtml" target="main">管理职务</a></li>
-        </ul>
-    </div>
-
-    <div class="tm_menu_item clearfix">
-        <h2><a href="javascript:void(0);" onclick="tm_toggle_menu(this)" class="tmc_menu_interaction">互动交流</a></h2>
-        <ul style="display:none">
-            <li><a href="system/news/list.thtml" target="main">文章公告</a></li>
-            <li><a href="system/news/category/list.thtml" target="main">文章公告分类</a></li>
-        </ul>
-    </div>
-
-    <div class="tm_menu_item clearfix">
-        <h2><a href="javascript:void(0);" onclick="tm_toggle_menu(this)" class="tmc_menu_system">系统管理</a></h2>
-        <ul style="display:none">
-            <li><a href="system/config/list.thtml" target="main">系统设置</a></li>
-            <li><a href="system/admin/list.thtml" target="main">管理员列表</a></li>
-            <li><a href="system/role/list.thtml" target="main">管理员角色</a></li>
-            <li><a href="system/log/list.thtml" target="main">系统日志</a></li>
-            <li><a href="common/about.thtml" target="main">关于软件</a></li>
+            <li><a th:href="@{/common/password.html}" target="main">修改密码</a></li>
+            <li><a th:href="@{/common/profile.html}" target="main">帐户信息</a></li>
         </ul>
     </div>
 </div>
@@ -105,7 +67,6 @@
         });
 
     });
-   // document.oncontextmenu= function(){return false;}
 </script>
 </body>
 </html>

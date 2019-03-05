@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>在线考试系统</title>
+    <link rel="shortcut icon" th:href="@{/static/favicon.ico}" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <!--[if lt IE 8]>
+    <meta http-equiv="refresh" content="0;ie.html" />
+    <![endif]-->
+    <link th:href="@{/static/css/style.css}" rel="stylesheet">
+    <link th:href="@{/static/css/ui.css}" rel="stylesheet">
+    <link th:href="@{/static/css/style-list.min.css?v=4.0.0}" rel="stylesheet">
+    <link th:href="@{/static/css/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/static/css/font-awesome.min.css}" rel="stylesheet">
+    <link th:href="@{/static/css/bootstrap-table.css}" rel="stylesheet">
+    <link th:href="@{/static/css/animate.min.css}" rel="stylesheet">
+    <link th:href="@{/static/css/admin.css}" rel="stylesheet">
+    <link th:href="@{/static/css/bootstrap-datetimepicker.min.css}" rel="stylesheet" />
+    <link  th:href="@{/static/js/dist/jquery.validator.css}" rel="stylesheet" />
+</head>
+<body class="gray-bg">
+<form id="form" class="form-horizontal" role="form" enctype="multipart/form-data"  th:method="post" th:action="@{./submit}">
+    <input type="hidden" name="id" th:if="${tbUser!=null}" th:value="${tbUser?.id}"/>
+    <input type="hidden" name="id" th:if="${tbUser==null}" value=""/>
+    <div class="form-group">
+        <label class="control-label col-sm-3">角色</label>
+        <div class="col-sm-7">
+            <select class="form-control"  name="roleId"  id="roleId" data-rule="required;" >
+                <option value="2">管理员</option>
+                <option value="3">教师</option>
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-3">账户</label>
+        <div class="col-sm-7">
+            <input type="text" name="account"  class="form-control" data-rule="required;"  th:value="${tbUser?.account}"/>
+            <span class="help-block m-b-none" style="display: none" id="tipInfo"><i class="fa fa-info-circle"></i><span>密码默认同账户</span></span>
+        </div>
+    </div>
+    <div class="form-group" id="pwBody" style="display: none">
+        <label class="control-label col-sm-3">密码</label>
+        <div class="col-sm-7">
+            <input type="text" name="password" id="password" class="form-control"/>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-3">姓名</label>
+        <div class="col-sm-7">
+            <input type="text" name="name"  class="form-control" data-rule="required;"  th:value="${tbUser?.name}"/>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-3">手机号</label>
+        <div class="col-sm-7">
+            <input type="text" name="phone"  class="form-control" placeholder="没有请填无" data-rule="required;"  th:value="${tbUser?.phone}"/>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-3">邮箱</label>
+        <div class="col-sm-7">
+            <input type="text" name="email"  class="form-control" placeholder="没有请填无" data-rule="required;"  th:value="${tbUser?.email}"/>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-3">权限管理</label>
+        <div class="col-sm-7">
+            <div id="div_link_showusers">
+                <input type="hidden" name="permissions" id="permissions" th:value="${tbUser?.permissions}"/>
+                <input type="button" class="tm_btn" value="查看权限" onclick="showPers()">
+                <input type="button" class="tm_btn" value="选择权限" onclick="selectPers()">
+                <input type="button" class="tm_btn" value="清空" onclick="clearPers()">
+            </div>
+        </div>
+    </div>
+    <div class="form-group" style="height: 30px;">
+    </div>
+    <div class="form-group" >
+        <div class="col-sm-7 col-sm-offset-3">
+            <button class="btn btn-primary" type="button" onclick="submitForm()">保存内容</button>
+            <button class="btn btn-white" type="reset">取消</button>
+        </div>
+    </div>
+</form>
+<script th:src="@{/static/js/jquery-3.3.1.min.js}" type="text/javascript" charset="utf-8"></script>
+<script th:src="@{/static/js/bootstrap.min.js}" type="text/javascript" charset="utf-8"></script>
+<script th:src="@{/static/js/bootstrap-table.min.js}" type="text/javascript" charset="utf-8"></script>
+<script th:src="@{/static/js/bootstrap-table-editable.min.js}" type="text/javascript" charset="utf-8"></script>
+<script th:src="@{/static/js/bootstrap-table-zh-CN.min.js}" type="text/javascript" charset="utf-8"></script>
+<script th:src="@{/static/js/layer/layer.js}" type="text/javascript" charset="utf-8"></script>
+<script th:src="@{/static/js/bootstrap-editable.min.js}" type="text/javascript" charset="utf-8"></script>
+<script  th:src="@{/static/js/bootstrap-datetimepicker.min.js}"></script>
+<script  th:src="@{/static/js/bootstrap-datetimepicker.zh-CN.js}"></script>
+<script  th:src="@{/static/js/dist/jquery.validator.min.js}"></script>
+<script  th:src="@{/static/js/dist/local/zh-CN.js}"></script>
+<script  th:inline="javascript">
+    /*<![CDATA[*/
+    var tbUser = [[${tbUser}]];
+    if(tbUser!=null){
+        $("#paperType option[value='"+tbUser.roleId+"']").attr("selected", true);
+    }else{
+        $("#pwBody").show();
+        $("#tipInfo").show();
+    }
+    /*]]>*/
+    function showPers() {
+        var permissions = $("#permissions").val();
+        userPers(0,permissions);
+    }
+    function selectPers() {
+        userPers(1,null);
+    }
+    function clearPers() {
+        $("#permissions").val("");
+        alert("清空成功！");
+    }
+    function userPers(type,ids) {
+        var url = type==0?'./per/'+type+"?t="+ids:'./per/'+type;
+        layer.open({
+            type:2,
+            area:['780px','500px'],
+            title: '修改',
+            btn:['确定','取消'],
+            content:url,
+            yes:function(index,layero){
+                var iframeName = layero.find("iframe")[0]['name'];
+                var iframeWindow = window[iframeName];
+                iframeWindow.submitForm();
+            }
+        });
+    }
+    function submitForm(){
+        if(tbUser==null){
+            if($("#password").val()==null||$("#password").val()==''){
+                alert('请填写密码');
+                return;
+            }
+        }
+        if($("#permissions").val()==null||$("#permissions").val()==""){
+            alert("请选择权限！");
+            return false;
+        }
+        $("#form").submit();
+    }
+</script>
+</body>
+</html>

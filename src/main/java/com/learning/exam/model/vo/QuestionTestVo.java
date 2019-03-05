@@ -15,5 +15,8 @@ public class QuestionTestVo {
     private String questionContent;
     private Integer questionType;
     private String questionTypeName;
-    private List<TbQuestionOpt> opts;
+    private Integer questionScore;
+    private Integer blankNum;
+    private String optKey;
+    private List<QuestionOptVo> opts;
 }

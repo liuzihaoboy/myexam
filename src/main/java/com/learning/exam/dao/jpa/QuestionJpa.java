@@ -27,4 +27,8 @@ public interface QuestionJpa extends JpaRepository<TbQuestion,Integer> {
     String findQuestionContentById(@Param("id")Integer id);
     @Query(nativeQuery = true,value = "select q_type from tb_question where  id=:id")
     Integer findQuestionTypeById(@Param("id")Integer id);
+    @Transactional
+    @Modifying
+    @Query(nativeQuery = true,value = "update tb_question set opt_key=:optKey where id=:id")
+    int updateOptKey(@Param("optKey") String optKey,@Param("id")Integer id);
 }

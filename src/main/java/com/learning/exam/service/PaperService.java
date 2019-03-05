@@ -15,9 +15,12 @@ import java.util.List;
  * @date 2019-02-21  13:24
  */
 public interface PaperService {
+    List<QuestionResultVo> getQuestionResultByPaperResult(PaperResultVo paperResultVo);
+    PaperResultVo getPaperResultByPaperUserId(Integer paperUserId);
     TbPaperUser getPaperUser(Integer userId, Integer paperId);
     List<PaperResultVo> getPaperResultByUserIdSubmit(Integer userId);
     List<PaperTestVo> getPaperTestByUserIdNoSubmit(Integer userId);
+    PaperTestVo getPaperTestByUserIdAndPaperId(Integer userId,Integer paperId);
     List<Integer> getPaperSectionIdByPaperId(Integer paperId);
     void deletePaperSection(Integer paperId,String sectionId);
     void submitPaperSection(PaperSectionDto paperSectionDto);
@@ -31,6 +34,8 @@ public interface PaperService {
     PaperVo getPaper(Integer paperId);
     Integer getPaperIdById(Integer paperId);
     Integer getPaperTotalScore(Integer paperId);
+    List<ScoreResultVo> getScoreResultsByPaperId(Integer paperId, String nameKey, String majorKey);
+    List<ScoreVo> getScores(String nameKey);
     List<PaperVo> getPapers();
     List<PaperVo> getPapersByCondition(String nameKey, String userNameKey, String courseKey, String typeKey, String configkey);
 }

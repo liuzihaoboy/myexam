@@ -60,7 +60,7 @@
 	<div class="tm_container"></div>
 </div>
 <p>&nbsp;</p>
-<script th:src="@{/static/js/jquery-3.1.1.js}" type="text/javascript" charset="utf-8"></script>
+<script th:src="@{/static/js/jquery-3.3.1.min.js}" type="text/javascript" charset="utf-8"></script>
 <script th:src="@{/static/js/bootstrap.min.js}" type="text/javascript" charset="utf-8"></script>
 <script th:src="@{/static/js/bootstrap-table.min.js}" type="text/javascript" charset="utf-8"></script>
 <script th:src="@{/static/js/bootstrap-table-editable.min.js}" type="text/javascript" charset="utf-8"></script>
@@ -69,77 +69,20 @@
 <script th:src="@{/static/js/bootstrap-editable.min.js}" type="text/javascript" charset="utf-8"></script>
 <script type="text/javascript">
     var tm = {
-        startExam : function(obj, pid, loadcache){
-            if(!tmCheckBrowserSupport()){
-                alert("抱歉，您的浏览器不被支持，如需继续使用，请更换为：Chrome、Firefox等");
-                return false;
-            }
-            var _tr = $(obj).parent().parent();
-            var _p_name = _tr.children("td").eq(0).text();
-            var _p_time = _tr.children("td").eq(2).text();
-            var _p_totalscore = _tr.children("td").eq(4).text();
-            var _p_passscore = _tr.children("td").eq(5).text();
-            var html = [];
-            html.push('<div style="margin:20px">');
-            html.push('	<p style="line-height:20px">确定进入试卷并开始考试吗？</p>');
-
-            html.push('	<table style="margin:0 auto; width:350px" border="0" cellpadding="0" cellspacing="0">');
-            html.push('	<tr>');
-            html.push('		<td width="80"><img src="skins/images/paper_pencil.png" width="60" /></td>');
-            html.push('		<td><p><b>试卷名称</b>：'+_p_name+'<p>');
-            html.push('			<p><b>考试时长</b>：'+_p_time+'<p>');
-            html.push('			<p><b>卷面总分</b>：'+_p_totalscore+'<p>');
-            html.push('			<p><b>及格分数</b>：'+_p_passscore+'<p>');
-            html.push('		</td>');
-            html.push('	</tr>');
-            html.push('</table>');
-            html.push('<p style="text-align:center; margin-top:30px">');
-            html.push('<button class="tm_btn tm_btn_primary" type="button" onclick="tm.joinExam(\''+pid+'\',this,\''+loadcache+'\')">确定</button>');
-            html.push('</p>');
-            html.push('</div>');
-            layer.open({
-                type: 1,
-                title: '开始考试',
-                shadeClose: true,
-                shade: 0.8,
-                area: ['450px', '310px'],
-                content: html.join("")
-            });
-            return false;
+        startExam : function(obj, paperId,uuid){
+           window.open('../user/paper/'+paperId+"/"+uuid+".html");
         },
-        joinExam : function(pid, _me, loadcache){
-            $(_me).text('请稍等...');
-            $(_me).attr("disabled", true);
-            setTimeout(function(){
-                window.location.href="http://demo.tomexam.com/user/paper/paper_detail.thtml?pid="+pid + "&loadcache="+loadcache;
-            }, 3000);
+        detail : function(paperId){
+            window.location.href='../user/detail/'+paperId+".html";
         }
     };
-    function showTipOfTimeOut(user_starttime, exam_duration, exam_enddate){
-        var wdesc = [];
-        wdesc.push("<b>什么是超时未提交？</b>");
-        wdesc.push("<br/>");
-        wdesc.push("1、该试卷需在 <font color='red'>"+exam_duration+"分钟</font> 内或 <font color='red'>"+exam_enddate+"</font> 前提交答卷（先到为准）。");
-        wdesc.push("<br/>");
-        wdesc.push("2、该试卷您的开考时间为：<font color='red'>"+user_starttime+"</font>，当前已超时，无法提交。");
-        wdesc.push("<br/>");
-        wdesc.push("3、管理员可根据需要，使用您最后一次的答卷快照作为统计分值的依据。");
-        layer.open({
-            type: 1,
-            title: false,
-            closeBtn: 1,
-            shadeClose: true,
-            area: ['600px', '150px'],
-            content: '<div style="padding:20px 20px; line-height:25px">'+wdesc.join("")+'</div>'
-        });
-    }
 </script>
 <script type="text/javascript" th:inline="javascript">
     var table = $('#table');
     table.bootstrapTable({
         contentType: "application/x-www-form-urlencoded",
         method:'get',
-        url: './index/json' ,
+        url: '../user/index/json' ,
         pagination: false,//是否开启分页（*）
         columns: [
             {
@@ -180,7 +123,7 @@
                 title: '操作',
                 align: 'center',
                 formatter: function (value,row,index) {
-                    return "<a href=\"javascript:void(0)\" class='tm_a' onclick=\"javascript:tm.startExam(this,'"+row.paperId+"');\">点击参加</a>";
+                    return "<a href=\"javascript:void(0)\" class='tm_a' onclick=\"javascript:tm.startExam(this,'"+row.paperId+"','"+row.uuid+"');\">点击参加</a>";
                 }
             }],
     });
@@ -188,7 +131,7 @@
     lastTable.bootstrapTable({
         contentType: "application/x-www-form-urlencoded",
         method:'get',
-        url: './index/last/json' ,
+        url: '../user/index/last/json' ,
         height: 400 ,
         pagination: true,//是否开启分页（*）
         pageNumber: 1,//初始化加载第一页，默认第一页
@@ -227,18 +170,14 @@
                 align: 'center',
             }, {
                 field: 'resultMinute',
-                title: '考试耗时',
-                align: 'center',
-            }, {
-                field: 'leaveTimes',
-                title: '离开次数',
+                title: '考试耗时(分钟)',
                 align: 'center',
             },{
                 field: 'option',
                 title: '操作',
                 align: 'center',
                 formatter: function (value,row,index) {
-                    return "<a href=\"javascript:void(0)\" class='tm_a' onclick=\"javascript:tm.startExam(this,'"+row.paperId+"');\">详情</a>";
+                    return "<a href=\"javascript:void(0)\" class='tm_a' onclick=\"javascript:tm.detail('"+row.paperId+"');\">详情</a>";
                 }
             }],
     });

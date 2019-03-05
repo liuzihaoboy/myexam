@@ -1,14 +1,17 @@
 package com.learning.exam;
 
+import com.alibaba.fastjson.JSONArray;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.learning.exam.dao.jpa.QuestionJpa;
 import com.learning.exam.dao.jpa.QuestionOptJpa;
 import com.learning.exam.dao.mapper.QuestionDbMapper;
 import com.learning.exam.framework.cache.SessionCacheName;
 import com.learning.exam.framework.redis.keys.SessionKey;
+import com.learning.exam.framework.redis.keys.UserKey;
 import com.learning.exam.framework.redis.service.RedisService;
 import com.learning.exam.model.entity.*;
 import com.learning.exam.model.vo.MenuVo;
+import com.learning.exam.service.ExcelService;
 import com.learning.exam.service.QuestionService;
 import com.learning.exam.service.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -42,12 +45,23 @@ public class ExamApplicationTests {
     private QuestionOptJpa questionOptJpa;
     @Autowired
     private QuestionJpa questionJpa;
+    @Autowired
+    private ExcelService excelService;
     @Test
     public void contextLoads()  {
-        String menuVoList=redisService.hget(SessionKey.sessionById,"D749BE63842B6B1D764BDBD062E85910",SessionCacheName.BASE_MENU,String.class);
-        log.info(menuVoList+"*********");
+        excelService.readExcel("D:\\myexam\\upload\\student.xlsx",2);
 
-        System.out.println(menuVoList.toString());
+//        String json = redisService.hget(UserKey.userById,"4","saveKey",String.class);
+//        List<String> objects = JSONArray.parseArray(json,String.class);
+//        log.info("**********=============************"+objects);
+//        for (String s:objects){
+//            List<String> strings = JSONArray.parseArray(s,String.class);
+//            log.info("**********============************"+strings);
+//        }
+//        String menuVoList=redisService.hget(SessionKey.sessionById,"D749BE63842B6B1D764BDBD062E85910",SessionCacheName.BASE_MENU,String.class);
+//        log.info(menuVoList+"*********");
+//
+//        System.out.println(menuVoList.toString());
         //        String content = questionJpa.findQuestionContentById(1);
 //        log.info("***************"+content+"***********");
 //        TbQuestionOpt tbQuestionOpt = new TbQuestionOpt();

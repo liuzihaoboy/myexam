@@ -13,4 +13,5 @@ public class PaperKey extends BasePrefix {
         super(prefix,expireSeconds);
     }
     public static final PaperKey paperById = new PaperKey("id");
+    public static final PaperKey paperByUserPaperId = new PaperKey("paperUser");
 }

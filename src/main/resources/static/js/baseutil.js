@@ -68,32 +68,6 @@ var baseutil = {
     
 };
 
-
-
-//上传组件
-function tm_uploadify(btnid, btntxt, basepath, callback){
-	$("#"+btnid).uploadify({  
-		'buttonText' : btntxt,  
-		'height' : 25,  
-		'swf' : basepath + 'inc/js/uploadify/uploadify.swf',  
-		'uploader' : basepath + 'common/upload.do',  
-		'cancelImg' : basepath + 'inc/js/uploadify/uploadify-cancel.png', 
-		'width' : 80,  
-		'auto':true,  
-		'fileTypeExts' : '*.gif; *.jpg; *.png',
-		'fileObjName'   : 'file',  
-		'fileSizeLimit' : '500KB',
-		'queueSizeLimit' : 1,
-		'onUploadSuccess' : function(file, data, response) {  
-			var retdata = eval("("+data+")");
-			//alert( retdata.code + '  ');  
-			//alert( retdata.name + ' 上传成功！ ');  
-			//$("#a_photo").val(retdata.name);
-			callback(retdata);
-		}  
-	}); 
-}
-
 function tm_removePhoto(id){
 	$(".tm_img_preview").hide();
 	$("#"+id).val("");
@@ -172,7 +146,7 @@ function tm_fn_formatSeconds(value) {
 	var theTime1 = 0;// 分 
 	var theTime2 = 0;// 小时 
 	// alert(theTime); 
-	if(theTime > 60) { 
+	if(theTime > 60) {
 		theTime1 = parseInt(theTime/60); 
 		theTime = parseInt(theTime%60); 
 		// alert(theTime1+"-"+theTime); 
@@ -217,4 +191,30 @@ function tmCheckBrowserSupport(){
 	}catch(e){
 		return false;
 	}
+}
+function tm_test(id,start){
+    $("#endBody").html("已开始");
+    $("#content-main").append("<input type=\"button\" onclick='tm_click("+id+","+start+")' class=\"btn btn-primary btn-md\" value=\"开始考试\"/> <span class=\"help-block m-b-none\"><i class=\"fa fa-info-circle\"></i>考试前确认浏览器cookie是否打开</span>\n");
+    if(!start){
+        tm_click(id,start);
+    }
+}
+function tm_click(id,start){
+    if(!(document.cookie || navigator.cookieEnabled)) {
+        alert('浏览器cookie未打开!');
+        return false;
+    }
+    $.ajax({
+        url:'../../expose/'+id,
+        success:function (res) {
+            if(res.status){
+                window.location.href=res.data;
+            }else {
+                alert(res.msg);
+            }
+        },
+        error:function () {
+            alert('连接错误请重新获取试卷信息！');
+        }
+    });
 }

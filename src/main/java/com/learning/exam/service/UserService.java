@@ -17,12 +17,20 @@ import java.util.List;
  * @date 2019-01-31  10:34
  */
 public interface UserService {
+    List<TbUserVo> getTbUserVosByRole(String roleKey);
+    int updateMajor(String majorName,Integer id);
+    int insertMajor(String majorName);
+    List<TbStudentMajor> getMajors();
+    TbStudentMajor getMajorById(Integer id);
+    Integer updatePhoneEmail(String phone,String email,Integer id);
     List<StudentVo> getStudentByIds(String ids);
     List<TbStudentMajor> getStudentMajors();
     List<TbStudentGrade> getStudentGrades();
     List<StudentVo> getStudentsByCondition(String gradeKey,String majorKey);
+    StudentVo getStudentByUserId(Integer userId);
     List<StudentVo> getStudents();
-    Integer updatePwd (String userName,String passWord);
+    Integer updatePwd (Integer userId,String passWord);
     TbUserVo getUserVoFromTb(TbUser tbUser);
+    TbUser getUser(Integer id);
     TbUser getUser(String userName,String passWord,RoleEnum roleEnum);
 }

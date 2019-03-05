@@ -3,21 +3,19 @@ package com.learning.exam.controller;
 import com.alibaba.fastjson.JSONObject;
 import com.learning.exam.framework.cache.SessionCacheName;
 import com.learning.exam.framework.enums.RoleEnum;
-import com.learning.exam.framework.exception.AuthException;
 import com.learning.exam.framework.redis.keys.SessionKey;
 import com.learning.exam.framework.redis.service.RedisService;
 import com.learning.exam.model.entity.TbPermission;
-import com.learning.exam.model.result.CodeMsg;
+import com.learning.exam.model.result.ViewUtils;
 import com.learning.exam.model.vo.BaseMenu;
 import com.learning.exam.model.vo.MenuVo;
 import com.learning.exam.model.vo.TbUserVo;
-import com.learning.exam.service.PaperService;
 import com.learning.exam.service.PermissionService;
+import com.learning.exam.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -36,6 +34,43 @@ public class CommonController {
     private RedisService redisService;
     @Autowired
     private PermissionService permissionService;
+    @Autowired
+    private UserService userService;
+
+    @GetMapping("/profile.html")
+    public String profile(HttpServletRequest request){
+        HttpSession session = request.getSession();
+        TbUserVo tbUserVo = redisService.hget(SessionKey.sessionById,session.getId(),SessionCacheName.LOGIN_USER,TbUserVo.class);
+        request.setAttribute("tbUserVo",tbUserVo);
+        return "profile";
+    }
+    @RequestMapping(value = "/profile/update",method = RequestMethod.POST,produces = "application/json;charset=utf-8")
+    public String pfUpdate(HttpServletRequest request,
+                           @RequestParam("phone")String phone,
+                           @RequestParam("email")String email){
+        HttpSession session = request.getSession();
+        TbUserVo tbUserVo = redisService.hget(SessionKey.sessionById,session.getId(),SessionCacheName.LOGIN_USER,TbUserVo.class);
+        userService.updatePhoneEmail(phone,email,tbUserVo.getId());
+        tbUserVo.setPhone(phone);
+        tbUserVo.setEmail(email);
+        redisService.hset(SessionKey.sessionById,session.getId(),SessionCacheName.LOGIN_USER,tbUserVo);
+        return ViewUtils.SUCCESS_PAGE;
+    }
+    @GetMapping("/password.html")
+    public String password(HttpServletRequest request){
+        HttpSession session = request.getSession();
+        TbUserVo tbUserVo = redisService.hget(SessionKey.sessionById,session.getId(),SessionCacheName.LOGIN_USER,TbUserVo.class);
+        request.setAttribute("account",tbUserVo.getAccount());
+        return "password";
+    }
+    @RequestMapping(value = "/password/update",method = RequestMethod.POST,produces = "application/json;charset=utf-8")
+    public String pwUpdate(HttpServletRequest request,
+                               @RequestParam("new_password")String newPassword){
+        HttpSession session = request.getSession();
+        TbUserVo tbUserVo = redisService.hget(SessionKey.sessionById,session.getId(),SessionCacheName.LOGIN_USER,TbUserVo.class);
+        userService.updatePwd(tbUserVo.getId(),newPassword);
+        return ViewUtils.SUCCESS_PAGE;
+    }
 
     @RequestMapping(value = "/head",method = RequestMethod.GET,produces = "text/html;charset=utf-8")
     public String head(HttpServletRequest request){
@@ -70,9 +105,9 @@ public class CommonController {
         HttpSession session = request.getSession();
         TbUserVo tbUserVo = redisService.hget(SessionKey.sessionById,session.getId(),SessionCacheName.LOGIN_USER,TbUserVo.class);
         if(RoleEnum.Student.getId().equals(tbUserVo.getTbRole().getId())){
-            return "redirect:/user/index";
+            return "student/welcome_student";
         }else if(RoleEnum.SuperAdmin.getId().equals(tbUserVo.getTbRole().getId())){
-            return "welcome_admin";
+            return "redirect:/system/user/list";
         }else {
             List<MenuVo> menuVos = menuVos(session.getId(),tbUserVo);
             return "redirect:"+menuVos.get(0).getMenus().get(0).getUrl();

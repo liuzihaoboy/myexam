@@ -3,6 +3,18 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.learning.exam.dao.mapper.PaperMapper">
+    <select id="findPaperHadStart" resultType="ScoreVo">
+        select p.id,p.paper_name,p.start_time,p.end_time,p.paper_minute,p.show_key,p.paper_type,p.pass_score,p.to_user
+        from tb_paper p
+        where
+        p.start_time&lt;=#{nowTime}
+        <if test="nameKey != null and nameKey!=''">
+            AND p.paper_name like #{nameKey}
+        </if>
+    </select>
+    <select id="findPapers" resultType="TbPaper">
+        SELECT t.* FROM tb_paper t order by start_time asc
+    </select>
     <select id="findPapersByCondition" resultType="TbPaper" >
         SELECT t.* FROM tb_user u,tb_paper t,tb_course c
         WHERE
@@ -22,5 +34,48 @@
         <if test="userNameKey != null and userNameKey!=''">
             AND u.name like #{userNameKey}
         </if>
+        order by start_time asc
     </select>
+    <select id="findPaperTypeById" resultType="Integer">
+        select paper_type from tb_paper
+        where id=#{id}
+    </select>
+    <select id="findPaperIdById" resultType="Integer">
+        select id from tb_paper
+        where id=#{id}
+    </select>
+    <select id="findPaperStartTimeById" resultType="Date">
+        select start_time from tb_paper where id=#{id}
+    </select>
+    <select id="findByIdAndConfigStatus" resultType="TbPaper">
+        select * from tb_paper
+        where id=#{id} and config_status=#{configStatus}
+    </select>
+    <delete id="deletePaperById">
+        delete from tb_paper where id=#{id}
+    </delete>
+    <insert id="insertPaper">
+        insert into 
+            tb_paper(paper_name, course_id, start_time, end_time, paper_minute, show_key, paper_type, to_user, pass_score, config_status, c_uid)
+        values (#{tbPaper.paperName},#{tbPaper.courseId},#{tbPaper.startTime},#{tbPaper.endTime},#{tbPaper.paperMinute},#{tbPaper.showKey},#{tbPaper.paperType},#{tbPaper.toUser},#{tbPaper.passScore},#{tbPaper.configStatus},#{tbPaper.CUid})
+    </insert>
+    <update id="updatePaper">
+        update tb_paper 
+        set paper_name=#{tbPaper.paperName},
+            course_id=#{tbPaper.courseId},
+            start_time=#{tbPaper.startTime},
+            end_time=#{tbPaper.endTime},
+            paper_minute=#{tbPaper.paperMinute},
+            show_key=#{tbPaper.showKey},
+            paper_type=#{tbPaper.paperType},
+            to_user=#{tbPaper.toUser},
+            pass_score=#{tbPaper.passScore},
+            config_status=#{tbPaper.configStatus}
+        where id=#{tbPaper.id}
+    </update>
+    <update id="updatePaperConfigStatus">
+        update tb_paper
+        set config_status=#{configStatus}
+        where id=#{id}
+    </update>
 </mapper>

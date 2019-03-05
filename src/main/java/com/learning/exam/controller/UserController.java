@@ -166,7 +166,7 @@ public class UserController {
      */
     @ResponseBody
     @RequestMapping(value = "/update/pw/{userId}",method = {RequestMethod.POST})
-    public JsonResult uodatePw(@PathVariable("userId")Integer userId,
+    public JsonResult updatePw(@PathVariable("userId")Integer userId,
                                @RequestParam("pw")String pw){
         userService.updatePwd(userId,pw);
         return JsonResult.success(null);

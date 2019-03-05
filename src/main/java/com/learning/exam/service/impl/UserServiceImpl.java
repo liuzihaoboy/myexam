@@ -45,6 +45,16 @@ public class UserServiceImpl implements UserService {
     private PermissionJpa permissionJpa;
 
     @Override
+    public TbUser insertUser(TbUser tbUser) {
+        return userJpa.save(tbUser);
+    }
+
+    @Override
+    public TbStudent insertStudent(TbStudent tbStudent) {
+        return studentJpa.save(tbStudent);
+    }
+
+    @Override
     public List<TbUserVo> getTbUserVosByRole(String roleKey) {
         List<Integer> roles = new ArrayList<>();
         if(StringUtils.isEmpty(roleKey)){
@@ -224,6 +234,11 @@ public class UserServiceImpl implements UserService {
             tbUser.setPassword(null);
         }
         return tbUser;
+    }
+
+    @Override
+    public Integer getUserIdByAccount(String userName) {
+        return userJpa.findUserIdByName(userName);
     }
 
     @Override

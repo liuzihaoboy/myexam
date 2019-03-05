@@ -4,20 +4,24 @@ import com.google.code.kaptcha.impl.DefaultKaptcha;
 import com.learning.exam.framework.cache.SessionCacheName;
 import com.learning.exam.framework.enums.RoleEnum;
 import com.learning.exam.framework.enums.converter.RoleEnumConverter;
+import com.learning.exam.framework.exception.AuthException;
 import com.learning.exam.framework.exception.ValidationHtmlException;
 import com.learning.exam.framework.exception.ValidationJsonException;
 import com.learning.exam.framework.redis.service.RedisService;
 import com.learning.exam.framework.redis.keys.SessionKey;
 import com.learning.exam.model.dto.UserDto;
+import com.learning.exam.model.entity.TbStudent;
 import com.learning.exam.model.entity.TbUser;
 import com.learning.exam.model.result.CodeMsg;
 import com.learning.exam.model.result.JsonResult;
 import com.learning.exam.model.result.ViewUtils;
 import com.learning.exam.model.vo.TbUserVo;
 import com.learning.exam.service.UserService;
+import com.learning.exam.util.Md5Utils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -122,7 +126,47 @@ public class LoginController {
         redisService.updateLoginSerssion(session.getId(),oldSessionId,tbUserVo);
         return JsonResult.success(tbUserVo);
     }
-
+    @RequestMapping("/register.html")
+    public String register(HttpServletRequest request){
+        request.setAttribute("majors",userService.getStudentMajors());
+        request.setAttribute("grades",userService.getStudentGrades());
+        return "register";
+    }
+    @RequestMapping("/registerSubmit")
+    @Transactional(rollbackFor = Exception.class)
+    public String registerSubmit(@RequestParam("account")String account,
+                                 @RequestParam("name")String name,
+                                 @RequestParam("institute")String institute,
+                                 @RequestParam("gradeId")Integer gradeId,
+                                 @RequestParam("majorId")Integer majorId,
+                                 @RequestParam("classes")String classes,
+                                 @RequestParam("idCard")String idCard,
+                                 @RequestParam("sex")String sex){
+        Integer userId = userService.getUserIdByAccount(account);
+        if(userId != null){
+            throw new AuthException(CodeMsg.HAD_REGISTER);
+        }
+        TbUser tbUser = new TbUser();
+        tbUser.setAccount(account);
+        tbUser.setName(name);
+        tbUser.setRoleId(RoleEnum.Student.getId());
+        tbUser.setPermissions("2");
+        tbUser.setPhone("无");
+        tbUser.setEmail("无");
+        tbUser.setPassword(Md5Utils.md5(account));
+        userService.insertUser(tbUser);
+        TbStudent tbStudent = new TbStudent();
+        tbStudent.setUserId(tbUser.getId());
+        tbStudent.setIcon("无");
+        tbStudent.setInstitute(institute);
+        tbStudent.setGradeId(gradeId);
+        tbStudent.setMajorId(majorId);
+        tbStudent.setClasses(classes);
+        tbStudent.setIdCard(idCard);
+        tbStudent.setSex(sex);
+        userService.insertStudent(tbStudent);
+        return ViewUtils.SUCCESS_PAGE;
+    }
     /**
      * 验证码
      * 返回img
@@ -191,33 +235,5 @@ public class LoginController {
             }
         }
 
-    }
-
-    /**
-     * 个人资料
-     * @return html
-     */
-    @GetMapping("/system/profile.html")
-    public String profile(HttpServletRequest request){
-        HttpSession session = request.getSession();
-        TbUserVo tbUserVo = redisService.hget(SessionKey.sessionById,session.getId(),SessionCacheName.LOGIN_USER,TbUserVo.class);
-        request.setAttribute("tbUserVo",tbUserVo);
-        return "profile";
-    }
-
-    /**
-     * 个人资料修改
-     * @return html
-     */
-    @RequestMapping(value = "/profile/update",method = RequestMethod.POST,produces = "application/json;charset=utf-8")
-    public String pfUpdate(HttpServletRequest request,
-                           @RequestParam("phone")String phone,
-                           @RequestParam("email")String email){
-        HttpSession session = request.getSession();
-        TbUserVo tbUserVo = redisService.hget(SessionKey.sessionById,session.getId(),SessionCacheName.LOGIN_USER,TbUserVo.class);
-
-
-        redisService.hset(SessionKey.sessionById,session.getId(),SessionCacheName.LOGIN_USER,tbUserVo);
-        return ViewUtils.SUCCESS_PAGE;
     }
 }

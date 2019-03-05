@@ -17,6 +17,8 @@ import java.util.List;
  * @date 2019-01-31  10:34
  */
 public interface UserService {
+    TbUser insertUser(TbUser tbUser);
+    TbStudent insertStudent(TbStudent tbStudent);
     List<TbUserVo> getTbUserVosByRole(String roleKey);
     int updateMajor(String majorName,Integer id);
     int insertMajor(String majorName);
@@ -32,5 +34,6 @@ public interface UserService {
     Integer updatePwd (Integer userId,String passWord);
     TbUserVo getUserVoFromTb(TbUser tbUser);
     TbUser getUser(Integer id);
+    Integer getUserIdByAccount(String userName);
     TbUser getUser(String userName,String passWord,RoleEnum roleEnum);
 }

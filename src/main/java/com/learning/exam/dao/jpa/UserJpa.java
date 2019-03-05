@@ -18,6 +18,14 @@ import java.util.List;
 @Repository
 public interface UserJpa extends JpaRepository<TbUser,Integer> {
     /**
+     * 获取用户id
+     * @param userName 用户账户
+     * @return 用户
+     */
+    @Query(nativeQuery = true,value = "select u.id from tb_user u where u.account=:name")
+    Integer findUserIdByName(@Param("name")String userName);
+
+    /**
      * 获取用户实体
      * @param userName 用户账户
      * @param passWord 用户密码

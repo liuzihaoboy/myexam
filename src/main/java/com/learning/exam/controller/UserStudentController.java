@@ -52,7 +52,7 @@ public class UserStudentController {
      * 学生提交
      * @return html
      */
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     @RequestMapping(value = "/detail/submit",method = RequestMethod.POST,produces = "text/html;charset=utf-8")
     public String submit(@RequestParam(value = "userId",required = false)String userId,
                          @RequestParam("account")String account,
@@ -84,7 +84,7 @@ public class UserStudentController {
         tbUser.setName(name);
         tbUser.setRoleId(RoleEnum.Student.getId());
         tbUser.setPermissions("2");
-        userJpa.save(tbUser);
+        userService.insertUser(tbUser);
         tbStudent.setUserId(tbUser.getId());
         tbStudent.setIcon("无");
         tbStudent.setInstitute(institute);
@@ -93,7 +93,7 @@ public class UserStudentController {
         tbStudent.setClasses(classes);
         tbStudent.setIdCard(idCard);
         tbStudent.setSex(sex);
-        studentJpa.save(tbStudent);
+        userService.insertStudent(tbStudent);
         return ViewUtils.SUCCESS_PAGE;
     }
 

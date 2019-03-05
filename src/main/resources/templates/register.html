@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>在线考试系统</title>
+    <link rel="shortcut icon" th:href="@{/static/favicon.ico}" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <!--[if lt IE 8]>
+    <meta http-equiv="refresh" content="0;ie.html" />
+    <![endif]-->
+    <link th:href="@{/static/css/style.css}" rel="stylesheet">
+    <link th:href="@{/static/css/style-list.min.css?v=4.0.0}" rel="stylesheet">
+    <link th:href="@{/static/css/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/static/css/font-awesome.min.css}" rel="stylesheet">
+    <link th:href="@{/static/css/bootstrap-table.css}" rel="stylesheet">
+    <link th:href="@{/static/css/animate.min.css}" rel="stylesheet">
+    <link th:href="@{/static/css/admin.css}" rel="stylesheet">
+    <link th:href="@{/static/css/bootstrap-datetimepicker.min.css}" rel="stylesheet" />
+    <link  th:href="@{/static/js/dist/jquery.validator.css}" rel="stylesheet" />
+</head>
+<body class="gray-bg">
+<form id="form" class="form-horizontal" role="form" enctype="multipart/form-data"  th:method="post" th:action="@{./registerSubmit}">
+    <div id="imagePreview" class="form-group" align="center">
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-3">账号（学号）</label>
+        <div class="col-sm-7">
+            <input type="text" name="account"  class="form-control" data-rule="required;"/>
+            <span class="help-block m-b-none" id="tipInfo"><i class="fa fa-info-circle"></i><span>密码默认同学号</span></span>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-3">姓名</label>
+        <div class="col-sm-7">
+            <input type="text" name="name"  class="form-control" data-rule="required;"/>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-3">学院</label>
+        <div class="col-sm-7">
+            <input type="text" name="institute"  class="form-control" data-rule="required;"/>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-3">年级</label>
+        <div class="col-sm-7">
+            <select class="form-control"  name="gradeId" id="gradeId" data-rule="required;">
+                <option value="">年级</option>
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-3">专业</label>
+        <div class="col-sm-7">
+            <select class="form-control"  name="majorId" id="majorId" data-rule="required;">
+                <option value="">专业</option>
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-3">班级</label>
+        <div class="col-sm-7">
+            <input type="text" name="classes"  class="form-control" data-rule="required;"/>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-3">身份证</label>
+        <div class="col-sm-7">
+            <input type="text" name="idCard"  class="form-control" data-rule="required;"/>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-3">性别</label>
+        <div class="col-sm-7">
+            <select class="form-control"  name="sex" id="sex" data-rule="required;">
+                <option value="男">男</option>
+                <option value="男">女</option>
+            </select>
+        </div>
+    </div>
+    </div>
+    <div class="form-group" >
+        <div class="col-sm-7 col-sm-offset-3">
+            <button class="btn btn-primary" type="button" onclick="submitForm()">现在注册</button>
+        </div>
+    </div>
+</form>
+<script th:src="@{/static/js/jquery-3.3.1.min.js}" type="text/javascript" charset="utf-8"></script>
+<script th:src="@{/static/js/bootstrap.min.js}" type="text/javascript" charset="utf-8"></script>
+<script th:src="@{/static/js/bootstrap-table.min.js}" type="text/javascript" charset="utf-8"></script>
+<script th:src="@{/static/js/bootstrap-table-editable.min.js}" type="text/javascript" charset="utf-8"></script>
+<script th:src="@{/static/js/bootstrap-table-zh-CN.min.js}" type="text/javascript" charset="utf-8"></script>
+<script th:src="@{/static/js/layer/layer.js}" type="text/javascript" charset="utf-8"></script>
+<script th:src="@{/static/js/bootstrap-editable.min.js}" type="text/javascript" charset="utf-8"></script>
+<script  th:src="@{/static/js/bootstrap-datetimepicker.min.js}"></script>
+<script  th:src="@{/static/js/bootstrap-datetimepicker.zh-CN.js}"></script>
+<script  th:src="@{/static/js/dist/jquery.validator.min.js}"></script>
+<script  th:src="@{/static/js/dist/local/zh-CN.js}"></script>
+<script  th:inline="javascript">
+    /*<![CDATA[*/
+    var grades = [[${grades}]];
+    if(grades!=null){
+        for(var i=0;i<grades.length;i++){
+            var grade=grades[i];
+            $('#gradeId').append("<option  value='"+grade.id+"'>"+grade.gradeName+"</option>");
+        }
+    }
+    var majors = [[${majors}]];
+    if(majors!=null){
+        for(var i=0;i<majors.length;i++){
+            var major=majors[i];
+            $('#majorId').append("<option  value='"+major.id+"'>"+major.majorName+"</option>");
+        }
+    }
+    /*]]>*/
+    function submitForm(){
+        $("#form").submit();
+    }
+</script>
+</body>
+</html>

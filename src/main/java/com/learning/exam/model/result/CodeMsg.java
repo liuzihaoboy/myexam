@@ -19,6 +19,7 @@ public class CodeMsg {
 	public static final CodeMsg ROLE_TYPE_ERROR = new CodeMsg(500103,"角色类型错误");
     public static final CodeMsg NO_STUDENT = new CodeMsg(500104,"没有找到该学生!");
 	public static final CodeMsg LOGIN_OTHER_ERROR = new CodeMsg(500105,"您已在其它地方登录!");
+	public static final CodeMsg HAD_REGISTER = new CodeMsg(500106,"该学号已注册！");
 	//权限模块 5002XX
 	public static final CodeMsg AUTH_CHECK_ERROR = new CodeMsg(500201,"访问权限限制");
 	//题库管理模块 5003XX

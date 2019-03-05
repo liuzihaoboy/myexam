@@ -38,6 +38,10 @@ public class CommonController {
     @Autowired
     private UserService userService;
 
+    /**
+     * 个人资料
+     * @return html
+     */
     @GetMapping("/profile.html")
     public String profile(HttpServletRequest request){
         HttpSession session = request.getSession();
@@ -45,6 +49,11 @@ public class CommonController {
         request.setAttribute("tbUserVo",tbUserVo);
         return "profile";
     }
+
+    /**
+     * 个人资料修改
+     * @return html
+     */
     @RequestMapping(value = "/profile/update",method = RequestMethod.POST,produces = "application/json;charset=utf-8")
     public String pfUpdate(HttpServletRequest request,
                            @RequestParam("phone")String phone,
@@ -57,6 +66,11 @@ public class CommonController {
         redisService.hset(SessionKey.sessionById,session.getId(),SessionCacheName.LOGIN_USER,tbUserVo);
         return ViewUtils.SUCCESS_PAGE;
     }
+
+    /**
+     * 密码
+     * @return html
+     */
     @GetMapping("/password.html")
     public String password(HttpServletRequest request){
         HttpSession session = request.getSession();
@@ -64,6 +78,11 @@ public class CommonController {
         request.setAttribute("account",tbUserVo.getAccount());
         return "password";
     }
+
+    /**
+     * 修改密码
+     * @return html
+     */
     @RequestMapping(value = "/password/update",method = RequestMethod.POST,produces = "application/json;charset=utf-8")
     public String pwUpdate(HttpServletRequest request,
                                @RequestParam("new_password")String newPassword){
@@ -73,6 +92,10 @@ public class CommonController {
         return ViewUtils.SUCCESS_PAGE;
     }
 
+    /**
+     * 页面头
+     * @return html
+     */
     @RequestMapping(value = "/head",method = RequestMethod.GET,produces = "text/html;charset=utf-8")
     public String head(HttpServletRequest request){
         HttpSession session = request.getSession();
@@ -85,6 +108,11 @@ public class CommonController {
         }
         return "head";
     }
+
+    /**
+     * 页面导航栏
+     * @return html
+     */
     @RequestMapping(value = "/menu",method = RequestMethod.GET,produces = "text/html;charset=utf-8")
     public String menu(HttpServletRequest request){
         HttpSession session = request.getSession();
@@ -101,6 +129,11 @@ public class CommonController {
         }
         return  "menu";
     }
+
+    /**
+     * 主页面
+     * @return html
+     */
     @RequestMapping(value = "/welcome",method = RequestMethod.GET,produces = "text/html;charset=utf-8")
     public String welcome(HttpServletRequest request){
         HttpSession session = request.getSession();

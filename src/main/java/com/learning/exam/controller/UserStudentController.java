@@ -48,6 +48,10 @@ public class UserStudentController {
     @Autowired
     private ExcelService excelService;
 
+    /**
+     * 学生提交
+     * @return html
+     */
     @Transactional
     @RequestMapping(value = "/detail/submit",method = RequestMethod.POST,produces = "text/html;charset=utf-8")
     public String submit(@RequestParam(value = "userId",required = false)String userId,
@@ -92,6 +96,11 @@ public class UserStudentController {
         studentJpa.save(tbStudent);
         return ViewUtils.SUCCESS_PAGE;
     }
+
+    /**
+     * 学生详细
+     * @return html
+     */
     @RequestMapping(value = "/detail/{userId}",method = RequestMethod.GET,produces = "text/html;charset=utf-8")
     public String detail(HttpServletRequest request,
                          @PathVariable("userId")Integer userId){
@@ -101,6 +110,11 @@ public class UserStudentController {
         request.setAttribute("grades",userService.getStudentGrades());
         return "user/student/form";
     }
+
+    /**
+     * 删除学生
+     * @return json
+     */
     @ResponseBody
     @Transactional
     @RequestMapping(value = "/delete/{id}",method = RequestMethod.POST,produces = "application/json;charset=utf-8")
@@ -115,12 +129,22 @@ public class UserStudentController {
         }
         return JsonResult.success(null);
     }
+
+    /**
+     * 所有学生
+     * @return html
+     */
     @GetMapping("/list")
     public String list (HttpServletRequest request){
         request.setAttribute("majors",userService.getStudentMajors());
         request.setAttribute("grades",userService.getStudentGrades());
         return "user/student/list";
     }
+
+    /**
+     * 所有学生
+     * @return json
+     */
     @ResponseBody
     @RequestMapping(value = "/list/json",method = {RequestMethod.POST,RequestMethod.GET})
     public List<StudentVo> listJson(HttpServletRequest request){
@@ -134,6 +158,11 @@ public class UserStudentController {
         }
         return studentVos;
     }
+
+    /**
+     * 上传学生
+     * @return html
+     */
     @RequestMapping(value = "/upload",method = RequestMethod.POST,produces = "text/html;charset=utf-8")
     public String upload(HttpServletRequest request,
                          @RequestParam("file") MultipartFile file){

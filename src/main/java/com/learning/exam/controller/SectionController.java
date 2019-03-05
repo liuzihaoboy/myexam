@@ -50,6 +50,10 @@ public class SectionController {
     @Autowired
     private QuestionService questionService;
 
+    /**
+     * 章节提交
+     * @return html
+     */
     @RequestMapping(value = "/detail/submit",method = RequestMethod.POST,produces = "text/html;charset=utf-8")
     public String submit(HttpServletRequest request,
                          @Validated PaperSectionDto paperSectionDto,
@@ -86,6 +90,11 @@ public class SectionController {
         paperService.submitPaperSection(paperSectionDto);
         return ViewUtils.SUCCESS_CLOSE_PAGE;
     }
+
+    /**
+     * 章节详细
+     * @return html
+     */
     @RequestMapping(value = "/detail/{sectionId}",method = RequestMethod.GET,produces = "text/html;charset=utf-8")
     public String detail(HttpServletRequest request,
                          @PathVariable("sectionId")Integer sectionId,
@@ -118,6 +127,11 @@ public class SectionController {
         }
         return "paper/section/form";
     }
+
+    /**
+     *增加章节
+     * @return html
+     */
     @RequestMapping(value = "/add/{paperId}",method = RequestMethod.GET,produces = "text/html;charset=utf-8")
     public String add(HttpServletRequest request,
                       @PathVariable("paperId")Integer paperId,
@@ -132,6 +146,11 @@ public class SectionController {
         request.setAttribute("types",typeList);
         return "paper/section/add";
     }
+
+    /**
+     * 删除章节
+     * @return json
+     */
     @ResponseBody
     @RequestMapping(value = "/delete/{paperId}/{sectionId}",method = RequestMethod.POST,produces = "application/json;charset=utf-8")
     public JsonResult delete(HttpServletRequest request,
@@ -152,6 +171,11 @@ public class SectionController {
         paperService.deletePaperSection(paperId,sectionId);
         return JsonResult.success(null);
     }
+
+    /**
+     * 所有章节
+     * @return html
+     */
     @RequestMapping(value = "/list/{paperId}",method = RequestMethod.GET,produces = "text/html;charset=utf-8")
     public String list(HttpServletRequest request,
                          @PathVariable("paperId")Integer paperId){
@@ -166,6 +190,11 @@ public class SectionController {
         request.setAttribute("paperType",new RequestEnumVo(paperVo.getPaperType().getId(),paperVo.getPaperType().getType()));
         return "paper/section/list";
     }
+
+    /**
+     * 所有章节
+     * @return json
+     */
     @ResponseBody
     @RequestMapping(value = "/list/json",method = {RequestMethod.GET,RequestMethod.POST},produces = "application/json;charset=utf-8")
     public List<PaperSectionVo> listJson(HttpServletRequest request,
@@ -177,6 +206,11 @@ public class SectionController {
         PaperTypeEnum paperTypeEnum = PaperTypeEnumConverter.converter(paperType);
         return paperService.getPaperSectionsByPaperId(paperId,paperTypeEnum);
     }
+
+    /**
+     * 章节题目
+     * @return json
+     */
     @ResponseBody
     @RequestMapping(value = "/question/json",method = {RequestMethod.GET,RequestMethod.POST},produces = "application/json;charset=utf-8")
     public List<QuestionContentVo> questionJson(HttpServletRequest request,
@@ -186,6 +220,11 @@ public class SectionController {
         }
         return questionService.getQuestionContentsBySectionId(sectionId);
     }
+
+    /**
+     * 增加章节题目
+     * @return json
+     */
     @ResponseBody
     @RequestMapping(value = "/question/add",method = {RequestMethod.POST},produces = "application/json;charset=utf-8")
     public JsonResult questionAdd(HttpServletRequest request,
@@ -207,6 +246,11 @@ public class SectionController {
         paperService.addQuestionIdBySectionId(sectionId,questionId);
         return JsonResult.success(null);
     }
+
+    /**
+     * 删除章节题目
+     * @return json
+     */
     @ResponseBody
     @RequestMapping(value = "/question/delete",method = {RequestMethod.POST},produces = "application/json;charset=utf-8")
     public JsonResult questionDelete(HttpServletRequest request,
@@ -239,6 +283,11 @@ public class SectionController {
         paperService.deleteSectionQuestionBySectionId(sectionId,questionIdsStr,questionIds.size()>=1?(questionIds.size()-1):0);
         return JsonResult.success(null);
     }
+
+    /**
+     * 配置章节所有需要题目
+     * @return json
+     */
     @ResponseBody
     @RequestMapping(value = "/question/config/json",method = {RequestMethod.GET,RequestMethod.POST},produces = "application/json;charset=utf-8")
     public List<QuestionContentVo> configQuestionJson(HttpServletRequest request){
@@ -256,12 +305,22 @@ public class SectionController {
         }
         return questionVos;
     }
+
+    /**
+     * 配置章节所有需要题库
+     * @return html
+     */
     @RequestMapping(value = "/qdb/list",method = RequestMethod.GET,produces = "text/html;charset=utf-8")
     public String qdbList(HttpServletRequest request){
         List<TbCourse> courses = questionService.getCourses();
         request.setAttribute("courses",courses);
         return "paper/section/qdb";
     }
+
+    /**
+     * 配置章节所有需要题库
+     * @return json
+     */
     @ResponseBody
     @RequestMapping(value = "/qdb/list/json",method = {RequestMethod.GET,RequestMethod.POST},produces = "application/json;charset=utf-8")
     public List<QuestionDbVo> qdbListJson(HttpServletRequest request){

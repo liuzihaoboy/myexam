@@ -53,6 +53,10 @@ public class PaperController {
     @Autowired
     private UserService userService;
 
+    /**
+     * 试卷提交
+     * @return html
+     */
     @RequestMapping(value = "/detail/submit",method = RequestMethod.POST,produces = "text/html;charset=utf-8")
     public String submit(HttpServletRequest request,
                          @Validated PaperDto paperDto,
@@ -92,6 +96,11 @@ public class PaperController {
         paperService.submitPaper(paperDto,tbUserVo.getId(),paperTypeEnum);
         return ViewUtils.SUCCESS_CLOSE_PAGE;
     }
+
+    /**
+     * 试卷详细
+     * @return html
+     */
     @RequestMapping(value = "/detail/{id}",method = RequestMethod.GET,produces = "text/html;charset=utf-8")
     public String detail(HttpServletRequest request,
                          @PathVariable("id")String id){
@@ -113,6 +122,11 @@ public class PaperController {
         }
         return "paper/form";
     }
+
+    /**
+     * 试卷添加用户
+     * @return html
+     */
     @RequestMapping(value = "/detail/user/{type}",method = RequestMethod.GET,produces="text/html;charset=utf-8")
     public String user(HttpServletRequest request,
                        @PathVariable("type")Integer type,
@@ -126,6 +140,11 @@ public class PaperController {
         request.setAttribute("grades",userService.getStudentGrades());
         return "paper/user";
     }
+
+    /**
+     * 试卷添加用户
+     * @return json
+     */
     @ResponseBody
     @RequestMapping(value = "/detail/user/json",method = {RequestMethod.POST},produces = "application/json;charset=utf-8")
     public List<StudentVo> userJson(HttpServletRequest request,
@@ -149,6 +168,11 @@ public class PaperController {
         }
         return studentVos;
     }
+
+    /**
+     * 删除试卷
+     * @return json
+     */
     @ResponseBody
     @RequestMapping(value = "/delete/{id}",method = RequestMethod.POST,produces = "application/json;charset=utf-8")
     public JsonResult delete(HttpServletRequest request,
@@ -156,6 +180,11 @@ public class PaperController {
         paperService.deletePaper(id);
         return JsonResult.success(null);
     }
+
+    /**
+     * 所有试卷
+     * @return html
+     */
     @RequestMapping(value = "/list",method = RequestMethod.GET,produces = "text/html;charset=utf-8")
     public String list(HttpServletRequest request){
         List<TbCourse> courses = questionService.getCourses();
@@ -168,6 +197,11 @@ public class PaperController {
         request.setAttribute("types",typeList);
         return "paper/list";
     }
+
+    /**
+     * 所有试卷
+     * @return html
+     */
     @ResponseBody
     @RequestMapping(value = "/list/json",method = {RequestMethod.GET,RequestMethod.POST},produces = "application/json;charset=utf-8")
     public List<PaperVo> listJson(HttpServletRequest request){

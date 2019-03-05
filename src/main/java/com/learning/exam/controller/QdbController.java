@@ -40,6 +40,10 @@ public class QdbController {
     @Autowired
     private QuestionService questionService;
 
+    /**
+     * 题库提交
+     * @return html
+     */
     @RequestMapping(value = "/detail/submit",method = RequestMethod.POST,produces = "text/html;charset=utf-8")
     public String submit(HttpServletRequest request,
                             @Validated QdbDto qdbDto,
@@ -64,6 +68,11 @@ public class QdbController {
         }
         return ViewUtils.SUCCESS_PAGE;
     }
+
+    /**
+     *题库详细
+     * @return html
+     */
     @RequestMapping(value = "/detail/{id}",method = RequestMethod.GET,produces = "text/html;charset=utf-8")
     public String detail(HttpServletRequest request,
                                 @PathVariable("id")String id){
@@ -76,6 +85,11 @@ public class QdbController {
         request.setAttribute("questionDbVo",questionDbVo);
         return "qdb/form";
     }
+
+    /**
+     * 删除题库
+     * @return json
+     */
     @ResponseBody
     @RequestMapping(value = "/delete/{id}",method = RequestMethod.POST,produces = "application/json;charset=utf-8")
     public JsonResult delete(HttpServletRequest request,
@@ -83,12 +97,22 @@ public class QdbController {
         //questionService.deleteQuestionDb(id);
         return JsonResult.success(null);
     }
+
+    /**
+     * 所有题库
+     * @return html
+     */
     @RequestMapping(value = "/list",method = RequestMethod.GET,produces = "text/html;charset=utf-8")
     public String list(HttpServletRequest request){
         List<TbCourse> courses = questionService.getCourses();
         request.setAttribute("courses",courses);
         return "qdb/list";
     }
+
+    /**
+     * 所有题库
+     * @return json
+     */
     @ResponseBody
     @RequestMapping(value = "/list/json",method = {RequestMethod.GET,RequestMethod.POST},produces = "application/json;charset=utf-8")
     public List<QuestionDbVo> listJson(HttpServletRequest request){

@@ -54,16 +54,28 @@ public class StudentController {
     @Autowired
     private TestService testService;
 
+    /**
+     * 正在进行考试
+     * @return html
+     */
     @RequestMapping("/paper/list")
     public String list(){
         return "student/list";
     }
 
+    /**
+     * 已经参加考试
+     * @return html
+     */
     @RequestMapping("/paper/history")
     public String history(){
         return "student/history";
     }
 
+    /**
+     * 考试倒计时页面
+     * @return html
+     */
     @RequestMapping("/paper/{paperId}/{t}.html")
     public String paper(HttpServletRequest request,
                         @PathVariable("paperId")Integer paperId,
@@ -84,6 +96,11 @@ public class StudentController {
         }
         return "student/paper";
     }
+
+    /**
+     * 考试结果详细
+     * @return html
+     */
     @RequestMapping("/detail/{paperId}.html")
     public String detail(HttpServletRequest request,
                         @PathVariable("paperId")Integer paperId){
@@ -109,6 +126,10 @@ public class StudentController {
         return "student/detail";
     }
 
+    /**
+     * 正在进行考试
+     * @return json
+     */
     @ResponseBody
     @RequestMapping("/index/json")
     public List<PaperTestVo> indexJson(HttpServletRequest request){
@@ -117,6 +138,10 @@ public class StudentController {
         return paperService.getPaperTestByUserIdNoSubmit(tbUserVo.getId());
     }
 
+    /**
+     * 已经参加考试
+     * @return json
+     */
     @ResponseBody
     @RequestMapping("/index/last/json")
     public List<PaperResultVo> indexLastJson(HttpServletRequest request){
@@ -125,6 +150,10 @@ public class StudentController {
         return paperService.getPaperResultByUserIdSubmit(tbUserVo.getId());
     }
 
+    /**
+     * 考试页面
+     * @return html
+     */
     @RequestMapping(value = "/test/{paperId}/{t}.html",method = RequestMethod.GET,produces = "text/html;charset=utf-8")
     public String test(HttpServletRequest request,
                        @PathVariable("paperId")Integer paperId,
@@ -157,12 +186,20 @@ public class StudentController {
         return "student/test";
     }
 
+    /**
+     * ping
+     * @return json
+     */
     @ResponseBody
     @RequestMapping(value = "/paper/ping",method = {RequestMethod.GET})
     public JsonResult ping(){
         return JsonResult.success(null);
     }
 
+    /**
+     * 暴露考试链接
+     * @return json
+     */
     @ResponseBody
     @RequestMapping(value = "/expose/{paperId}",method = {RequestMethod.GET})
     public JsonResult expose(HttpServletRequest request,
@@ -176,6 +213,10 @@ public class StudentController {
         return JsonResult.success(url);
     }
 
+    /**
+     * 考试开始
+     * @return json
+     */
     @ResponseBody
     @RequestMapping(value = "/test/start/{paperId}/{t}.json",method = RequestMethod.POST,produces = "application/json;charset=utf-8")
     public JsonResult start(HttpServletRequest request,
@@ -199,6 +240,10 @@ public class StudentController {
         return JsonResult.success(res);
     }
 
+    /**
+     * 保存用户考试答案
+     * @return json
+     */
     @ResponseBody
     @RequestMapping(value = "/test/save/{paperId}/{t}.json",method = RequestMethod.POST,produces = "application/json;charset=utf-8")
     public JsonResult save(HttpServletRequest request,
@@ -221,6 +266,10 @@ public class StudentController {
         return JsonResult.success(null);
     }
 
+    /**
+     * 提交考试
+     * @return json
+     */
     @ResponseBody
     @RequestMapping(value = "/test/submit/{paperId}/{t}.json",method = RequestMethod.POST,produces = "application/json;charset=utf-8")
     public JsonResult submit(HttpServletRequest request,

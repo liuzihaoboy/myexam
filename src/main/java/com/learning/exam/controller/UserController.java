@@ -43,6 +43,10 @@ public class UserController {
     @Autowired
     private PermissionJpa permissionJpa;
 
+    /**
+     * 用户提交
+     * @return html
+     */
     @RequestMapping(value = "/detail/submit",method = RequestMethod.POST,produces = "text/html;charset=utf-8")
     public String submit(@RequestParam(value = "id",required = false)String id,
                          @RequestParam("roleId")Integer roleId,
@@ -66,6 +70,11 @@ public class UserController {
         userJpa.save(tbUser);
         return ViewUtils.SUCCESS_PAGE;
     }
+
+    /**
+     * 用户详细
+     * @return html
+     */
     @RequestMapping(value = "/detail/{id}",method = RequestMethod.GET,produces = "text/html;charset=utf-8")
     public String detail(HttpServletRequest request,
                          @PathVariable("id")Integer id){
@@ -73,6 +82,11 @@ public class UserController {
         request.setAttribute("tbUser",tbUser);
         return "user/form";
     }
+
+    /**
+     * 用户权限
+     * @return html
+     */
     @RequestMapping(value = "/detail/per/{type}",method = RequestMethod.GET,produces="text/html;charset=utf-8")
     public String per(HttpServletRequest request,
                        @PathVariable("type")Integer type,
@@ -86,6 +100,11 @@ public class UserController {
         }
         return "user/per";
     }
+
+    /**
+     * 用户权限
+     * @return json
+     */
     @ResponseBody
     @RequestMapping(value = "/detail/per/json",method = {RequestMethod.POST},produces = "application/json;charset=utf-8")
     public List<TbPermission> perJson(HttpServletRequest request,
@@ -101,6 +120,11 @@ public class UserController {
         }
         return permissionJpa.findAll();
     }
+
+    /**
+     * 删除用户
+     * @return json
+     */
     @ResponseBody
     @Transactional
     @RequestMapping(value = "/delete/{id}",method = RequestMethod.POST,produces = "application/json;charset=utf-8")
@@ -115,16 +139,31 @@ public class UserController {
         }
         return JsonResult.success(null);
     }
+
+    /**
+     * 所有用户
+     * @return html
+     */
     @GetMapping("/list")
     public String list (){
         return "user/list";
     }
+
+    /**
+     * 所有用户
+     * @return json
+     */
     @ResponseBody
     @RequestMapping(value = "/list/json",method = {RequestMethod.POST,RequestMethod.GET})
     public List<TbUserVo> listJson(HttpServletRequest request){
         String roleKey = request.getParameter("roleKey");
         return userService.getTbUserVosByRole(roleKey);
     }
+
+    /**
+     * 修改密码
+     * @return json
+     */
     @ResponseBody
     @RequestMapping(value = "/update/pw/{userId}",method = {RequestMethod.POST})
     public JsonResult uodatePw(@PathVariable("userId")Integer userId,

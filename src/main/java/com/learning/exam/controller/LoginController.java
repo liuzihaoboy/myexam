@@ -46,6 +46,10 @@ public class LoginController {
     @Autowired
     private UserService userService;
 
+    /**
+     * 登录
+     * @return html
+     */
     @RequestMapping(value = "/login",method = RequestMethod.GET,produces = "text/html;charset=utf-8")
     public String login(HttpServletRequest request){
         HttpSession session = request.getSession();
@@ -62,10 +66,20 @@ public class LoginController {
         }
         return "login";
     }
+
+    /**
+     * 首页
+     * @return html
+     */
     @RequestMapping(value = "/index.html",method = RequestMethod.GET,produces = "text/html;charset=utf-8")
     public String index(){
         return "index";
     }
+
+    /**
+     * 退出登录
+     * @return json
+     */
     @ResponseBody
     @RequestMapping(value = "/logout",method = RequestMethod.POST,produces = "application/json;charset=utf-8")
     public JsonResult logout(HttpServletRequest request){
@@ -81,6 +95,11 @@ public class LoginController {
         }
         return JsonResult.success(null);
     }
+
+    /**
+     *提交登录
+     * @return json
+     */
     @ResponseBody
     @RequestMapping(value = "/loginSubmit",method = {RequestMethod.POST},produces = "application/json;charset=utf-8")
     public JsonResult bsLogin(HttpServletRequest request,@Validated UserDto userDto){
@@ -103,6 +122,11 @@ public class LoginController {
         redisService.updateLoginSerssion(session.getId(),oldSessionId,tbUserVo);
         return JsonResult.success(tbUserVo);
     }
+
+    /**
+     * 验证码
+     * 返回img
+     */
     @RequestMapping(value = "/kaptcha",method = RequestMethod.GET)
     public void kaptcha(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws IOException{
         byte[] responseImageBytes;
@@ -132,6 +156,11 @@ public class LoginController {
         servletOutputStream.flush();
         servletOutputStream.close();
     }
+
+    /**
+     * 下载文件
+     * .xls
+     */
     @RequestMapping(value = "/system/download/{filename}",method = RequestMethod.GET)
     public void download(@PathVariable("filename")String fileName, HttpServletResponse response) throws IOException{
         OutputStream out=null;
@@ -163,6 +192,11 @@ public class LoginController {
         }
 
     }
+
+    /**
+     * 个人资料
+     * @return html
+     */
     @GetMapping("/system/profile.html")
     public String profile(HttpServletRequest request){
         HttpSession session = request.getSession();
@@ -170,6 +204,11 @@ public class LoginController {
         request.setAttribute("tbUserVo",tbUserVo);
         return "profile";
     }
+
+    /**
+     * 个人资料修改
+     * @return html
+     */
     @RequestMapping(value = "/profile/update",method = RequestMethod.POST,produces = "application/json;charset=utf-8")
     public String pfUpdate(HttpServletRequest request,
                            @RequestParam("phone")String phone,

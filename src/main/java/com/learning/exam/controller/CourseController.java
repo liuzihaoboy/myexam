@@ -26,6 +26,11 @@ import java.util.List;
 public class CourseController {
     @Autowired
     private QuestionService questionService;
+
+    /**
+     * 课程提交
+     * @return html
+     */
     @RequestMapping(value = "/detail/submit",method = RequestMethod.POST,produces = "text/html;charset=utf-8")
     public String submit(@RequestParam(value = "id",required = false)Integer id,
                                @RequestParam(value = "courseName")String courseName) {
@@ -39,6 +44,11 @@ public class CourseController {
         }
         return ViewUtils.SUCCESS_PAGE;
     }
+
+    /**
+     * 课程详细
+     * @return html
+     */
     @RequestMapping(value = "/detail/{id}",method = RequestMethod.GET,produces = "text/html;charset=utf-8")
     public String detail(HttpServletRequest request,
                                @PathVariable("id")Integer id){
@@ -46,16 +56,31 @@ public class CourseController {
         request.setAttribute("tbCourse",tbCourse);
         return "qdb/course/form";
     }
+
+    /**
+     * 删除课程
+     * @return json
+     */
     @ResponseBody
     @RequestMapping(value = "/delete/{id}",method = RequestMethod.POST,produces = "application/json;charset=utf-8")
     public JsonResult delete(@PathVariable("id")String id){
         //questionService.deleteCourse(id);
         return JsonResult.success(null);
     }
+
+    /**
+     * 所有课程
+     * @return html
+     */
     @RequestMapping(value = "/list",method = RequestMethod.GET,produces = "text/html;charset=utf-8")
     public String courseList(){
         return "qdb/course/list";
     }
+
+    /**
+     * 所有课程
+     * @return json
+     */
     @ResponseBody
     @RequestMapping(value = "/list/json",method = {RequestMethod.GET,RequestMethod.POST},produces = "application/json;charset=utf-8")
     public List<TbCourse> courseListJson(){

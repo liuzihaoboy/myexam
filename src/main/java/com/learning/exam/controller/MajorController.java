@@ -26,6 +26,11 @@ import java.util.List;
 public class MajorController {
     @Autowired
     private UserService userService;
+
+    /**
+     * 专业提交
+     * @return html
+     */
     @RequestMapping(value = "/detail/submit",method = RequestMethod.POST,produces = "text/html;charset=utf-8")
     public String submit(@RequestParam(value = "id",required = false)Integer id,
                          @RequestParam(value = "majorName")String majorName) {
@@ -39,6 +44,11 @@ public class MajorController {
         }
         return ViewUtils.SUCCESS_PAGE;
     }
+
+    /**
+     * 专业详细
+     * @return html
+     */
     @RequestMapping(value = "/detail/{id}",method = RequestMethod.GET,produces = "text/html;charset=utf-8")
     public String detail(HttpServletRequest request,
                          @PathVariable("id")Integer id){
@@ -46,15 +56,30 @@ public class MajorController {
         request.setAttribute("major",major);
         return "user/major/form";
     }
+
+    /**
+     * 删除专业
+     * @return json
+     */
     @ResponseBody
     @RequestMapping(value = "/delete/{id}",method = RequestMethod.POST,produces = "application/json;charset=utf-8")
     public JsonResult delete(@PathVariable("id")String id){
         return JsonResult.success(null);
     }
+
+    /**
+     * 所有专业
+     * @return html
+     */
     @RequestMapping(value = "/list",method = RequestMethod.GET,produces = "text/html;charset=utf-8")
     public String courseList(){
         return "user/major/list";
     }
+
+    /**
+     * 所有专业
+     * @return json
+     */
     @ResponseBody
     @RequestMapping(value = "/list/json",method = {RequestMethod.GET,RequestMethod.POST},produces = "application/json;charset=utf-8")
     public List<TbStudentMajor> courseListJson(){

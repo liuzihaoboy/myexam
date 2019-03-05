@@ -31,16 +31,30 @@ public class ScoreController {
     @Autowired
     private UserService userService;
 
+    /**
+     * 所有成绩
+     * @return html
+     */
     @GetMapping("/list")
     public String list (){
         return "score/list";
     }
+
+    /**
+     * 所有成绩
+     * @return json
+     */
     @ResponseBody
     @RequestMapping(value = "/list/json",method = {RequestMethod.POST,RequestMethod.GET})
     public List<ScoreVo> listJson(HttpServletRequest request){
         String nameKey = request.getParameter("nameKey");
         return paperService.getScores(nameKey);
     }
+
+    /**
+     * 成绩详细
+     * @return html
+     */
     @RequestMapping("/detail/{paperId}")
     public String detail(HttpServletRequest request,
                          @PathVariable("paperId")Integer paperId){
@@ -55,6 +69,11 @@ public class ScoreController {
         request.setAttribute("paperType",new RequestEnumVo(paperVo.getPaperType().getId(),paperVo.getPaperType().getType()));
         return "score/detail";
     }
+
+    /**
+     * 用户成绩详细
+     * @return html
+     */
     @RequestMapping("/detail/{paperId}/{userId}")
     public String result(HttpServletRequest request,@PathVariable("paperId")Integer paperId,@PathVariable("userId")Integer userId){
         TbPaperUser tbPaperUser = paperService.getPaperUser(userId,paperId);
@@ -71,6 +90,11 @@ public class ScoreController {
         request.setAttribute("questions",questions);
         return "score/oneDetail";
     }
+
+    /**
+     * 用户成绩详细
+     * @return json
+     */
     @ResponseBody
     @RequestMapping(value = "/detail/{paperId}/list/json",method = {RequestMethod.POST,RequestMethod.GET})
     public List<ScoreResultVo> detailJson(@PathVariable("paperId")Integer paperId,

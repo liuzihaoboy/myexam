@@ -54,6 +54,10 @@ public class QuestionController {
     @Autowired
     private ExcelService excelService;
 
+    /**
+     * 查看题目
+     * @return html
+     */
     @RequestMapping(value = "/preview/{questionId}",method = RequestMethod.GET,produces = "text/html;charset=utf-8")
     public String preview(HttpServletRequest request,
                           @PathVariable("questionId")Integer questionId){
@@ -66,6 +70,11 @@ public class QuestionController {
         request.setAttribute("level",new RequestEnumVo(questionVo.getQLevel().getId(),questionVo.getQLevel().getLevel()));
         return "qdb/question/preview";
     }
+
+    /**
+     * 题目提交
+     * @return html
+     */
     @RequestMapping(value = "/detail/submit",method = RequestMethod.POST,produces = "text/html;charset=utf-8")
     public String submit(HttpServletRequest request,
                             @Validated QuestionDto questionDto,
@@ -109,6 +118,11 @@ public class QuestionController {
         questionService.submitQuestion(questionDto,tbUserVo);
         return ViewUtils.SUCCESS_CLOSE_PAGE;
     }
+
+    /**
+     * 题目详细
+     * @return html
+     */
     @RequestMapping(value = "/detail/{id}",method = RequestMethod.GET,produces = "text/html;charset=utf-8")
     public String detail(HttpServletRequest request,
                             @PathVariable("id")String id){
@@ -137,6 +151,11 @@ public class QuestionController {
         }
         return "qdb/question/form";
     }
+
+    /**
+     * 删除题目
+     * @return json
+     */
     @ResponseBody
     @RequestMapping(value = "/delete/{id}",method = RequestMethod.POST,produces = "application/json;charset=utf-8")
     public JsonResult delete(HttpServletRequest request,
@@ -144,6 +163,11 @@ public class QuestionController {
         questionService.deleteQuestion(id);
         return JsonResult.success(null);
     }
+
+    /**
+     * 所有题目
+     * @return html
+     */
     @RequestMapping(value = "/list",method = RequestMethod.GET,produces = "text/html;charset=utf-8")
     public String list(HttpServletRequest request){
         List<TbQuestionDb> tbQuestionDbs = questionService.getTbQdbs();
@@ -162,6 +186,11 @@ public class QuestionController {
         request.setAttribute("levels",levelList);
         return "qdb/question/list";
     }
+
+    /**
+     * 所有题目
+     * @return json
+     */
     @ResponseBody
     @RequestMapping(value = "/list/json",method = {RequestMethod.GET,RequestMethod.POST},produces = "application/json;charset=utf-8")
     public List<QuestionVo> listJson(HttpServletRequest request){
@@ -179,6 +208,11 @@ public class QuestionController {
         }
         return questionVos;
     }
+
+    /**
+     * 上传题目excel
+     * @return html
+     */
     @RequestMapping(value = "/upload",method = RequestMethod.POST,produces = "text/html;charset=utf-8")
     public String upload(HttpServletRequest request,
                          @RequestParam("file") MultipartFile file){

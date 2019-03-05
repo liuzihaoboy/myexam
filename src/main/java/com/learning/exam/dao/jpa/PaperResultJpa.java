@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 /**
+ * 考试结果持久层jpa
  * @author liuzihao
  * @date 2019-02-25  10:41
  */

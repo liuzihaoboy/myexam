@@ -11,6 +11,7 @@ import javax.transaction.Transactional;
 import java.util.Date;
 
 /**
+ * 用户考试信息持久层jpa
  * @author liuzihao
  * @date 2019-02-25  10:41
  */

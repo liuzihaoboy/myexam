@@ -15,6 +15,7 @@ import com.learning.exam.framework.redis.service.RedisService;
 import com.learning.exam.model.entity.TbPaperTest;
 import com.learning.exam.model.entity.TbPaperUser;
 import com.learning.exam.model.result.CodeMsg;
+import com.learning.exam.model.result.JsonResult;
 import com.learning.exam.model.result.ViewUtils;
 import com.learning.exam.model.vo.*;
 import com.learning.exam.service.PaperService;
@@ -38,6 +39,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
+ * 学生端模块
  * @author liuzihao
  * @date 2019-02-25  17:53
  */
@@ -51,19 +53,17 @@ public class StudentController {
     private PaperService paperService;
     @Autowired
     private TestService testService;
-    @Autowired
-    private QuestionService questionService;
-    @Autowired
-    private UserService userService;
 
     @RequestMapping("/paper/list")
     public String list(){
         return "student/list";
     }
+
     @RequestMapping("/paper/history")
     public String history(){
         return "student/history";
     }
+
     @RequestMapping("/paper/{paperId}/{t}.html")
     public String paper(HttpServletRequest request,
                         @PathVariable("paperId")Integer paperId,
@@ -108,6 +108,7 @@ public class StudentController {
         }
         return "student/detail";
     }
+
     @ResponseBody
     @RequestMapping("/index/json")
     public List<PaperTestVo> indexJson(HttpServletRequest request){
@@ -115,6 +116,7 @@ public class StudentController {
         TbUserVo tbUserVo = redisService.hget(SessionKey.sessionById,session.getId(),SessionCacheName.LOGIN_USER,TbUserVo.class);
         return paperService.getPaperTestByUserIdNoSubmit(tbUserVo.getId());
     }
+
     @ResponseBody
     @RequestMapping("/index/last/json")
     public List<PaperResultVo> indexLastJson(HttpServletRequest request){
@@ -122,6 +124,7 @@ public class StudentController {
         TbUserVo tbUserVo = redisService.hget(SessionKey.sessionById,session.getId(),SessionCacheName.LOGIN_USER,TbUserVo.class);
         return paperService.getPaperResultByUserIdSubmit(tbUserVo.getId());
     }
+
     @RequestMapping(value = "/test/{paperId}/{t}.html",method = RequestMethod.GET,produces = "text/html;charset=utf-8")
     public String test(HttpServletRequest request,
                        @PathVariable("paperId")Integer paperId,
@@ -154,4 +157,89 @@ public class StudentController {
         return "student/test";
     }
 
+    @ResponseBody
+    @RequestMapping(value = "/paper/ping",method = {RequestMethod.GET})
+    public JsonResult ping(){
+        return JsonResult.success(null);
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/expose/{paperId}",method = {RequestMethod.GET})
+    public JsonResult expose(HttpServletRequest request,
+                             @PathVariable("paperId")Integer paperId){
+        if(paperId == null|| paperId==0){
+            throw new ValidationJsonException(CodeMsg.PAPER_SELECT_ERROR);
+        }
+        HttpSession session = request.getSession();
+        TbUserVo tbUserVo = redisService.hget(SessionKey.sessionById,session.getId(),SessionCacheName.LOGIN_USER,TbUserVo.class);
+        String url = testService.exposeUrl(Integer.toString(tbUserVo.getId()),Integer.toString(paperId));
+        return JsonResult.success(url);
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/test/start/{paperId}/{t}.json",method = RequestMethod.POST,produces = "application/json;charset=utf-8")
+    public JsonResult start(HttpServletRequest request,
+                            @PathVariable("paperId")Integer paperId,
+                            @PathVariable("t")String verifyId){
+        //获取缓存里的试卷
+        //返回
+        if(paperId == null|| paperId==0){
+            throw new ValidationJsonException(CodeMsg.PAPER_SELECT_ERROR);
+        }
+        if(StringUtils.isEmpty(verifyId)){
+            throw new ValidationJsonException(CodeMsg.PAPER_URL_ERROR);
+        }
+        TbUserVo tbUserVo = redisService.hget(SessionKey.sessionById,request.getSession().getId(),SessionCacheName.LOGIN_USER,TbUserVo.class);
+        String userId = Integer.toString(tbUserVo.getId());
+        String cacheVerifyId = redisService.hget(UserKey.userById,userId,SessionCacheName.VERIFY_ID+":"+paperId,String.class);
+        if(!verifyId.equals(cacheVerifyId)){
+            throw new ValidationJsonException(CodeMsg.PAPER_URL_ERROR);
+        }
+        StudentPaperVo res = testService.getPaperTestQuestion(userId,Integer.toString(paperId));
+        return JsonResult.success(res);
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/test/save/{paperId}/{t}.json",method = RequestMethod.POST,produces = "application/json;charset=utf-8")
+    public JsonResult save(HttpServletRequest request,
+                           @PathVariable("paperId")Integer paperId,
+                           @PathVariable("t")String verifyId,
+                           @RequestParam(value = "saveKey",required = false)String saveKey){
+        if(paperId == null|| paperId==0){
+            throw new ValidationJsonException(CodeMsg.PAPER_SELECT_ERROR);
+        }
+        if(StringUtils.isEmpty(verifyId)){
+            throw new ValidationJsonException(CodeMsg.PAPER_URL_ERROR);
+        }
+        TbUserVo tbUserVo = redisService.hget(SessionKey.sessionById,request.getSession().getId(),SessionCacheName.LOGIN_USER,TbUserVo.class);
+        String userId = Integer.toString(tbUserVo.getId());
+        String cacheVerifyId = redisService.hget(UserKey.userById,userId,SessionCacheName.VERIFY_ID+":"+paperId,String.class);
+        if(!verifyId.equals(cacheVerifyId)){
+            throw new ValidationJsonException(CodeMsg.PAPER_URL_ERROR);
+        }
+        testService.savePaperTest(userId,Integer.toString(paperId), saveKey);
+        return JsonResult.success(null);
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/test/submit/{paperId}/{t}.json",method = RequestMethod.POST,produces = "application/json;charset=utf-8")
+    public JsonResult submit(HttpServletRequest request,
+                             @PathVariable("paperId")Integer paperId,
+                             @PathVariable("t")String verifyId,
+                             @RequestParam("optKey")String optKey){
+        if(paperId == null || paperId==0){
+            throw new ValidationJsonException(CodeMsg.PAPER_SELECT_ERROR);
+        }
+        if(StringUtils.isEmpty(verifyId)){
+            throw new ValidationJsonException(CodeMsg.PAPER_URL_ERROR);
+        }
+        TbUserVo tbUserVo = redisService.hget(SessionKey.sessionById,request.getSession().getId(),SessionCacheName.LOGIN_USER,TbUserVo.class);
+        String userId = Integer.toString(tbUserVo.getId());
+        String cacheVerifyId = redisService.hget(UserKey.userById,userId,SessionCacheName.VERIFY_ID+":"+paperId,String.class);
+        if(!verifyId.equals(cacheVerifyId)){
+            throw new ValidationJsonException(CodeMsg.PAPER_URL_ERROR);
+        }
+        testService.submitPaperTest(userId,Integer.toString(paperId),optKey);
+        return JsonResult.success(null);
+    }
 }

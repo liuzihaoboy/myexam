@@ -12,6 +12,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
+ * 试卷持久层jpa
  * @author liuzihao
  * @date 2019-02-21  11:16
  */

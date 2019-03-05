@@ -32,6 +32,7 @@ import java.io.*;
 import java.net.URLEncoder;
 
 /**
+ * 登录退出
  * @author liuzihao
  * @date 2019-01-03  13:24
  */

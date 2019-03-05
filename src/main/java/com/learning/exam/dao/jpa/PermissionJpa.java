@@ -9,12 +9,16 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 /**
+ * 权限持久层jpa
  * @author liuzihao
  * @date 2019-01-31  12:23
  */
 @Repository
 public interface PermissionJpa extends JpaRepository<TbPermission,Integer> {
-    @Query(nativeQuery = true,value = "select p.* from tb_permission p where p.id=:id order by id ASC")
-    TbPermission findById(@Param("id")Integer id);
+    /**
+     * 获取所有指定的权限实体
+     * @param ids 指定id list
+     * @return 权限list
+     */
     List<TbPermission> findAllByIdIn(List<Integer> ids);
 }

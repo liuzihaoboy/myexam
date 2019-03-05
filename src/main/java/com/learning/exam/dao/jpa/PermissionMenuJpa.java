@@ -12,5 +12,10 @@ import java.util.List;
  */
 @Repository
 public interface PermissionMenuJpa extends JpaRepository<TbPermissionMenu,Integer> {
+    /**
+     * 获取指定一级权限的所有二级权限
+     * @param perId 一级权限id
+     * @return 二级权限list
+     */
     List<TbPermissionMenu> findAllByPerId(Integer perId);
 }

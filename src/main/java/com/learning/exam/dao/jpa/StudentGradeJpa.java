@@ -10,10 +10,16 @@ import org.springframework.stereotype.Repository;
 import javax.transaction.Transactional;
 
 /**
+ * 学生年级持久层jpa
  * @author liuzihao
  * @date 2019-02-24  12:38
  */
 @Repository
 public interface StudentGradeJpa extends JpaRepository<TbStudentGrade,Integer> {
+    /**
+     * 获取年级实体
+     * @param gradeName 年级(2015)
+     * @return 年级
+     */
     TbStudentGrade findByGradeName(String gradeName);
 }

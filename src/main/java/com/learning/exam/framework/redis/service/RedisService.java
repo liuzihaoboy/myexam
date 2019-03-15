@@ -20,6 +20,6 @@ public interface RedisService {
     boolean exists(KeyPrefix prefix, String key);
     void expire(KeyPrefix prefix,String key,int time);
     long getExpire(KeyPrefix prefix,String key);
-    void updateLoginSerssion(String sessionId, String oldSessionId, TbUserVo tbUserVo);
+    void updateLoginSession(String sessionId, String oldSessionId, TbUserVo tbUserVo);
     void deleteLoginSession(String sessionId, String userId);
 }

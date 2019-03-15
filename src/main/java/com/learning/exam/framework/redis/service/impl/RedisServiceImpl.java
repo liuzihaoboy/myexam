@@ -99,7 +99,7 @@ public class RedisServiceImpl implements RedisService {
     }
 
     @Override
-    public void updateLoginSerssion(String sessionId, String oldSessionId, TbUserVo tbUserVo) {
+    public void updateLoginSession(String sessionId, String oldSessionId, TbUserVo tbUserVo) {
         Jedis jedis = null;
         try {
             jedis = jedisPool.getResource();

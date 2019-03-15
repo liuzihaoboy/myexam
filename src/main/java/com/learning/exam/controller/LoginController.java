@@ -123,7 +123,7 @@ public class LoginController {
         TbUserVo tbUserVo = userService.getUserVoFromTb(tbUser);
         //更新session信息
         String oldSessionId = redisService.hget(SessionKey.sessionByUserId,Integer.toString(tbUserVo.getId()),SessionCacheName.SESSION_ID,String.class);
-        redisService.updateLoginSerssion(session.getId(),oldSessionId,tbUserVo);
+        redisService.updateLoginSession(session.getId(),oldSessionId,tbUserVo);
         return JsonResult.success(tbUserVo);
     }
     @RequestMapping("/register.html")

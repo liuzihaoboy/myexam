@@ -11,7 +11,7 @@
     <groupId>com.learning</groupId>
     <artifactId>exam</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>exam</name>
+    <packaging>jar</packaging>
     <description>online exam system</description>
 
     <properties>
@@ -19,6 +19,13 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
     </properties>
+
+    <repositories>
+        <repository>
+            <id>git-maven</id>
+            <url>https://raw.githubusercontent.com/liuzihaoboy/git-maven/master/repository</url>
+        </repository>
+    </repositories>
 
     <dependencies>
         <dependency>
@@ -89,9 +96,9 @@
         </dependency>
         <!-- 验证码 -->
         <dependency>
-            <groupId>com.github.penggle</groupId>
+            <groupId>com.github</groupId>
             <artifactId>kaptcha</artifactId>
-            <version>2.3.2</version>
+            <version>1.0</version>
         </dependency>
         <dependency>
             <groupId>com.alibaba</groupId>

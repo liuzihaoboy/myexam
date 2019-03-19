@@ -5,6 +5,7 @@ import com.learning.exam.framework.enums.converter.QlevelEnumConverter;
 import com.learning.exam.model.vo.QuestionContentVo;
 import lombok.Data;
 
+import java.security.SecureRandom;
 import java.util.*;
 
 /**
@@ -13,6 +14,7 @@ import java.util.*;
  */
 @Data
 public class PaperRandomVo {
+    private Random random;
     private Integer questionNum;
     private Map<Integer,QuestionContentVo> simpleMap;
     private Map<Integer,QuestionContentVo> generalMap;
@@ -21,6 +23,7 @@ public class PaperRandomVo {
     private Map<Integer,QuestionContentVo> moreDifficultMap;
 
     public PaperRandomVo(Integer questionNum) {
+        this.random = new SecureRandom();
         this.questionNum = questionNum;
         this.generalMap = new HashMap<>(questionNum);
         this.mediumMap = new HashMap<>(questionNum);
@@ -102,26 +105,25 @@ public class PaperRandomVo {
         return target;
     }
     private QuestionContentVo randomOne(QlevelEnum qlevelEnum){
-        Random random = new Random();
         switch (qlevelEnum){
             case SIMPLE:{
-                int idx = random.nextInt(simpleMap.size())+1;
+                int idx = this.random.nextInt(simpleMap.size())+1;
                 return simpleMap.get(idx);
             }
             case GENERAL:{
-                int idx = random.nextInt(generalMap.size())+1;
+                int idx = this.random.nextInt(generalMap.size())+1;
                 return generalMap.get(idx);
             }
             case MEDIUM:{
-                int idx = random.nextInt(mediumMap.size())+1;
+                int idx = this.random.nextInt(mediumMap.size())+1;
                 return mediumMap.get(idx);
             }
             case LITTLE_DIFFICULT:{
-                int idx = random.nextInt(littleDifficultMap.size())+1;
+                int idx = this.random.nextInt(littleDifficultMap.size())+1;
                 return littleDifficultMap.get(idx);
             }
             case MORE_DIFFICULT:{
-                int idx = random.nextInt(moreDifficultMap.size())+1;
+                int idx = this.random.nextInt(moreDifficultMap.size())+1;
                 return moreDifficultMap.get(idx);
             }
             default:{

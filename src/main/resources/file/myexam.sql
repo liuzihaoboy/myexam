@@ -11,9 +11,10 @@
  Target Server Version : 50722
  File Encoding         : 65001
 
- Date: 05/03/2019 11:13:33
+ Date: 01/04/2019 15:42:14
 */
-
+CREATE DATABASE IF NOT EXISTS myexam default charset utf8mb4 COLLATE utf8mb4_general_ci;
+use myexam;
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
 
@@ -53,12 +54,12 @@ CREATE TABLE `tb_paper`  (
   `c_uid` int(11) NOT NULL,
   `c_date` timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 10 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 11 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of tb_paper
 -- ----------------------------
-INSERT INTO `tb_paper` VALUES (9, '正式考试', 3, '2019-03-05 08:40:00', '2019-03-05 14:00:00', 5, 0, 2, '5', 60, 0, 1, '2019-03-04 19:07:04');
+INSERT INTO `tb_paper` VALUES (9, '正式考试', 3, '2019-04-01 08:40:00', '2019-04-05 14:00:00', 60, 0, 2, '5', 60, 0, 1, '2019-03-04 19:07:04');
 
 -- ----------------------------
 -- Table structure for tb_paper_question
@@ -69,7 +70,7 @@ CREATE TABLE `tb_paper_question`  (
   `section_id` int(11) NOT NULL,
   `question_ids` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 15 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for tb_paper_result
@@ -88,11 +89,6 @@ CREATE TABLE `tb_paper_result`  (
 ) ENGINE = InnoDB AUTO_INCREMENT = 19 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
--- Records of tb_paper_result
--- ----------------------------
-INSERT INTO `tb_paper_result` VALUES (18, 31, '[[\"111\"],[\"139\"],[\"164\"],[\"102\"],[\"78\"],[\"219\",\"220\",\"221\",\"222\"],[\"259\",\"260\",\"261\",\"262\"],[\"297\",\"298\",\"299\",\"300\"],[\"T\"],[\"10\"]]', 30, 4, '2019-03-05 09:02:24', '10,10,10,10,10,10,10,10,10,10');
-
--- ----------------------------
 -- Table structure for tb_paper_section
 -- ----------------------------
 DROP TABLE IF EXISTS `tb_paper_section`;
@@ -105,7 +101,7 @@ CREATE TABLE `tb_paper_section`  (
   `qdb_ids` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '题库ids',
   `level_scale` varchar(65) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '1:1:1:1:1',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 26 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 28 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of tb_paper_section
@@ -129,11 +125,6 @@ CREATE TABLE `tb_paper_test`  (
 ) ENGINE = InnoDB AUTO_INCREMENT = 32 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
--- Records of tb_paper_test
--- ----------------------------
-INSERT INTO `tb_paper_test` VALUES (31, 14, '55,62,68,25,19,82,91,100,42,140', '2019-03-05 08:57:24');
-
--- ----------------------------
 -- Table structure for tb_paper_user
 -- ----------------------------
 DROP TABLE IF EXISTS `tb_paper_user`;
@@ -144,12 +135,12 @@ CREATE TABLE `tb_paper_user`  (
   `status` int(11) NOT NULL COMMENT '1等待开始，2正在进行，0已提交,3未参加',
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `user_paper_idx`(`user_id`, `paper_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 15 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 17 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of tb_paper_user
 -- ----------------------------
-INSERT INTO `tb_paper_user` VALUES (14, 5, 9, 0);
+INSERT INTO `tb_paper_user` VALUES (14, 5, 9, 1);
 
 -- ----------------------------
 -- Table structure for tb_permission
@@ -160,7 +151,7 @@ CREATE TABLE `tb_permission`  (
   `per_title` varchar(25) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `per_url` varchar(25) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 8 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 7 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of tb_permission
@@ -761,12 +752,13 @@ CREATE TABLE `tb_student`  (
   `sex` varchar(2) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `icon` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 5 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of tb_student
 -- ----------------------------
 INSERT INTO `tb_student` VALUES (2, 5, 1, 1, '二班', '信息', '222222222', '男', '无');
+INSERT INTO `tb_student` VALUES (3, 6, 1, 1, '一班', '信息学院', '362531199611214033', '男', '无');
 
 -- ----------------------------
 -- Table structure for tb_student_grade
@@ -831,14 +823,15 @@ CREATE TABLE `tb_user`  (
   `permissions` varchar(125) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `account_uqe_idx`(`account`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 10 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 7 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of tb_user
 -- ----------------------------
 INSERT INTO `tb_user` VALUES (1, 'admin', 'a1ee9531241e2fe8f5b386b22dfab746', 'admin', '123456', '123456', 1, '2');
-INSERT INTO `tb_user` VALUES (2, 'admin1', '7f1a3a9dc28d47e5849c3c14ba6606c4', 'admin', '123456', '123456', 2, '2');
+INSERT INTO `tb_user` VALUES (2, 'admin1', 'a1ee9531241e2fe8f5b386b22dfab746', 'admin', '123456', '123456', 2, '2');
 INSERT INTO `tb_user` VALUES (3, 'admin2', 'a1ee9531241e2fe8f5b386b22dfab746', 'admin', '123456', '123456', 3, '2');
 INSERT INTO `tb_user` VALUES (5, '201511010125', 'a1ee9531241e2fe8f5b386b22dfab746', 'student', '1234566', '无', 4, '2');
+INSERT INTO `tb_user` VALUES (6, '201511010126', 'a1ee9531241e2fe8f5b386b22dfab746', '刘子豪', '无', '无', 4, '2');
 
 SET FOREIGN_KEY_CHECKS = 1;

@@ -13,12 +13,12 @@
 3. jdk 1.8
 
 #### 开启方式
-导入sql文件（classpath：/resources/file/myexam.sql）
+导入sql文件（/src/main/resources/file/myexam.sql）
 
 修改相关密码
 ```
-redis密码配置在（/resources/redis/redis-config.properties）中，属性名为redis.password
-mysql密码配置在（/resources/application.properties）中，属性名为spring.datasource.password
+redis密码配置在（/src/main/resources/redis/redis-config.properties）中，属性名为redis.password
+mysql密码配置在（/src/main/resources/application.properties）中，属性名为spring.datasource.password
 ```
 运行方式
 ```

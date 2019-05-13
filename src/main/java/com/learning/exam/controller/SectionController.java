@@ -72,9 +72,9 @@ public class SectionController {
             throw new ValidationHtmlException(CodeMsg.PAPER_STARTTIME_OVER);
         }
         //开始前2小时
-        if(startTime.getTime()<=(System.currentTimeMillis()+3600000)){
-            throw new ValidationHtmlException(CodeMsg.PAPER_STARTTIME_LIMIT);
-        }
+//        if(startTime.getTime()<=(System.currentTimeMillis()+3600000)){
+//            throw new ValidationHtmlException(CodeMsg.PAPER_STARTTIME_LIMIT);
+//        }
         if(paperType.equals(PaperTypeEnum.RANDOM_TYPE.getId())){
             List<Integer> qdbIds = Arrays.stream(paperSectionDto.getQdbIds().split(",")).map(Integer::parseInt)
                     .collect(Collectors.toList());
@@ -165,9 +165,9 @@ public class SectionController {
             throw new ValidationJsonException(CodeMsg.PAPER_STARTTIME_OVER);
         }
         //开始前2小时
-        if(startTime.getTime()<=(System.currentTimeMillis()+3600000)){
-            throw new ValidationJsonException(CodeMsg.PAPER_STARTTIME_LIMIT);
-        }
+//        if(startTime.getTime()<=(System.currentTimeMillis()+3600000)){
+//            throw new ValidationJsonException(CodeMsg.PAPER_STARTTIME_LIMIT);
+//        }
         paperService.deletePaperSection(paperId,sectionId);
         return JsonResult.success(null);
     }
@@ -240,9 +240,9 @@ public class SectionController {
             throw new ValidationJsonException(CodeMsg.PAPER_STARTTIME_OVER);
         }
         //开始前2小时
-        if(startTime.getTime()<=(System.currentTimeMillis()+3600000)){
-            throw new ValidationJsonException(CodeMsg.PAPER_STARTTIME_LIMIT);
-        }
+//        if(startTime.getTime()<=(System.currentTimeMillis()+3600000)){
+//            throw new ValidationJsonException(CodeMsg.PAPER_STARTTIME_LIMIT);
+//        }
         paperService.addQuestionIdBySectionId(sectionId,questionId);
         return JsonResult.success(null);
     }
@@ -266,9 +266,9 @@ public class SectionController {
             throw new ValidationJsonException(CodeMsg.PAPER_STARTTIME_OVER);
         }
         //开始前2小时
-        if(startTime.getTime()<=(System.currentTimeMillis()+3600000)){
-            throw new ValidationJsonException(CodeMsg.PAPER_STARTTIME_LIMIT);
-        }
+//        if(startTime.getTime()<=(System.currentTimeMillis()+3600000)){
+//            throw new ValidationJsonException(CodeMsg.PAPER_STARTTIME_LIMIT);
+//        }
         List<Integer> questionIds = questionService.getQuestionIdsBySectionId(sectionId);
         if(CollectionUtils.isEmpty(questionIds)){
             throw new ValidationJsonException(CodeMsg.SECTION_SELECT_ERROR);

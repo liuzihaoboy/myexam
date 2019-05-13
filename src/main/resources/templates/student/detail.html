@@ -133,10 +133,24 @@
             $("#div_processor").css("top", ntp + "px");
         }
     });
+    var showKey = paperResultVo.showKey;
     for (var i=0;i<questions.length;i++){
         var question = questions[i];
         var opts = question.opts;
         var name="qu_"+question.id;
+        var showKeyHtml ="";
+        if(showKey == 0){
+            showKeyHtml =             "                                            <div class=\"div-key-container\">\n" +
+                                      "                                                <fieldset>\n" +
+                                      "                                                    <legend>标准答案 :</legend>\n" +
+                                      "                                                    <p>"+question.optKey+"</p>\n" +
+                                      "                                                </fieldset>\n" +
+                                      "                                                <fieldset>\n" +
+                                      "                                                    <legend>试题解析 :</legend>\n" +
+                                      "                                                    <p>"+question.keyInfo+"</p>\n" +
+                                      "                                                </fieldset>\n" +
+                                      "                                            </div>\n";
+        }
         var html ="<table border=\"0\" id='"+name+"' cellpadding=\"0\" cellspacing=\"0\" class=\"tm_paper_question\" style=\"table-layout:fixed;\">\n" +
             "                                    <thead>\n" +
             "                                    <tr>\n" +
@@ -167,17 +181,7 @@
             "                                                    <p>\n" +question.userKey+
             "                                                    </p>\n" +
             "                                                </fieldset>\n" +
-            "                                            </div>\n" +
-            "                                            <div class=\"div-key-container\">\n" +
-            "                                                <fieldset>\n" +
-            "                                                    <legend>标准答案 :</legend>\n" +
-            "                                                    <p>"+question.optKey+"</p>\n" +
-            "                                                </fieldset>\n" +
-            "                                                <fieldset>\n" +
-            "                                                    <legend>试题解析 :</legend>\n" +
-            "                                                    <p>"+question.keyInfo+"</p>\n" +
-            "                                                </fieldset>\n" +
-            "                                            </div>\n" +
+            "                                            </div>\n" +showKeyHtml+
             "                                        </td>\n" +
             "                                    </tr>\n" +
             "                                    </tbody>\n" +

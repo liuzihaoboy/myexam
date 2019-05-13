@@ -5,6 +5,7 @@ var paper = {
     test_jiaojuan: function () {
         if(confirm("是否交卷？")){
             $.mask_fullscreen_submit();
+            paper.get_key();
             $.ajax({
                 url: '../submit/' + $("#paperId").val() + "/" + $("#tid").val() + ".json",
                 method: 'post',
@@ -33,6 +34,7 @@ var paper = {
     end_jiaojuan:function(data){
         if(data==0){
             $.mask_fullscreen_submit();
+            paper.get_key();
             $.ajax({
                 url: '../submit/' + $("#paperId").val() + "/" + $("#tid").val() + ".json",
                 method: 'post',
@@ -84,6 +86,32 @@ var paper = {
                 return;
         }
     },
+    get_key:function () {
+        var i=0;
+        $('li.option input').each(function() {
+            var li =$(this).closest('.test_content_nr_main').closest('li');
+            var key = [];
+            var texts;
+            if($(this).attr('type')=='text'){
+                texts = $(this).parent().parent().find('input[type=text]');
+                for (var i=0;i<texts.length;i++){
+                    var text = texts.eq(i).val();
+                    key.push(text);
+                }
+            }else if($(this).attr('type')=='checkbox'){
+                texts = $(this).parent().parent().find('input[type=checkbox]');
+                var flag=false;
+                $(texts).each(function () {
+                    if($(this).is(':checked')){
+                        flag=true;
+                        key.push($(this).val());
+                    }
+                });
+            }else{
+                key.push($(this).parent().parent().find('input[type=radio]:checked').val());
+            }
+        });
+    }
 };
 $(function() {
     $.mask_fullscreen();

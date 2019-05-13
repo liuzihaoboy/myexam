@@ -118,11 +118,8 @@ public class StudentController {
             throw new AuthException(CodeMsg.PAPER_NO_RESULT);
         }
         request.setAttribute("paperResultVo",paperResultVo);
-        //显示答案
-        if(paperResultVo.getShowKey()==0){
-            List<QuestionResultVo> questions = paperService.getQuestionResultByPaperResult(paperResultVo);
-            request.setAttribute("questions",questions);
-        }
+        List<QuestionResultVo> questions = paperService.getQuestionResultByPaperResult(paperResultVo);
+        request.setAttribute("questions",questions);
         return "student/detail";
     }
 

@@ -276,6 +276,7 @@ public class TestServiceImpl implements TestService {
             QuestionTestVo questionTestVo = redisService.get(QuestionKey.byPaperId,paperId+":"+questionId,QuestionTestVo.class);
             questions.add(questionTestVo);
         }
+        optKey = optKey.replaceAll("null","[\"\"]");
         int resultScore  = getUserTestScore(optKey,questions);
         TbPaperResult tbPaperResult = new TbPaperResult();
         tbPaperResult.setPaperTestId(tbPaperTest.getId());

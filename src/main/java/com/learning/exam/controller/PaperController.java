@@ -72,9 +72,9 @@ public class PaperController {
                 throw new ValidationHtmlException(CodeMsg.PAPER_STARTTIME_OVER);
             }
             //开始前2小时
-            if(startTime.getTime()<=(System.currentTimeMillis()+3600000)){
-                throw new ValidationHtmlException(CodeMsg.PAPER_STARTTIME_LIMIT);
-            }
+//            if(startTime.getTime()<=(System.currentTimeMillis()+3600000)){
+//                throw new ValidationHtmlException(CodeMsg.PAPER_STARTTIME_LIMIT);
+//            }
         }
         Integer showKey = paperDto.getShowKey();
         if(showKey!=1&&showKey!=0){

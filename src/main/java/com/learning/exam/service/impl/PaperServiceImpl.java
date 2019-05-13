@@ -104,13 +104,13 @@ public class PaperServiceImpl implements PaperService {
                     qtypeEnum == QtypeEnum.MULTIPLE_CHOICE){
                 List<QuestionOptVo> opts = questionOptMapper.findQuestionOptVosByQId(questionId);
                 question.setOpts(opts);
-                List<String> userKeyList = opts.stream()
+                List<String> optKeyList  = opts.stream()
                         .filter(o -> key.contains(Integer.toString(o.getId())))
                         .map(QuestionOptVo::getOptionContent).collect(Collectors.toList());
-                List<String> optKeyList  = opts.stream()
+                question.setOptKey(optKeyList.stream().collect(Collectors.joining("<br>")));
+                List<String> userKeyList = opts.stream()
                         .filter(o -> userKey.contains(Integer.toString(o.getId())))
                         .map(QuestionOptVo::getOptionContent).collect(Collectors.toList());
-                question.setOptKey(optKeyList.stream().collect(Collectors.joining("<br>")));
                 question.setUserKey(userKeyList.stream().collect(Collectors.joining("<br>")));
             }else{
                 question.setUserKey(String.join("<br>",userKey));
@@ -483,9 +483,9 @@ public class PaperServiceImpl implements PaperService {
                 throw new ValidationJsonException(CodeMsg.PAPER_STARTTIME_OVER);
             }
             //开始前2小时
-            if(startTime.getTime()<=(System.currentTimeMillis()+3600000)){
-                throw new ValidationJsonException(CodeMsg.PAPER_STARTTIME_LIMIT);
-            }
+//            if(startTime.getTime()<=(System.currentTimeMillis()+3600000)){
+//                throw new ValidationJsonException(CodeMsg.PAPER_STARTTIME_LIMIT);
+//            }
         }
     }
 
